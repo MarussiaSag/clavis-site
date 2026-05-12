@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 168 44" fill="none" aria-hidden="true">
+  <path fill="#151210" d="M22 37a16 16 0 1 1 0-30v30Z" opacity=".28"/>
+  <path stroke="#151210" stroke-linecap="round" stroke-width="2.6" d="M22 7v34" opacity=".92"/>
+  <text x="40" y="30" fill="#151210" font-family="Georgia, 'Times New Roman', serif" font-size="21" letter-spacing=".06em">Люмен</text>
+</svg>

@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 196 44" fill="none" aria-hidden="true">
+  <rect width="34" height="34" x="5" y="5" rx="3" stroke="#151210" stroke-width="2" opacity=".78"/>
+  <path fill="#151210" d="m15 34 7-21 10 21H15Z" opacity=".35"/>
+  <text x="48" y="30" fill="#151210" font-family="Georgia, 'Times New Roman', serif" font-size="19" letter-spacing=".03em">Stone Lab</text>
+</svg>

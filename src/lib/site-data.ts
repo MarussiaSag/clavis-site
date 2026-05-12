@@ -1,6 +1,13 @@
 import { prisma } from "@/lib/prisma";
+import {
+  STOCK_FALLBACK_IMG,
+  coverImageForSlug,
+  listPublicFolderImages,
+} from "@/lib/object-photos";
 
 export async function ensureSeedData() {
+  const chaveta = listPublicFolderImages("chaveta");
+  const zil = listPublicFolderImages("zil");
   await prisma.siteContent.upsert({
     where: { id: 1 },
     create: {
@@ -23,7 +30,7 @@ export async function ensureSeedData() {
       category: "Сигарный лаундж",
       location: "Москва",
       year: 2025,
-      coverImage: "/productImg/istockphoto-1372682637-2048x2048.jpg",
+      coverImage: coverImageForSlug("nordic-loft", chaveta, zil, STOCK_FALLBACK_IMG),
       description:
         "Камерный сигарный лаундж с благородными фактурами, глубокими оттенками и мягким сценарием света.",
     },
@@ -32,7 +39,7 @@ export async function ensureSeedData() {
       category: "Сигарный лаундж",
       location: "Москва",
       year: 2025,
-      coverImage: "/productImg/istockphoto-1372682637-2048x2048.jpg",
+      coverImage: coverImageForSlug("nordic-loft", chaveta, zil, STOCK_FALLBACK_IMG),
       description:
         "Камерный сигарный лаундж с благородными фактурами, глубокими оттенками и мягким сценарием света.",
     },
@@ -46,7 +53,7 @@ export async function ensureSeedData() {
       category: "Кафе",
       location: "Москва",
       year: 2024,
-      coverImage: "/productImg/istockphoto-1351020196-2048x2048.jpg",
+      coverImage: coverImageForSlug("city-minimal", chaveta, zil, STOCK_FALLBACK_IMG),
       description:
         "Интерьер кафе с выразительной подачей материалов, тактильной отделкой и собранной атмосферой.",
     },
@@ -55,7 +62,7 @@ export async function ensureSeedData() {
       category: "Кафе",
       location: "Москва",
       year: 2024,
-      coverImage: "/productImg/istockphoto-1351020196-2048x2048.jpg",
+      coverImage: coverImageForSlug("city-minimal", chaveta, zil, STOCK_FALLBACK_IMG),
       description:
         "Интерьер кафе с выразительной подачей материалов, тактильной отделкой и собранной атмосферой.",
     },
@@ -69,7 +76,7 @@ export async function ensureSeedData() {
       category: "Апартаменты",
       location: "Москва",
       year: 2026,
-      coverImage: "/productImg/istockphoto-1824615178-2048x2048.jpg",
+      coverImage: coverImageForSlug("terra-residence", chaveta, zil, STOCK_FALLBACK_IMG),
       description:
         "Современные апартаменты с архитектурной логикой, чистой геометрией и спокойной премиальной палитрой.",
     },
@@ -78,7 +85,7 @@ export async function ensureSeedData() {
       category: "Апартаменты",
       location: "Москва",
       year: 2026,
-      coverImage: "/productImg/istockphoto-1824615178-2048x2048.jpg",
+      coverImage: coverImageForSlug("terra-residence", chaveta, zil, STOCK_FALLBACK_IMG),
       description:
         "Современные апартаменты с архитектурной логикой, чистой геометрией и спокойной премиальной палитрой.",
     },
@@ -92,7 +99,7 @@ export async function ensureSeedData() {
       category: "Квартира",
       location: "Жилой комплекс",
       year: 2026,
-      coverImage: "/productImg/istockphoto-2159352095-2048x2048.jpg",
+      coverImage: coverImageForSlug("atelier-noir", chaveta, zil, STOCK_FALLBACK_IMG),
       description:
         "Квартира в жилом комплексе с акцентом на комфорт, функциональность и мягкий ритм пространства.",
     },
@@ -101,9 +108,32 @@ export async function ensureSeedData() {
       category: "Квартира",
       location: "Жилой комплекс",
       year: 2026,
-      coverImage: "/productImg/istockphoto-2159352095-2048x2048.jpg",
+      coverImage: coverImageForSlug("atelier-noir", chaveta, zil, STOCK_FALLBACK_IMG),
       description:
         "Квартира в жилом комплексе с акцентом на комфорт, функциональность и мягкий ритм пространства.",
+    },
+  });
+
+  await prisma.project.upsert({
+    where: { slug: "meridian-office" },
+    create: {
+      slug: "meridian-office",
+      title: "Meridian Office",
+      category: "Офис",
+      location: "Москва",
+      year: 2025,
+      coverImage: coverImageForSlug("meridian-office", chaveta, zil, STOCK_FALLBACK_IMG),
+      description:
+        "Рабочее пространство с ясной зонировкой, нейтральной палитрой и акцентами фактуры.",
+    },
+    update: {
+      title: "Meridian Office",
+      category: "Офис",
+      location: "Москва",
+      year: 2025,
+      coverImage: coverImageForSlug("meridian-office", chaveta, zil, STOCK_FALLBACK_IMG),
+      description:
+        "Рабочее пространство с ясной зонировкой, нейтральной палитрой и акцентами фактуры.",
     },
   });
 }

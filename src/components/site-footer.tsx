@@ -2,7 +2,8 @@ import Link from "next/link";
 
 const links = [
   { href: "/", label: "Главная" },
-  { href: "/about", label: "Обо мне" },
+  { href: "/about", label: "О нас" },
+  { href: "/services", label: "Услуги" },
   { href: "/portfolio", label: "Портфолио" },
   { href: "/contacts", label: "Контакты" },
   { href: "/admin", label: "Админка" },

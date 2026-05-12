@@ -1,4 +1,5 @@
-import { createProject, updateSiteContent } from "@/app/actions";
+import { updateSiteContent } from "@/app/actions";
+import { CreateProjectForm } from "@/components/create-project-form";
 import { SiteHeader } from "@/components/site-header";
 import { prisma } from "@/lib/prisma";
 import { ensureSeedData } from "@/lib/site-data";
@@ -50,24 +51,7 @@ export default async function AdminPage() {
 
         <section className="space-y-4">
           <h2 className="text-3xl">Добавить проект</h2>
-          <form action={createProject} className="grid gap-4 border border-[#a38d83] p-6 md:grid-cols-2">
-            <input name="title" placeholder="Название" required className="border border-[#a38d83] bg-[#e7d8d1] px-4 py-3" />
-            <input name="slug" placeholder="slug (например, my-project)" required className="border border-[#a38d83] bg-[#e7d8d1] px-4 py-3" />
-            <input name="category" placeholder="Категория" required className="border border-[#a38d83] bg-[#e7d8d1] px-4 py-3" />
-            <input name="location" placeholder="Локация" required className="border border-[#a38d83] bg-[#e7d8d1] px-4 py-3" />
-            <input name="year" type="number" placeholder="Год" required className="border border-[#a38d83] bg-[#e7d8d1] px-4 py-3" />
-            <input name="coverImage" placeholder="URL изображения" className="border border-[#a38d83] bg-[#e7d8d1] px-4 py-3" />
-            <textarea
-              name="description"
-              placeholder="Описание проекта"
-              required
-              rows={4}
-              className="border border-[#a38d83] bg-[#e7d8d1] px-4 py-3 md:col-span-2"
-            />
-            <button className="w-fit bg-[#751f26] px-5 py-3 text-sm uppercase tracking-[0.15em] text-[#e7d8d1] hover:bg-[#4d131a]">
-              Добавить проект
-            </button>
-          </form>
+          <CreateProjectForm />
         </section>
 
         <section className="space-y-4">

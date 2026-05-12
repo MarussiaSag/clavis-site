@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 210 44" fill="none" aria-hidden="true">
+  <rect width="22" height="22" x="6" y="11" rx="2" stroke="#151210" stroke-width="2" opacity=".75"/>
+  <circle cx="32" cy="22" r="10" stroke="#151210" stroke-width="2" opacity=".82"/>
+  <text x="50" y="30" fill="#151210" font-family="Georgia, 'Times New Roman', serif" font-size="18" letter-spacing=".02em">Форма студия</text>
+</svg>
