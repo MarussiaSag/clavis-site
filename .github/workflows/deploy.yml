@@ -1,0 +1,75 @@
+name: Deploy to production
+
+on:
+  push:
+    branches: [main]
+
+concurrency:
+  group: deploy-production
+  cancel-in-progress: true
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    env:
+      DATABASE_URL: file:./prisma/ci.db
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Prepare database for build
+        run: npx prisma migrate deploy
+
+      - name: Build
+        run: npm run build
+
+      - name: Prepare standalone bundle
+        run: |
+          cp -r .next/static .next/standalone/.next/static
+          cp -r public .next/standalone/public
+
+      - name: Setup SSH key
+        run: |
+          install -m 600 -d ~/.ssh
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          ssh-keyscan -p "${{ secrets.SSH_PORT || 22 }}" "${{ secrets.SSH_HOST }}" >> ~/.ssh/known_hosts 2>/dev/null || true
+
+      - name: Upload release
+        env:
+          SSH_PORT: ${{ secrets.SSH_PORT || 22 }}
+        run: |
+          RSYNC_SSH="ssh -i ~/.ssh/deploy_key -p ${SSH_PORT} -o StrictHostKeyChecking=accept-new"
+          TARGET="${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:${{ secrets.DEPLOY_PATH }}/"
+
+          rsync -az --delete \
+            -e "$RSYNC_SSH" \
+            --exclude '.env' \
+            --exclude 'data/' \
+            --exclude 'logs/' \
+            --exclude 'scripts/' \
+            .next/standalone/ \
+            "$TARGET"
+
+          rsync -az \
+            -e "$RSYNC_SSH" \
+            scripts/server-restart.sh \
+            "${TARGET}scripts/server-restart.sh"
+
+      - name: Restart app on server
+        env:
+          SSH_PORT: ${{ secrets.SSH_PORT || 22 }}
+        run: |
+          ssh -i ~/.ssh/deploy_key -p "${SSH_PORT}" -o StrictHostKeyChecking=accept-new \
+            "${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}" \
+            "bash '${{ secrets.DEPLOY_PATH }}/scripts/server-restart.sh'"
