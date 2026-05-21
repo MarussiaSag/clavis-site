@@ -36,7 +36,10 @@ jobs:
       - name: Prepare standalone bundle
         run: |
           cp -r .next/static .next/standalone/.next/static
-          cp -r public .next/standalone/public
+          # Large galleries (chaveta/zil ~500MB) stay on the server — upload once via FTP.
+          mkdir -p .next/standalone/public
+          rsync -a --exclude 'chaveta/' --exclude 'zil/' public/ .next/standalone/public/
+          du -sh .next/standalone .next/standalone/public || true
 
       - name: Setup SSH key
         run: |
@@ -64,7 +67,10 @@ jobs:
           DEPLOY="${{ secrets.DEPLOY_PATH }}"
 
           echo "Creating release archive..."
-          tar -czf release.tar.gz -C .next/standalone .
+          tar -czf release.tar.gz -C .next/standalone \
+            --exclude='public/chaveta' \
+            --exclude='public/zil' \
+            .
 
           echo "Uploading archive ($(du -h release.tar.gz | cut -f1))..."
           scp ${SCP_OPTS} release.tar.gz "${TARGET}:${DEPLOY}/release.tar.gz"
