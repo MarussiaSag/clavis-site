@@ -54,27 +54,27 @@ jobs:
           ssh ${SSH_OPTS} "${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}" "echo connected && pwd"
 
       - name: Upload release
-        timeout-minutes: 10
+        timeout-minutes: 25
         env:
           SSH_PORT: ${{ secrets.SSH_PORT || 22 }}
         run: |
-          SSH_OPTS="-i ~/.ssh/deploy_key -p ${SSH_PORT} -o BatchMode=yes -o ConnectTimeout=30 -o ServerAliveInterval=10 -o ServerAliveCountMax=3 -o StrictHostKeyChecking=accept-new"
-          RSYNC_SSH="ssh ${SSH_OPTS}"
-          TARGET="${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:${{ secrets.DEPLOY_PATH }}/"
+          SSH_OPTS="-i ~/.ssh/deploy_key -p ${SSH_PORT} -o BatchMode=yes -o ConnectTimeout=60 -o ServerAliveInterval=15 -o ServerAliveCountMax=10 -o StrictHostKeyChecking=accept-new"
+          SCP_OPTS="-i ~/.ssh/deploy_key -P ${SSH_PORT} -o BatchMode=yes -o ConnectTimeout=60 -o StrictHostKeyChecking=accept-new"
+          TARGET="${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}"
+          DEPLOY="${{ secrets.DEPLOY_PATH }}"
 
-          rsync -az --delete --timeout=300 \
-            -e "$RSYNC_SSH" \
-            --exclude '.env' \
-            --exclude 'data/' \
-            --exclude 'logs/' \
-            --exclude 'scripts/' \
-            .next/standalone/ \
-            "$TARGET"
+          echo "Creating release archive..."
+          tar -czf release.tar.gz -C .next/standalone .
 
-          rsync -az --timeout=60 \
-            -e "$RSYNC_SSH" \
-            scripts/server-restart.sh \
-            "${TARGET}scripts/server-restart.sh"
+          echo "Uploading archive ($(du -h release.tar.gz | cut -f1))..."
+          scp ${SCP_OPTS} release.tar.gz "${TARGET}:${DEPLOY}/release.tar.gz"
+
+          echo "Extracting on server..."
+          ssh ${SSH_OPTS} "${TARGET}" "cd '${DEPLOY}' && tar -xzf release.tar.gz && rm -f release.tar.gz"
+
+          echo "Uploading restart script..."
+          ssh ${SSH_OPTS} "${TARGET}" "mkdir -p '${DEPLOY}/scripts'"
+          scp ${SCP_OPTS} scripts/server-restart.sh "${TARGET}:${DEPLOY}/scripts/server-restart.sh"
 
       - name: Restart app on server
         env:
