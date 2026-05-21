@@ -46,14 +46,23 @@ jobs:
           chmod 600 ~/.ssh/deploy_key
           ssh-keyscan -p "${{ secrets.SSH_PORT || 22 }}" "${{ secrets.SSH_HOST }}" >> ~/.ssh/known_hosts 2>/dev/null || true
 
-      - name: Upload release
+      - name: Test SSH connection
         env:
           SSH_PORT: ${{ secrets.SSH_PORT || 22 }}
         run: |
-          RSYNC_SSH="ssh -i ~/.ssh/deploy_key -p ${SSH_PORT} -o StrictHostKeyChecking=accept-new"
+          SSH_OPTS="-i ~/.ssh/deploy_key -p ${SSH_PORT} -o BatchMode=yes -o ConnectTimeout=30 -o ServerAliveInterval=10 -o ServerAliveCountMax=3 -o StrictHostKeyChecking=accept-new"
+          ssh ${SSH_OPTS} "${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}" "echo connected && pwd"
+
+      - name: Upload release
+        timeout-minutes: 10
+        env:
+          SSH_PORT: ${{ secrets.SSH_PORT || 22 }}
+        run: |
+          SSH_OPTS="-i ~/.ssh/deploy_key -p ${SSH_PORT} -o BatchMode=yes -o ConnectTimeout=30 -o ServerAliveInterval=10 -o ServerAliveCountMax=3 -o StrictHostKeyChecking=accept-new"
+          RSYNC_SSH="ssh ${SSH_OPTS}"
           TARGET="${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:${{ secrets.DEPLOY_PATH }}/"
 
-          rsync -az --delete \
+          rsync -az --delete --timeout=300 \
             -e "$RSYNC_SSH" \
             --exclude '.env' \
             --exclude 'data/' \
@@ -62,7 +71,7 @@ jobs:
             .next/standalone/ \
             "$TARGET"
 
-          rsync -az \
+          rsync -az --timeout=60 \
             -e "$RSYNC_SSH" \
             scripts/server-restart.sh \
             "${TARGET}scripts/server-restart.sh"
@@ -71,6 +80,6 @@ jobs:
         env:
           SSH_PORT: ${{ secrets.SSH_PORT || 22 }}
         run: |
-          ssh -i ~/.ssh/deploy_key -p "${SSH_PORT}" -o StrictHostKeyChecking=accept-new \
-            "${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}" \
+          SSH_OPTS="-i ~/.ssh/deploy_key -p ${SSH_PORT} -o BatchMode=yes -o ConnectTimeout=30 -o StrictHostKeyChecking=accept-new"
+          ssh ${SSH_OPTS} "${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}" \
             "bash '${{ secrets.DEPLOY_PATH }}/scripts/server-restart.sh'"
