@@ -76,7 +76,7 @@ jobs:
           scp ${SCP_OPTS} release.tar.gz "${TARGET}:${DEPLOY}/release.tar.gz"
 
           echo "Extracting on server..."
-          ssh ${SSH_OPTS} "${TARGET}" "cd '${DEPLOY}' && tar -xzf release.tar.gz && rm -f release.tar.gz"
+          ssh ${SSH_OPTS} "${TARGET}" "cd '${DEPLOY}' && rm -rf .next node_modules server.js && tar -xzf release.tar.gz && rm -f release.tar.gz"
 
           echo "Uploading restart script..."
           ssh ${SSH_OPTS} "${TARGET}" "mkdir -p '${DEPLOY}/scripts'"
