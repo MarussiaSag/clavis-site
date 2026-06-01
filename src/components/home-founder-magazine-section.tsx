@@ -16,7 +16,7 @@ export function HomeFounderMagazineSection() {
 
         <div className="mt-12 grid gap-12 md:mt-14 md:grid-cols-[minmax(0,1fr)_minmax(0,0.92fr)] md:items-start md:gap-12 lg:gap-14">
           <RevealOnScroll className="space-y-7 md:pt-2" delayMs={30} once>
-            <p className="text-[13px] font-bold uppercase leading-snug tracking-[0.06em] text-[#141414] md:text-sm md:leading-snug md:tracking-[0.07em]">
+            <p className="text-[15px] font-medium leading-[1.72] text-[#141414] md:text-base md:leading-[1.75]">
               Я основала студию CLAVIS с пониманием, что пришло время пересмотреть привычные коды
               интерьерного проектирования: меньше декора ради галереи, больше ясности, характера и
               доверия к материалу.

@@ -15,11 +15,7 @@ export function CreateProjectForm() {
   );
 
   return (
-    <form
-      action={formAction}
-      encType="multipart/form-data"
-      className="grid gap-4 border border-[#a38d83] p-6 md:grid-cols-2"
-    >
+    <form action={formAction} className="grid gap-4 border border-[#a38d83] p-6 md:grid-cols-2">
       {state?.error ? (
         <p className="rounded border border-[#751f26] bg-[#f4f1ed] px-4 py-3 text-sm text-[#4d131a] md:col-span-2">
           {state.error}

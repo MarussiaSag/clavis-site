@@ -30,6 +30,10 @@ model Project {
   year        Int
   coverImage  String
   description String
+  areaLabel      String?
+  durationLabel  String?
+  taskBrief      String?
+  isFeaturedHome Boolean  @default(false)
   showOnHero  Boolean  @default(true)
   heroOrder   Int      @default(0)
   createdAt   DateTime @default(now())

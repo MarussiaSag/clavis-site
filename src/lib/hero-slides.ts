@@ -4,6 +4,8 @@ export type HeroSlidePayload = {
   src: string;
   portfolioHref?: string;
   title?: string;
+  /** Подпись под названием: категория / город / год */
+  meta?: string;
 };
 
 export function heroSlidesFromProjects(projects: Project[]): HeroSlidePayload[] {
@@ -17,5 +19,6 @@ export function heroSlidesFromProjects(projects: Project[]): HeroSlidePayload[] 
       src: p.coverImage,
       portfolioHref: `/portfolio/${p.slug}`,
       title: p.title,
+      meta: `${p.category} / ${p.location} / ${p.year}`,
     }));
 }

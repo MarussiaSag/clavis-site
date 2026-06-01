@@ -79,6 +79,11 @@ export async function ensureSeedData() {
       coverImage: coverImageForSlug("terra-residence", chaveta, zil, STOCK_FALLBACK_IMG),
       description:
         "Современные апартаменты с архитектурной логикой, чистой геометрией и спокойной премиальной палитрой.",
+      areaLabel: "118 м²",
+      durationLabel: "12 недель",
+      taskBrief:
+        "Задача — собрать спокойный премиальный интерьер в типовой планировке: выделить зону гостиной, сохранить ощущение воздуха и заложить сценарии света под разный ритм дня. Материалы — сдержанные, с акцентом на тактильность камня и дерева, без декоративного шума.",
+      isFeaturedHome: true,
     },
     update: {
       title: "ЖК ЗилАрт",
@@ -88,7 +93,17 @@ export async function ensureSeedData() {
       coverImage: coverImageForSlug("terra-residence", chaveta, zil, STOCK_FALLBACK_IMG),
       description:
         "Современные апартаменты с архитектурной логикой, чистой геометрией и спокойной премиальной палитрой.",
+      areaLabel: "118 м²",
+      durationLabel: "12 недель",
+      taskBrief:
+        "Задача — собрать спокойный премиальный интерьер в типовой планировке: выделить зону гостиной, сохранить ощущение воздуха и заложить сценарии света под разный ритм дня. Материалы — сдержанные, с акцентом на тактильность камня и дерева, без декоративного шума.",
+      isFeaturedHome: true,
     },
+  });
+
+  await prisma.project.updateMany({
+    where: { slug: { not: "terra-residence" } },
+    data: { isFeaturedHome: false },
   });
 
   await prisma.project.upsert({

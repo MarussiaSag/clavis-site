@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+import { requireAdmin } from "@/lib/admin-auth";
 import { prisma } from "@/lib/prisma";
 import { sanitizeProjectSlug, saveUploadedProjectPhotos } from "@/lib/project-files";
 
@@ -29,6 +30,8 @@ export async function createProjectAction(
   _prevState: CreateProjectState,
   formData: FormData,
 ): Promise<CreateProjectState> {
+  await requireAdmin();
+
   const title = String(formData.get("title") ?? "").trim();
   const slugRaw = String(formData.get("slug") ?? "").trim();
   const category = String(formData.get("category") ?? "").trim();
@@ -101,6 +104,8 @@ export async function createProjectAction(
 }
 
 export async function updateSiteContent(formData: FormData) {
+  await requireAdmin();
+
   const heroTitle = String(formData.get("heroTitle") ?? "").trim();
   const heroSubtitle = String(formData.get("heroSubtitle") ?? "").trim();
   const aboutTitle = String(formData.get("aboutTitle") ?? "").trim();

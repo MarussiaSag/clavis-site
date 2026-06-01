@@ -61,17 +61,34 @@ export function ArchiveSwiper({ projects }: ArchiveSwiperProps) {
   useEffect(() => {
     const node = trackRef.current;
     if (!node) return;
-    const onWheel = (e: WheelEvent) => {
-      if (Math.abs(e.deltaY) <= Math.abs(e.deltaX)) return;
-      e.preventDefault();
+
+    const pauseAutoBriefly = () => {
       pauseAutoRef.current = true;
-      node.scrollLeft += e.deltaY;
       if (wheelResumeTimeoutRef.current != null) clearTimeout(wheelResumeTimeoutRef.current);
       wheelResumeTimeoutRef.current = window.setTimeout(() => {
         wheelResumeTimeoutRef.current = null;
         pauseAutoRef.current = false;
       }, 4200);
     };
+
+    const onWheel = (e: WheelEvent) => {
+      const maxScroll = node.scrollWidth - node.clientWidth;
+      if (maxScroll <= 4) return;
+
+      // Shift + колёсико — горизонтальное листание карусели
+      if (e.shiftKey && Math.abs(e.deltaY) > Math.abs(e.deltaX)) {
+        e.preventDefault();
+        node.scrollLeft += e.deltaY;
+        pauseAutoBriefly();
+        return;
+      }
+
+      // Обычный вертикальный скролл — всегда прокручивает страницу (не перехватываем)
+      if (Math.abs(e.deltaX) > Math.abs(e.deltaY)) {
+        pauseAutoBriefly();
+      }
+    };
+
     node.addEventListener("wheel", onWheel, { passive: false });
     return () => {
       node.removeEventListener("wheel", onWheel);
@@ -132,7 +149,7 @@ export function ArchiveSwiper({ projects }: ArchiveSwiperProps) {
       <div
         ref={trackRef}
         role="region"
-        aria-label="Подборка проектов — прокрутка мышью или автоматически"
+        aria-label="Подборка проектов — перетаскивание, Shift + колёсико или автоматически"
         onPointerDown={onPointerDown}
         onPointerMove={onPointerMove}
         onPointerUp={finishPointer}
@@ -146,7 +163,7 @@ export function ArchiveSwiper({ projects }: ArchiveSwiperProps) {
             href={`/portfolio/${project.slug}`}
             onClickCapture={onLinkClickCapture}
             draggable={false}
-            className="group block min-w-[78vw] shrink-0 snap-start bg-[#f8f5f1] p-4 shadow-[0_10px_28px_rgba(61,13,10,0.07)] md:min-w-[48vw] xl:min-w-[36vw]"
+            className="group block min-w-[86vw] shrink-0 snap-start bg-[#f8f5f1] p-4 shadow-[0_10px_28px_rgba(61,13,10,0.07)] sm:min-w-[72vw] md:min-w-[48vw] xl:min-w-[36vw]"
           >
             <div className="space-y-4">
               <div className="relative aspect-[16/10] overflow-hidden bg-white p-3">

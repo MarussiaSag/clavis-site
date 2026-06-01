@@ -1,10 +1,17 @@
+import { adminLogoutAction } from "@/app/actions/auth";
 import { updateSiteContent } from "@/app/actions";
 import { CreateProjectForm } from "@/components/create-project-form";
 import { SiteHeader } from "@/components/site-header";
+import { isAdminAuthenticated } from "@/lib/admin-auth";
 import { prisma } from "@/lib/prisma";
 import { ensureSeedData } from "@/lib/site-data";
+import { redirect } from "next/navigation";
 
 export default async function AdminPage() {
+  if (!(await isAdminAuthenticated())) {
+    redirect("/admin/login");
+  }
+
   await ensureSeedData();
   const [content, projects, inquiries] = await Promise.all([
     prisma.siteContent.findUniqueOrThrow({ where: { id: 1 } }),
@@ -16,7 +23,17 @@ export default async function AdminPage() {
     <div className="min-h-screen">
       <SiteHeader />
       <main className="w-full space-y-12 px-6 py-14 md:px-10">
-        <h1 className="text-5xl">Админка</h1>
+        <div className="flex flex-wrap items-center justify-between gap-4">
+          <h1 className="text-5xl">Админка</h1>
+          <form action={adminLogoutAction}>
+            <button
+              type="submit"
+              className="border border-[#a38d83] px-4 py-2 text-xs uppercase tracking-[0.18em] text-[#4d131a] transition-colors hover:border-[#4d131a]"
+            >
+              Выйти
+            </button>
+          </form>
+        </div>
 
         <section className="space-y-4">
           <h2 className="text-3xl">Контент страниц</h2>

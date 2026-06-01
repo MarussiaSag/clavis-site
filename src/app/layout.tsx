@@ -1,6 +1,6 @@
-import type { Metadata } from "next";
 import { Manrope, Playfair_Display } from "next/font/google";
 import { SiteFooter } from "@/components/site-footer";
+import { siteMetadata } from "@/lib/site-metadata";
 import "./globals.css";
 
 const manrope = Manrope({
@@ -13,10 +13,7 @@ const playfair = Playfair_Display({
   subsets: ["latin"],
 });
 
-export const metadata: Metadata = {
-  title: "Clavis",
-  description: "Editorial portfolio website for an interior designer",
-};
+export const metadata = siteMetadata;
 
 export default function RootLayout({
   children,
