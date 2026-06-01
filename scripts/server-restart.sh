@@ -7,11 +7,19 @@ set -euo pipefail
 APP_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$APP_DIR"
 
+NODE_VERSION="${NODE_VERSION:-24}"
+
 export NVM_DIR="${NVM_DIR:-$HOME/.nvm}"
 if [ -s "$NVM_DIR/nvm.sh" ]; then
   # shellcheck source=/dev/null
   . "$NVM_DIR/nvm.sh"
-  nvm use 20 >/dev/null
+  if nvm use "${NODE_VERSION}" >/dev/null 2>&1; then
+    :
+  elif nvm use default >/dev/null 2>&1; then
+    :
+  else
+    echo "Warning: nvm could not switch to Node ${NODE_VERSION}; using: $(command -v node) ($(node -v 2>/dev/null || echo unknown))"
+  fi
 fi
 
 export NODE_ENV=production
@@ -32,4 +40,4 @@ fi
 
 nohup node server.js >>logs/app.log 2>&1 &
 echo $! > .app.pid
-echo "Started clavis-site (pid $(cat .app.pid))"
+echo "Started clavis-site with $(node -v) (pid $(cat .app.pid))"
