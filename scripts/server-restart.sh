@@ -25,10 +25,12 @@ fi
 export NODE_ENV=production
 
 if [ -f .env ]; then
+  set +u
   set -a
   # shellcheck source=/dev/null
   . ./.env
   set +a
+  set -u
 fi
 
 mkdir -p logs data
