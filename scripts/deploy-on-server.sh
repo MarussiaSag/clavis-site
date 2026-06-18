@@ -32,7 +32,6 @@ if [ -f "$RUNTIME_DIR/.env" ]; then
   set -u
 fi
 
-export NODE_ENV=production
 export DATABASE_URL="${DATABASE_URL:-file:./data/prod.db}"
 
 mkdir -p "$RUNTIME_DIR/data" "$RUNTIME_DIR/logs"
@@ -42,6 +41,7 @@ if [[ "$DATABASE_URL" == file:./data/* ]]; then
   ln -sfn "$RUNTIME_DIR/data" "$REPO_DIR/data"
 fi
 
+# NODE_ENV=production до npm ci отключает devDependencies (Tailwind/PostCSS нужны на build).
 echo "→ npm ci"
 npm ci
 
@@ -50,6 +50,8 @@ npx prisma migrate deploy
 
 echo "→ npm run build"
 npm run build
+
+export NODE_ENV=production
 
 echo "→ копирование standalone в $RUNTIME_DIR"
 mkdir -p "$RUNTIME_DIR/.next"
