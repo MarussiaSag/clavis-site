@@ -78,6 +78,15 @@ export function SiteFooter() {
             </div>
           </div>
         </div>
+
+        <div className="mt-10 flex flex-wrap gap-5 border-t border-[#4c5359] pt-6 text-[12px] text-[#a38d83] md:gap-8 md:text-[13px]">
+          <Link href="#" className="transition-colors duration-300 hover:text-[#f8f5f1]">
+            Политика конфиденциальности
+          </Link>
+          <Link href="#" className="transition-colors duration-300 hover:text-[#f8f5f1]">
+            Пользовательское соглашение
+          </Link>
+        </div>
       </div>
     </footer>
   );

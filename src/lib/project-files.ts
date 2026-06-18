@@ -1,6 +1,7 @@
 import { mkdir, writeFile } from "node:fs/promises";
 import { basename, join } from "node:path";
 import { readdirSync } from "node:fs";
+import { listPublicFolderImages } from "@/lib/object-photos";
 
 const IMAGE_EXT = /\.(jpe?g|png|webp|avif)$/i;
 const UPLOAD_FOLDER = "projects";
@@ -46,6 +47,50 @@ export function orderedProjectGallery(slug: string, coverImage: string): string[
   const rest = disk.filter((u) => u !== cover);
   if (!disk.includes(cover)) return [cover, ...disk];
   return [cover, ...rest];
+}
+
+function slugPoolOffset(slug: string, size: number): number {
+  if (size <= 0) return 0;
+  let hash = 0;
+  for (const char of slug) hash = (hash + char.charCodeAt(0)) % size;
+  return hash;
+}
+
+/** Project photos first, then unique shots from object albums until `minCount` is reached. */
+export function buildProjectInteriorGallery(
+  slug: string,
+  coverImage: string,
+  minCount = 6,
+): string[] {
+  const primary = orderedProjectGallery(slug, coverImage);
+  const pool = [
+    ...listPublicFolderImages("zil"),
+    ...listPublicFolderImages("chaveta"),
+    ...listPublicFolderImages("productImg"),
+  ];
+
+  const unique = new Set<string>();
+  const result: string[] = [];
+
+  for (const src of primary) {
+    if (!unique.has(src)) {
+      unique.add(src);
+      result.push(src);
+    }
+  }
+
+  if (pool.length > 0) {
+    const offset = slugPoolOffset(slug, pool.length);
+    for (let i = 0; i < pool.length && result.length < minCount; i++) {
+      const src = pool[(offset + i) % pool.length];
+      if (!unique.has(src)) {
+        unique.add(src);
+        result.push(src);
+      }
+    }
+  }
+
+  return result.length > 0 ? result.slice(0, minCount) : [normalizePublicAssetPath(coverImage)];
 }
 
 const MAX_BYTES = 15 * 1024 * 1024;

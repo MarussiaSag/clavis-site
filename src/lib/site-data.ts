@@ -112,20 +112,28 @@ export async function ensureSeedData() {
       slug: "atelier-noir",
       title: "Тимирязевский",
       category: "Квартира",
-      location: "Жилой комплекс",
+      location: "Москва",
       year: 2026,
       coverImage: coverImageForSlug("atelier-noir", chaveta, zil, STOCK_FALLBACK_IMG),
       description:
         "Квартира в жилом комплексе с акцентом на комфорт, функциональность и мягкий ритм пространства.",
+      areaLabel: "76 м²",
+      durationLabel: "10 недель",
+      taskBrief:
+        "Интерьер, созданный для повседневной жизни. Пространство собрано вокруг спокойной палитры, тактильных материалов и продуманного света — без декоративного шума, с акцентом на удобство и ощущение дома.",
     },
     update: {
       title: "Тимирязевский",
       category: "Квартира",
-      location: "Жилой комплекс",
+      location: "Москва",
       year: 2026,
       coverImage: coverImageForSlug("atelier-noir", chaveta, zil, STOCK_FALLBACK_IMG),
       description:
         "Квартира в жилом комплексе с акцентом на комфорт, функциональность и мягкий ритм пространства.",
+      areaLabel: "76 м²",
+      durationLabel: "10 недель",
+      taskBrief:
+        "Интерьер, созданный для повседневной жизни. Пространство собрано вокруг спокойной палитры, тактильных материалов и продуманного света — без декоративного шума, с акцентом на удобство и ощущение дома.",
     },
   });
 

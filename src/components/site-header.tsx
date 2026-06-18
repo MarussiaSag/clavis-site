@@ -5,12 +5,13 @@ import { useState } from "react";
 import { HERO_QUICK_LINKS, PUBLIC_NAV_LINKS } from "@/lib/nav-links";
 
 type SiteHeaderProps = {
-  variant?: "default" | "hero";
+  variant?: "default" | "hero" | "project" | "contacts";
 };
 
 export function SiteHeader({ variant = "default" }: SiteHeaderProps) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const burgerLineColor = variant === "hero" ? "bg-[#a38d83]" : "bg-[#a38d83]";
+  const burgerLineColor =
+    variant === "project" ? "bg-white/90" : variant === "hero" ? "bg-[#a38d83]" : "bg-[#a38d83]";
 
   const menuPanel = (
     <div
@@ -55,6 +56,58 @@ export function SiteHeader({ variant = "default" }: SiteHeaderProps) {
       </aside>
     </div>
   );
+
+  if (variant === "project") {
+    return (
+      <header className="relative z-10">
+        <div className="flex items-center justify-between px-6 py-5 md:px-10 md:py-6">
+          <button
+            type="button"
+            aria-label="Открыть меню"
+            onClick={() => setIsMenuOpen(true)}
+            className="inline-flex h-10 w-10 items-center justify-center"
+          >
+            <span className="sr-only">Открыть меню</span>
+            <span className="flex flex-col gap-1.5">
+              <span className={`h-0.5 w-5 ${burgerLineColor}`} />
+              <span className={`h-0.5 w-5 ${burgerLineColor}`} />
+              <span className={`h-0.5 w-5 ${burgerLineColor}`} />
+            </span>
+          </button>
+        </div>
+        {menuPanel}
+      </header>
+    );
+  }
+
+  if (variant === "contacts") {
+    return (
+      <header className="fixed inset-x-0 top-0 z-40">
+        <div className="relative flex items-center justify-between px-6 py-5 md:px-10">
+          <button
+            type="button"
+            aria-label="Открыть меню"
+            onClick={() => setIsMenuOpen(true)}
+            className="inline-flex h-10 w-10 items-center justify-center"
+          >
+            <span className="sr-only">Открыть меню</span>
+            <span className="flex flex-col gap-1.5">
+              <span className={`h-0.5 w-5 ${burgerLineColor}`} />
+              <span className={`h-0.5 w-5 ${burgerLineColor}`} />
+              <span className={`h-0.5 w-5 ${burgerLineColor}`} />
+            </span>
+          </button>
+          <Link
+            href="/portfolio"
+            className="text-[11px] uppercase tracking-[0.22em] text-[#2a2420]/85 transition-colors duration-300 hover:text-[#3d0d0a] md:text-xs"
+          >
+            Все проекты →
+          </Link>
+        </div>
+        {menuPanel}
+      </header>
+    );
+  }
 
   if (variant === "hero") {
     return (
