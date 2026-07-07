@@ -2,7 +2,6 @@ import { existsSync } from "node:fs";
 import { join } from "node:path";
 import { HomePageSections } from "@/components/home-page-sections";
 import { HomeHeroSlider } from "@/components/home-hero-slider";
-import { HomeTrustPressSection } from "@/components/home-trust-press-section";
 import { heroSlidesFromProjects } from "@/lib/hero-slides";
 import { buildHeroSlidesFromObjectFolders, listPublicFolderImages } from "@/lib/object-photos";
 import { getHomeFeaturedProject } from "@/lib/home-featured-project";
@@ -59,24 +58,16 @@ export default async function Home() {
     objectGallery[2] ??
     mirrorShowcaseImage ??
     quoteProjectImage;
-  const servicesImages: [string, string, string, string] = [
-    objectGallery[0] ?? showcaseImage,
-    objectGallery[1] ?? showcaseHoverImage,
-    objectGallery[2] ?? mirrorShowcaseImage,
-    objectGallery[4] ?? objectGallery[1] ?? showcaseHoverImage,
-  ];
-  const archiveProjects = projects.slice(0, 4);
+  const archiveProjects = projects;
   const featuredProject = getHomeFeaturedProject(projects);
 
   return (
     <div className="min-h-screen">
       <main className="w-full">
         <HomeHeroSlider slides={heroSlides} />
-        <HomeTrustPressSection />
         <HomePageSections
           quoteProjectImage={quoteProjectImage}
           ctaProjectImage={ctaProjectImage}
-          servicesImages={servicesImages}
           archiveProjects={archiveProjects}
           featuredProject={featuredProject}
         />

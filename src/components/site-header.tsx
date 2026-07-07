@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useState } from "react";
-import { HERO_QUICK_LINKS, PUBLIC_NAV_LINKS } from "@/lib/nav-links";
+import { PUBLIC_NAV_LINKS } from "@/lib/nav-links";
 
 type SiteHeaderProps = {
   variant?: "default" | "hero" | "project" | "contacts";
@@ -126,17 +126,17 @@ export function SiteHeader({ variant = "default" }: SiteHeaderProps) {
               <span className={`h-0.5 w-5 ${burgerLineColor}`} />
             </span>
           </button>
-          <nav className="hidden items-center gap-6 md:flex" aria-label="Быстрая навигация">
-            {HERO_QUICK_LINKS.map((link) => (
-              <Link
-                key={link.href}
-                href={link.href}
-                className="text-[11px] uppercase tracking-[0.22em] text-[#f4f1ed]/90 transition-colors duration-300 hover:text-[#faf6f2]"
-              >
-                {link.label}
-              </Link>
-            ))}
-          </nav>
+          <Link
+            href="/"
+            className="hidden shrink-0 whitespace-nowrap text-right text-[11px] uppercase leading-none text-[#f4f1ed]/90 transition-colors duration-300 hover:text-[#faf6f2] md:block md:text-xs"
+            style={{
+              fontFamily: "var(--font-manrope), ui-sans-serif, system-ui, sans-serif",
+              fontWeight: 500,
+              letterSpacing: "0.22em",
+            }}
+          >
+            Студия дизайна интерьера
+          </Link>
         </div>
         {menuPanel}
       </header>

@@ -4,6 +4,8 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { requireAdmin } from "@/lib/admin-auth";
 import { prisma } from "@/lib/prisma";
+import { saveUploadedBlogCover } from "@/lib/blog-files";
+import { parseBlogContent, serializeBlogContent } from "@/lib/blog-posts";
 import { sanitizeProjectSlug, saveUploadedProjectPhotos } from "@/lib/project-files";
 
 export async function createInquiry(formData: FormData) {
@@ -100,6 +102,217 @@ export async function createProjectAction(
   revalidatePath("/portfolio");
   revalidatePath("/admin");
   revalidatePath("/");
+  redirect("/admin");
+}
+
+export type CreateBlogPostState = { error?: string } | null;
+
+function revalidateBlogPaths(slugs: string[]) {
+  revalidatePath("/blog");
+  revalidatePath("/admin");
+  revalidatePath("/");
+  for (const slug of slugs) {
+    if (slug) revalidatePath(`/blog/${slug}`);
+  }
+}
+
+function parseBlogPostForm(formData: FormData) {
+  const title = String(formData.get("title") ?? "").trim();
+  const slugRaw = String(formData.get("slug") ?? "").trim();
+  const excerpt = String(formData.get("excerpt") ?? "").trim();
+  const contentRaw = String(formData.get("content") ?? "").trim();
+  const publishedAtRaw = String(formData.get("publishedAt") ?? "").trim();
+  const fallbackCoverUrl = String(formData.get("coverImage") ?? "").trim();
+  const readingMinutesRaw = Number(formData.get("readingMinutes") ?? 5);
+
+  const slug = sanitizeProjectSlug(slugRaw);
+  const readingMinutes = Number.isFinite(readingMinutesRaw)
+    ? Math.max(1, Math.trunc(readingMinutesRaw))
+    : 5;
+  const content = serializeBlogContent(parseBlogContent(contentRaw));
+  const publishedAt = publishedAtRaw ? new Date(publishedAtRaw) : null;
+
+  return {
+    title,
+    slugRaw,
+    slug,
+    excerpt,
+    contentRaw,
+    content,
+    publishedAtRaw,
+    publishedAt,
+    fallbackCoverUrl,
+    readingMinutes,
+  };
+}
+
+export async function createBlogPostAction(
+  _prevState: CreateBlogPostState,
+  formData: FormData,
+): Promise<CreateBlogPostState> {
+  await requireAdmin();
+
+  const {
+    title,
+    slugRaw,
+    slug,
+    excerpt,
+    contentRaw,
+    content,
+    publishedAtRaw,
+    publishedAt,
+    fallbackCoverUrl,
+    readingMinutes,
+  } = parseBlogPostForm(formData);
+
+  if (!title || !slugRaw || !excerpt || !contentRaw || !publishedAtRaw) {
+    return { error: "Заполните все обязательные поля." };
+  }
+
+  if (!slug) {
+    return {
+      error: "Slug только латиница, цифры и дефисы (например svet-v-interere).",
+    };
+  }
+
+  if (!publishedAt || Number.isNaN(publishedAt.getTime())) {
+    return { error: "Укажите корректную дату публикации." };
+  }
+
+  const coverCandidate = formData.get("coverFile");
+  const coverFile =
+    coverCandidate instanceof File && coverCandidate.size > 0 ? coverCandidate : null;
+
+  const saved = await saveUploadedBlogCover(
+    slug,
+    coverFile,
+    coverFile ? null : fallbackCoverUrl || null,
+  );
+
+  if (!saved.ok) {
+    return { error: saved.message };
+  }
+
+  try {
+    await prisma.blogPost.create({
+      data: {
+        title,
+        slug,
+        excerpt,
+        content,
+        coverImage: saved.coverUrl,
+        publishedAt,
+        readingMinutes,
+      },
+    });
+  } catch (e: unknown) {
+    const code = typeof e === "object" && e !== null && "code" in e ? (e as { code?: string }).code : undefined;
+    if (code === "P2002") {
+      return { error: "Статья с таким slug уже существует. Выберите другой slug." };
+    }
+    throw e;
+  }
+
+  revalidateBlogPaths([slug]);
+  redirect("/admin");
+}
+
+export type UpdateBlogPostState = { error?: string } | null;
+
+export async function updateBlogPostAction(
+  _prevState: UpdateBlogPostState,
+  formData: FormData,
+): Promise<UpdateBlogPostState> {
+  await requireAdmin();
+
+  const id = Number(formData.get("id") ?? 0);
+  if (!Number.isFinite(id) || id < 1) {
+    return { error: "Некорректный идентификатор статьи." };
+  }
+
+  const existing = await prisma.blogPost.findUnique({ where: { id } });
+  if (!existing) {
+    return { error: "Статья не найдена." };
+  }
+
+  const {
+    title,
+    slugRaw,
+    slug,
+    excerpt,
+    contentRaw,
+    content,
+    publishedAtRaw,
+    publishedAt,
+    fallbackCoverUrl,
+    readingMinutes,
+  } = parseBlogPostForm(formData);
+
+  if (!title || !slugRaw || !excerpt || !contentRaw || !publishedAtRaw) {
+    return { error: "Заполните все обязательные поля." };
+  }
+
+  if (!slug) {
+    return {
+      error: "Slug только латиница, цифры и дефисы (например svet-v-interere).",
+    };
+  }
+
+  if (!publishedAt || Number.isNaN(publishedAt.getTime())) {
+    return { error: "Укажите корректную дату публикации." };
+  }
+
+  const coverCandidate = formData.get("coverFile");
+  const coverFile =
+    coverCandidate instanceof File && coverCandidate.size > 0 ? coverCandidate : null;
+
+  const saved = await saveUploadedBlogCover(
+    slug,
+    coverFile,
+    coverFile ? null : fallbackCoverUrl || existing.coverImage,
+    existing.coverImage,
+  );
+
+  if (!saved.ok) {
+    return { error: saved.message };
+  }
+
+  try {
+    await prisma.blogPost.update({
+      where: { id },
+      data: {
+        title,
+        slug,
+        excerpt,
+        content,
+        coverImage: saved.coverUrl,
+        publishedAt,
+        readingMinutes,
+      },
+    });
+  } catch (e: unknown) {
+    const code = typeof e === "object" && e !== null && "code" in e ? (e as { code?: string }).code : undefined;
+    if (code === "P2002") {
+      return { error: "Статья с таким slug уже существует. Выберите другой slug." };
+    }
+    throw e;
+  }
+
+  revalidateBlogPaths([existing.slug, slug]);
+  redirect("/admin");
+}
+
+export async function deleteBlogPostAction(formData: FormData) {
+  await requireAdmin();
+
+  const id = Number(formData.get("id") ?? 0);
+  if (!Number.isFinite(id) || id < 1) return;
+
+  const existing = await prisma.blogPost.findUnique({ where: { id } });
+  if (!existing) return;
+
+  await prisma.blogPost.delete({ where: { id } });
+  revalidateBlogPaths([existing.slug]);
   redirect("/admin");
 }
 

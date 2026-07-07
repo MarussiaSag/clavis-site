@@ -39,6 +39,94 @@ h3 {
   }
 }
 
+@layer components {
+  .ui-section {
+    margin-inline: auto;
+    max-width: 1180px;
+    padding: 4rem 1.5rem;
+  }
+
+  @media (min-width: 768px) {
+    .ui-section {
+      padding: 5rem 2.5rem;
+    }
+  }
+
+  .ui-eyebrow {
+    font-size: 0.75rem;
+    font-weight: 500;
+    letter-spacing: 0.32em;
+    line-height: 1.4;
+    text-transform: uppercase;
+  }
+
+  .ui-title {
+    font-family: var(--font-playfair), serif;
+    font-size: 2.25rem;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    line-height: 1.06;
+  }
+
+  @media (min-width: 768px) {
+    .ui-title {
+      font-size: 3rem;
+    }
+  }
+
+  .ui-body {
+    font-size: 1rem;
+    line-height: 1.72;
+    color: #5c5c5c;
+  }
+
+  .ui-body-sm {
+    font-size: 0.875rem;
+    line-height: 1.6;
+    color: #6a6a6a;
+  }
+
+  .ui-header {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .ui-header-gap {
+    margin-top: 2.5rem;
+  }
+
+  @media (min-width: 768px) {
+    .ui-header-gap {
+      margin-top: 3rem;
+    }
+  }
+
+  .ui-link {
+    font-size: 0.75rem;
+    letter-spacing: 0.24em;
+    text-transform: uppercase;
+    transition: color 300ms;
+  }
+
+  .ui-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid #a38d83;
+    padding: 0.75rem 1.5rem;
+    font-size: 0.75rem;
+    font-weight: 500;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    transition:
+      color 300ms,
+      background-color 300ms,
+      border-color 300ms;
+  }
+}
+
+
 ::selection {
   background: var(--color-3);
   color: var(--color-6);

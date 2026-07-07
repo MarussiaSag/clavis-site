@@ -1,7 +1,9 @@
 "use client";
 
 import Link from "next/link";
-import { useCallback, useEffect, useRef } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { formatProjectMeta } from "@/lib/project-meta";
+import { homeCardGridGap, homeCardWidthClass } from "@/lib/home-layout";
 
 type ArchiveProject = {
   id: number;
@@ -15,86 +17,141 @@ type ArchiveProject = {
 
 type ArchiveSwiperProps = {
   projects: ArchiveProject[];
+  centered?: boolean;
 };
 
-const AUTO_SCROLL_MS = 5500;
+const CARD_SELECTOR = "[data-archive-card]";
 
-export function ArchiveSwiper({ projects }: ArchiveSwiperProps) {
+function getCards(track: HTMLElement) {
+  return Array.from(track.querySelectorAll<HTMLElement>(CARD_SELECTOR));
+}
+
+export function ArchiveSwiper({ projects, centered = false }: ArchiveSwiperProps) {
   const trackRef = useRef<HTMLDivElement | null>(null);
   const dragActiveRef = useRef(false);
   const dragOriginRef = useRef({ x: 0, scrollLeft: 0 });
   const dragMovedRef = useRef(false);
   const blockNavigateRef = useRef(false);
-  const pauseAutoRef = useRef(false);
-  const wheelResumeTimeoutRef = useRef<number | null>(null);
+  const [activeIndex, setActiveIndex] = useState(0);
+  const [sidePad, setSidePad] = useState(0);
 
   const getScrollStep = useCallback(() => {
     const track = trackRef.current;
-    const first = track?.firstElementChild as HTMLElement | undefined;
+    const cards = track ? getCards(track) : [];
+    const first = cards[0];
     if (!track || !first) return Math.max(320, (track?.clientWidth ?? 0) * 0.72 || 280);
     const gapStr = window.getComputedStyle(track).gap || window.getComputedStyle(track).columnGap;
-    const gap = Number.parseFloat(gapStr) || 32;
+    const gap = Number.parseFloat(gapStr) || 16;
     return first.getBoundingClientRect().width + gap;
   }, []);
 
-  const scrollNext = useCallback(() => {
+  const syncActiveIndex = useCallback(() => {
     const track = trackRef.current;
     if (!track || projects.length < 1) return;
-    const max = track.scrollWidth - track.clientWidth;
-    if (max <= 4) return;
-    const step = getScrollStep();
-    if (track.scrollLeft >= max - 2) {
-      track.scrollTo({ left: 0, behavior: "smooth" });
+
+    if (centered) {
+      const cards = getCards(track);
+      if (cards.length === 0) return;
+      const trackCenter = track.scrollLeft + track.clientWidth / 2;
+      let closest = 0;
+      let closestDist = Infinity;
+      cards.forEach((card, index) => {
+        const cardCenter = card.offsetLeft + card.offsetWidth / 2;
+        const dist = Math.abs(cardCenter - trackCenter);
+        if (dist < closestDist) {
+          closestDist = dist;
+          closest = index;
+        }
+      });
+      setActiveIndex(closest);
       return;
     }
-    track.scrollBy({ left: Math.min(step, max - track.scrollLeft), behavior: "smooth" });
-  }, [getScrollStep, projects.length]);
+
+    const step = getScrollStep();
+    if (step <= 0) return;
+    const next = Math.min(projects.length - 1, Math.max(0, Math.round(track.scrollLeft / step)));
+    setActiveIndex(next);
+  }, [centered, getScrollStep, projects.length]);
+
+  const scrollToIndex = useCallback(
+    (index: number) => {
+      const track = trackRef.current;
+      if (!track) return;
+
+      if (centered) {
+        const card = getCards(track)[index];
+        card?.scrollIntoView({ behavior: "smooth", inline: "center", block: "nearest" });
+        setActiveIndex(index);
+        return;
+      }
+
+      const step = getScrollStep();
+      const max = track.scrollWidth - track.clientWidth;
+      const target = Math.min(index * step, max);
+      track.scrollTo({ left: target, behavior: "smooth" });
+      setActiveIndex(index);
+    },
+    [centered, getScrollStep],
+  );
 
   useEffect(() => {
-    const tick = window.setInterval(() => {
-      if (pauseAutoRef.current) return;
-      scrollNext();
-    }, AUTO_SCROLL_MS);
-    return () => window.clearInterval(tick);
-  }, [scrollNext]);
+    if (!centered) return;
+    const track = trackRef.current;
+    if (!track) return;
+
+    const measure = () => {
+      const cards = getCards(track);
+      if (cards.length === 0) return;
+      const gapStr = window.getComputedStyle(track).gap || window.getComputedStyle(track).columnGap;
+      const gap = Number.parseFloat(gapStr) || 16;
+      const cardsWidth = cards.reduce(
+        (sum, card, index) => sum + card.offsetWidth + (index < cards.length - 1 ? gap : 0),
+        0,
+      );
+      setSidePad(Math.max(24, (track.clientWidth - cardsWidth) / 2));
+    };
+
+    measure();
+    const frame = window.requestAnimationFrame(measure);
+    const observer = new ResizeObserver(measure);
+    observer.observe(track);
+    return () => {
+      window.cancelAnimationFrame(frame);
+      observer.disconnect();
+    };
+  }, [centered, projects]);
+
+  useEffect(() => {
+    if (!centered || sidePad <= 0) return;
+    const track = trackRef.current;
+    if (!track) return;
+    track.scrollLeft = 0;
+    syncActiveIndex();
+  }, [centered, sidePad, syncActiveIndex]);
 
   useEffect(() => {
     const node = trackRef.current;
     if (!node) return;
 
-    const pauseAutoBriefly = () => {
-      pauseAutoRef.current = true;
-      if (wheelResumeTimeoutRef.current != null) clearTimeout(wheelResumeTimeoutRef.current);
-      wheelResumeTimeoutRef.current = window.setTimeout(() => {
-        wheelResumeTimeoutRef.current = null;
-        pauseAutoRef.current = false;
-      }, 4200);
-    };
-
     const onWheel = (e: WheelEvent) => {
       const maxScroll = node.scrollWidth - node.clientWidth;
       if (maxScroll <= 4) return;
 
-      // Shift + колёсико — горизонтальное листание карусели
       if (e.shiftKey && Math.abs(e.deltaY) > Math.abs(e.deltaX)) {
         e.preventDefault();
         node.scrollLeft += e.deltaY;
-        pauseAutoBriefly();
-        return;
-      }
-
-      // Обычный вертикальный скролл — всегда прокручивает страницу (не перехватываем)
-      if (Math.abs(e.deltaX) > Math.abs(e.deltaY)) {
-        pauseAutoBriefly();
       }
     };
+
+    const onScroll = () => syncActiveIndex();
 
     node.addEventListener("wheel", onWheel, { passive: false });
+    node.addEventListener("scroll", onScroll, { passive: true });
     return () => {
       node.removeEventListener("wheel", onWheel);
-      if (wheelResumeTimeoutRef.current != null) clearTimeout(wheelResumeTimeoutRef.current);
+      node.removeEventListener("scroll", onScroll);
     };
-  }, []);
+  }, [syncActiveIndex]);
 
   const onPointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
     if (e.pointerType === "mouse" && e.buttons !== 1) return;
@@ -104,7 +161,6 @@ export function ArchiveSwiper({ projects }: ArchiveSwiperProps) {
     dragActiveRef.current = true;
     dragMovedRef.current = false;
     dragOriginRef.current = { x: e.clientX, scrollLeft: track.scrollLeft };
-    pauseAutoRef.current = true;
     track.setPointerCapture(e.pointerId);
   };
 
@@ -132,9 +188,7 @@ export function ArchiveSwiper({ projects }: ArchiveSwiperProps) {
         blockNavigateRef.current = false;
       }, 420);
     }
-    window.setTimeout(() => {
-      pauseAutoRef.current = false;
-    }, 2600);
+    syncActiveIndex();
   };
 
   const onLinkClickCapture = (e: React.MouseEvent<HTMLAnchorElement>) => {
@@ -144,43 +198,106 @@ export function ArchiveSwiper({ projects }: ArchiveSwiperProps) {
     blockNavigateRef.current = false;
   };
 
+  if (projects.length === 0) return null;
+
+  const cardWidthClass = homeCardWidthClass;
+
   return (
-    <div className="relative">
+    <div className="relative w-full">
       <div
         ref={trackRef}
         role="region"
-        aria-label="Подборка проектов — перетаскивание, Shift + колёсико или автоматически"
+        aria-label="Подборка проектов — перетаскивание или Shift + колёсико"
         onPointerDown={onPointerDown}
         onPointerMove={onPointerMove}
         onPointerUp={finishPointer}
         onPointerLeave={finishPointer}
         onPointerCancel={finishPointer}
-        className="-mx-1 flex gap-8 overflow-x-auto px-1 pb-14 pt-2 [scrollbar-width:none] snap-x snap-mandatory [&::-webkit-scrollbar]:hidden md:touch-pan-x md:cursor-grab active:cursor-grabbing"
+        className={[
+          "flex overflow-x-auto pb-2 pt-1 [scrollbar-width:none] snap-x snap-mandatory [&::-webkit-scrollbar]:hidden md:touch-pan-x md:cursor-grab active:cursor-grabbing",
+          homeCardGridGap,
+          centered ? "snap-center" : "snap-start",
+        ].join(" ")}
       >
-        {projects.map((project) => (
-          <Link
-            key={project.id}
-            href={`/portfolio/${project.slug}`}
-            onClickCapture={onLinkClickCapture}
-            draggable={false}
-            className="group block min-w-[86vw] shrink-0 snap-start bg-[#f8f5f1] p-4 shadow-[0_10px_28px_rgba(61,13,10,0.07)] sm:min-w-[72vw] md:min-w-[48vw] xl:min-w-[36vw]"
-          >
-            <div className="space-y-4">
-              <div className="relative aspect-[16/10] overflow-hidden bg-white p-3">
+        {centered ? <div className="shrink-0" style={{ width: sidePad }} aria-hidden /> : null}
+
+        {projects.map((project, index) => {
+          const isActive = index === activeIndex;
+
+          return (
+            <Link
+              key={project.id}
+              href={`/portfolio/${project.slug}`}
+              data-archive-card
+              onClickCapture={onLinkClickCapture}
+              draggable={false}
+              onMouseEnter={() => setActiveIndex(index)}
+              className={`group block shrink-0 ${cardWidthClass}`}
+            >
+              <article
+                className={`overflow-hidden rounded-md border transition-colors duration-300 ${
+                  isActive
+                    ? "border-[#f1ece7]/60"
+                    : "border-[#3a3a3a] group-hover:border-[#f1ece7]/50"
+                }`}
+              >
+                <div className="relative aspect-[4/3] overflow-hidden bg-[#2a2a2a]">
+                  <div
+                    className={`premium-photo h-full w-full bg-cover bg-center transition-all duration-500 ${
+                      isActive ? "scale-100 brightness-100" : "scale-[1.02] brightness-[0.82] group-hover:brightness-100"
+                    }`}
+                    style={{ backgroundImage: `url(${project.coverImage})` }}
+                  />
+                </div>
+
                 <div
-                  className="premium-photo pointer-events-none h-full w-full bg-cover bg-center transition-transform duration-300 group-hover:scale-[1.03]"
-                  style={{ backgroundImage: `url(${project.coverImage})` }}
-                />
-              </div>
-              <div className="space-y-2 border-t border-[#d0b5a5] pt-3">
-                <h3 className="text-3xl leading-none">{project.title}</h3>
-                <p className="text-xs uppercase tracking-[0.18em] text-[#4d131a]/75">
-                  {project.category} / {project.location} / {project.year}
-                </p>
-              </div>
-            </div>
-          </Link>
-        ))}
+                  className={`px-5 py-5 transition-colors duration-300 md:px-6 md:py-6 ${
+                    isActive
+                      ? "bg-white text-[#141414]"
+                      : "bg-[#1a1a1a] text-white group-hover:bg-white group-hover:text-[#141414]"
+                  }`}
+                >
+                  <h3
+                    className={`text-[15px] font-semibold leading-snug tracking-[-0.01em] transition-colors duration-300 md:text-base ${
+                      isActive ? "text-[#141414]" : "text-[#f1ece7] group-hover:text-[#141414]"
+                    }`}
+                  >
+                    {project.title}
+                  </h3>
+                  <p
+                    className={`mt-1.5 text-[10px] uppercase tracking-[0.24em] md:text-[11px] md:tracking-[0.28em] ${
+                      isActive ? "text-[#6a6a6a]" : "text-white/65 group-hover:text-[#6a6a6a]"
+                    }`}
+                  >
+                    {formatProjectMeta(project)}
+                  </p>
+                </div>
+              </article>
+            </Link>
+          );
+        })}
+
+        {centered ? <div className="shrink-0" style={{ width: sidePad }} aria-hidden /> : null}
+      </div>
+
+      <div className="mt-8 flex items-center justify-center gap-2.5 md:mt-10">
+        {projects.map((project, index) => {
+          const isActive = index === activeIndex;
+          return (
+            <button
+              key={project.id}
+              type="button"
+              aria-label={`Показать проект ${project.title}`}
+              aria-current={isActive ? "true" : undefined}
+              onClick={() => scrollToIndex(index)}
+              className={`h-2.5 w-2.5 rounded-full transition-colors duration-300 ${
+                isActive
+                  ? "bg-[#c9bba8]"
+                  : "border border-[#4a4a4a] bg-transparent hover:border-[#8a8a8a]"
+              }`}
+            />
+          );
+        })}
       </div>
     </div>
   );

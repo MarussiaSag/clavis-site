@@ -1,4 +1,5 @@
 import type { Project } from "@prisma/client";
+import { formatProjectMeta } from "@/lib/project-meta";
 
 export type HeroSlidePayload = {
   src: string;
@@ -19,6 +20,6 @@ export function heroSlidesFromProjects(projects: Project[]): HeroSlidePayload[] 
       src: p.coverImage,
       portfolioHref: `/portfolio/${p.slug}`,
       title: p.title,
-      meta: `${p.category} / ${p.location} / ${p.year}`,
+      meta: formatProjectMeta(p),
     }));
 }

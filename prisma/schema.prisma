@@ -48,3 +48,16 @@ model Inquiry {
   message   String
   createdAt DateTime @default(now())
 }
+
+model BlogPost {
+  id              Int      @id @default(autoincrement())
+  slug            String   @unique
+  title           String
+  excerpt         String
+  content         String
+  coverImage      String
+  publishedAt     DateTime
+  readingMinutes  Int      @default(5)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}

@@ -6,7 +6,7 @@ export function SiteFooter() {
   const year = new Date().getFullYear();
 
   return (
-    <footer className="border-t border-[#4c5359] bg-[#23272b] text-[#d9cec6]">
+    <footer className="border-t border-[#2a2a2a] bg-[#141414] text-[#d9cec6]">
       <div className="mx-auto w-full max-w-[1180px] px-6 py-10 md:px-10 md:py-12">
         <div className="grid gap-10 md:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)_minmax(0,0.9fr)] md:gap-8 lg:gap-12">
           <div className="space-y-4">
@@ -78,8 +78,10 @@ export function SiteFooter() {
             </div>
           </div>
         </div>
+      </div>
 
-        <div className="mt-10 flex flex-wrap gap-5 border-t border-[#4c5359] pt-6 text-[12px] text-[#a38d83] md:gap-8 md:text-[13px]">
+      <div className="border-t border-[#2a2a2a]">
+        <div className="mx-auto flex w-full max-w-[1180px] flex-wrap gap-5 px-6 py-6 text-[12px] text-[#a38d83] md:gap-8 md:px-10 md:text-[13px]">
           <Link href="#" className="transition-colors duration-300 hover:text-[#f8f5f1]">
             Политика конфиденциальности
           </Link>

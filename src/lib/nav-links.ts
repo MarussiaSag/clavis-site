@@ -4,6 +4,7 @@ export const PUBLIC_NAV_LINKS = [
   { href: "/about", label: "О нас" },
   { href: "/services", label: "Услуги" },
   { href: "/portfolio", label: "Портфолио" },
+  { href: "/blog", label: "Блог" },
   { href: "/contacts", label: "Контакты" },
 ] as const;
 

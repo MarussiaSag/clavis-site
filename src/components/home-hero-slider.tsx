@@ -123,24 +123,13 @@ export function HomeHeroSlider({ slides }: HomeHeroSliderProps) {
         </Link>
 
         <div className="absolute bottom-0 left-0 right-0 z-20 px-6 pb-20 md:px-10 md:pb-24">
-          <h1
-            className="max-w-4xl text-[11px] uppercase text-[#e7d8d1]/80 md:text-xs"
-            style={{
-              fontFamily: "var(--font-manrope), ui-sans-serif, system-ui, sans-serif",
-              fontWeight: 500,
-              letterSpacing: "clamp(0.42em, 0.06em + 1.65vw, 0.76em)",
-            }}
-          >
-            Студия дизайна интерьера
-          </h1>
-
           {activeSlide.title ? (
-            <div key={captionKey} className="hero-slide-caption mt-5 max-w-xl space-y-2 md:mt-6">
+            <div key={captionKey} className="hero-slide-caption max-w-xl space-y-2">
               {activeSlide.portfolioHref ? (
                 <Link href={activeSlide.portfolioHref} className="group block space-y-2">
-                  <h2 className="font-serif text-2xl leading-tight text-[#f4f1ed] transition-colors duration-300 group-hover:text-[#faf6f2] md:text-3xl">
+                  <h1 className="font-serif text-2xl leading-tight text-[#f4f1ed] transition-colors duration-300 group-hover:text-[#faf6f2] md:text-3xl">
                     {activeSlide.title}
-                  </h2>
+                  </h1>
                   {activeSlide.meta ? (
                     <span className="block text-[10px] uppercase tracking-[0.24em] text-[#e7d8d1]/75 md:text-[11px] md:tracking-[0.28em]">
                       {activeSlide.meta}
@@ -149,9 +138,9 @@ export function HomeHeroSlider({ slides }: HomeHeroSliderProps) {
                 </Link>
               ) : (
                 <>
-                  <h2 className="font-serif text-2xl leading-tight text-[#f4f1ed] md:text-3xl">
+                  <h1 className="font-serif text-2xl leading-tight text-[#f4f1ed] md:text-3xl">
                     {activeSlide.title}
-                  </h2>
+                  </h1>
                   {activeSlide.meta ? (
                     <p className="text-[10px] uppercase tracking-[0.24em] text-[#e7d8d1]/75 md:text-[11px] md:tracking-[0.28em]">
                       {activeSlide.meta}

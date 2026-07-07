@@ -1,58 +1,80 @@
-import { Fragment } from "react";
+"use client";
+
+import { useId, useState } from "react";
 import { RevealOnScroll } from "@/components/reveal-on-scroll";
-import { homeSectionPadding } from "@/lib/home-layout";
-import { HOME_PROCESS_STATS, HOME_PROCESS_STEPS } from "@/lib/home-process";
+import { splitSectionContainer } from "@/lib/home-layout";
+import { HOME_PROCESS_INTRO, HOME_PROCESS_STEPS } from "@/lib/home-process";
+
+const cellX = "px-0 sm:px-6 md:px-8 lg:px-10";
 
 export function HomeProcessSection() {
+  const [activeIndex, setActiveIndex] = useState(0);
+  const panelId = useId();
+  const activeStep = HOME_PROCESS_STEPS[activeIndex];
+
   return (
-    <section className="border-b border-[#a38d83] bg-[#fafafa]" aria-labelledby="home-process-heading">
-      <div className={`mx-auto max-w-[1180px] ${homeSectionPadding}`}>
+    <section className="border-b border-[#2a2a2a] bg-[#141414]" aria-labelledby="home-process-heading">
+      <div className={splitSectionContainer}>
         <RevealOnScroll once>
-          <header className="text-center">
-            <p
-              id="home-process-heading"
-              className="text-[11px] font-medium uppercase tracking-[0.38em] text-[#b07d55] md:text-xs md:tracking-[0.42em]"
-            >
+          <div>
+            <p id="home-process-heading" className="ui-eyebrow text-white/45">
               Как мы работаем
             </p>
-          </header>
 
-          <ul className="mt-10 flex flex-wrap justify-center gap-x-10 gap-y-4 md:mt-12 md:gap-x-16 lg:gap-x-20">
-            {HOME_PROCESS_STATS.map((stat) => (
-              <li key={stat.value} className="text-center">
-                <p className="font-serif text-2xl tracking-tight text-[#151210] md:text-3xl">
-                  {stat.value}
-                </p>
-                <p className="mt-1.5 text-[10px] font-medium uppercase tracking-[0.28em] text-[#4d131a]/65 md:text-[11px] md:tracking-[0.32em]">
-                  {stat.label}
-                </p>
-              </li>
-            ))}
-          </ul>
+            <div className="mt-4 grid grid-cols-1 sm:grid-cols-[minmax(0,30%)_minmax(0,70%)] sm:items-start">
+              <h2 className="ui-title text-[#f1ece7]">Процесс работы</h2>
+              <p className={`ui-body mt-4 min-w-0 text-white/55 sm:col-start-2 sm:row-start-1 sm:mt-0 ${cellX}`}>
+                {HOME_PROCESS_INTRO}
+              </p>
+            </div>
+          </div>
 
-          <div className="mt-12 border-t border-[#a38d83]/55 pt-10 md:mt-14 md:pt-12">
-            <ol className="m-0 flex list-none flex-col items-stretch gap-0 p-0 lg:flex-row lg:items-start lg:justify-between">
-              {HOME_PROCESS_STEPS.map((step, index) => (
-                <Fragment key={step.title}>
-                  <li className="flex flex-col items-center text-center lg:flex-1 lg:px-2">
-                    <span className="text-[11px] font-semibold tabular-nums tracking-[0.22em] text-[#b07d55] md:text-xs">
-                      {String(index + 1).padStart(2, "0")}
-                    </span>
-                    <h3 className="mt-3 max-w-[14rem] font-serif text-lg leading-snug text-[#151210] md:text-xl lg:max-w-none">
-                      {step.title}
-                    </h3>
-                  </li>
-                  {index < HOME_PROCESS_STEPS.length - 1 ? (
-                    <li
-                      className="flex shrink-0 items-center justify-center py-3 text-[#a38d83] lg:px-1 lg:py-0 lg:pt-5"
+          <div className="mt-12 border-b border-white/15 md:mt-16 lg:mt-20">
+            <div
+              className="-mb-px flex gap-0 overflow-x-auto"
+              role="tablist"
+              aria-label="Этапы процесса работы"
+            >
+              {HOME_PROCESS_STEPS.map((step, index) => {
+                const isActive = index === activeIndex;
+                const tabId = `${panelId}-tab-${index}`;
+
+                return (
+                  <button
+                    key={step.title}
+                    id={tabId}
+                    type="button"
+                    role="tab"
+                    aria-selected={isActive}
+                    aria-controls={panelId}
+                    onClick={() => setActiveIndex(index)}
+                    className={[
+                      "relative flex min-w-[9.5rem] shrink-0 flex-col items-start gap-3 px-4 pb-5 text-left transition-colors duration-300 sm:min-w-[11rem] sm:px-5 md:min-w-[12.5rem] lg:px-6",
+                      isActive ? "text-[#f1ece7]" : "text-white/35 hover:text-white/55",
+                    ].join(" ")}
+                  >
+                    <span className="font-mono text-xs tabular-nums">{String(index + 1).padStart(2, "0")}</span>
+                    <span className="text-sm font-medium leading-snug sm:text-[0.9375rem]">{step.title}</span>
+                    <span
+                      className={[
+                        "absolute right-4 bottom-0 left-4 h-[3px] transition-opacity duration-300 sm:right-5 sm:left-5 lg:right-6 lg:left-6",
+                        isActive ? "bg-[#a38d83] opacity-100" : "opacity-0",
+                      ].join(" ")}
                       aria-hidden
-                    >
-                      <span className="text-xl leading-none md:text-2xl">→</span>
-                    </li>
-                  ) : null}
-                </Fragment>
-              ))}
-            </ol>
+                    />
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          <div
+            id={panelId}
+            role="tabpanel"
+            aria-labelledby={`${panelId}-tab-${activeIndex}`}
+            className="max-w-3xl py-8 md:py-10 lg:py-12"
+          >
+            <p className="ui-body text-white/60">{activeStep.description}</p>
           </div>
         </RevealOnScroll>
       </div>

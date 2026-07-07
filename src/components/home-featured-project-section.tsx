@@ -1,7 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { RevealOnScroll } from "@/components/reveal-on-scroll";
-import { homeSectionPadding } from "@/lib/home-layout";
+import { sectionContainer, sectionContentGap } from "@/lib/home-layout";
 import type { HomeFeaturedProject } from "@/lib/home-featured-project";
 
 type HomeFeaturedProjectSectionProps = {
@@ -17,26 +17,21 @@ export function HomeFeaturedProjectSection({ project }: HomeFeaturedProjectSecti
 
   return (
     <section className="border-b border-[#a38d83] bg-[#f4f1ed]" aria-labelledby="home-featured-heading">
-      <div className={`mx-auto max-w-[1180px] ${homeSectionPadding}`}>
+      <div className={sectionContainer}>
         <RevealOnScroll once>
           <header className="flex flex-wrap items-end justify-between gap-4">
-            <div className="space-y-3">
-              <p
-                id="home-featured-heading"
-                className="text-[11px] font-medium uppercase tracking-[0.38em] text-[#b07d55] md:text-xs md:tracking-[0.42em]"
-              >
+            <div className="ui-header">
+              <p id="home-featured-heading" className="ui-eyebrow text-[#b07d55]">
                 Проект месяца
               </p>
-              <h2 className="font-serif text-4xl leading-[1.04] tracking-[-0.02em] text-[#151210] md:text-5xl">
-                {project.title}
-              </h2>
+              <h2 className="ui-title text-[#151210]">{project.title}</h2>
             </div>
-            <p className="text-[11px] uppercase tracking-[0.22em] text-[#4d131a]/75 md:text-xs">
+            <p className="ui-eyebrow text-[#4d131a]/75">
               {project.category} / {project.location} / {project.year}
             </p>
           </header>
 
-          <div className="mt-10 grid gap-10 lg:mt-14 lg:grid-cols-[minmax(0,1.12fr)_minmax(0,0.88fr)] lg:items-start lg:gap-12 xl:gap-16">
+          <div className={`${sectionContentGap} grid gap-10 lg:grid-cols-[minmax(0,1.12fr)_minmax(0,0.88fr)] lg:items-start lg:gap-12`}>
             <div
               className={`grid gap-3 md:gap-4 ${
                 secondaryImages.length > 0
@@ -78,33 +73,26 @@ export function HomeFeaturedProjectSection({ project }: HomeFeaturedProjectSecti
             <div className="flex flex-col justify-between gap-8 lg:pt-2">
               <dl className="grid grid-cols-2 gap-6 border-t border-[#a38d83]/55 pt-8">
                 <div>
-                  <dt className="text-[10px] font-medium uppercase tracking-[0.3em] text-[#4d131a]/65 md:text-[11px]">
-                    Площадь
-                  </dt>
+                  <dt className="ui-eyebrow text-[#4d131a]/65">Площадь</dt>
                   <dd className="mt-2 font-serif text-2xl tracking-tight text-[#151210] md:text-3xl">
                     {project.areaLabel}
                   </dd>
                 </div>
                 <div>
-                  <dt className="text-[10px] font-medium uppercase tracking-[0.3em] text-[#4d131a]/65 md:text-[11px]">
-                    Срок
-                  </dt>
+                  <dt className="ui-eyebrow text-[#4d131a]/65">Срок</dt>
                   <dd className="mt-2 font-serif text-2xl tracking-tight text-[#151210] md:text-3xl">
                     {project.durationLabel}
                   </dd>
                 </div>
               </dl>
 
-              <div className="space-y-6">
-                <p className="text-[15px] leading-[1.75] text-[#2a2420]/92 md:text-base md:leading-[1.78]">
-                  {project.taskBrief}
-                </p>
-                <Link
-                  href={projectHref}
-                  className="inline-flex items-center gap-2 border border-[#a38d83] bg-transparent px-6 py-3 text-[11px] font-medium uppercase tracking-[0.22em] text-[#4d131a] transition-colors duration-300 hover:border-[#4d131a] md:text-xs md:tracking-[0.24em]"
-                >
+              <div className="ui-header">
+                <p className="ui-body text-[#2a2420]/92">{project.taskBrief}</p>
+                <Link href={projectHref} className="ui-btn w-fit text-[#4d131a] hover:border-[#4d131a]">
                   Смотреть кейс
-                  <span aria-hidden>→</span>
+                  <span aria-hidden className="ml-2">
+                    →
+                  </span>
                 </Link>
               </div>
             </div>
