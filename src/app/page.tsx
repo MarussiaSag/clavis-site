@@ -3,31 +3,28 @@ import { join } from "node:path";
 import { HomePageSections } from "@/components/home-page-sections";
 import { HomeHeroSlider } from "@/components/home-hero-slider";
 import { heroSlidesFromProjects } from "@/lib/hero-slides";
-import { buildHeroSlidesFromObjectFolders, listPublicFolderImages } from "@/lib/object-photos";
+import { buildHeroSlidesFromObjectFolders } from "@/lib/object-photos";
 import { getHomeFeaturedProject } from "@/lib/home-featured-project";
 import { getSiteData } from "@/lib/site-data";
+import { getSiteImage } from "@/lib/site-images";
 
-const FALLBACK_IMG = "/productImg/istockphoto-1334118685-2048x2048.jpg";
+const FALLBACK_IMG = "/media/fallback-a.jpg";
+const SHOWCASE_HERO = "/media/showcase-hero.jpg";
+const SHOWCASE_HOVER = "/media/showcase-hover.jpg";
+const QUOTE_BG = "/media/quote-bg.png";
 
 export default async function Home() {
   const { projects } = await getSiteData();
+  const founderImage = await getSiteImage("home.founder");
   const [leadProject, secondProject, thirdProject] = projects;
 
-  const showcaseImagePath = "/productImg/hero.jpg";
-  const showcaseHoverImagePath = "/productImg/hero-hover.jpg";
-  const mirrorShowcaseImagePath = "/productImg/hero-2.jpg";
-
-  const showcaseImage = existsSync(join(process.cwd(), "public", "productImg", "hero.jpg"))
-    ? showcaseImagePath
-    : leadProject?.coverImage ?? "/vercel.svg";
-  const showcaseHoverImage = existsSync(join(process.cwd(), "public", "productImg", "hero-hover.jpg"))
-    ? showcaseHoverImagePath
+  const showcaseImage = existsSync(join(process.cwd(), "public", "media", "showcase-hero.jpg"))
+    ? SHOWCASE_HERO
+    : leadProject?.coverImage ?? FALLBACK_IMG;
+  const showcaseHoverImage = existsSync(join(process.cwd(), "public", "media", "showcase-hover.jpg"))
+    ? SHOWCASE_HOVER
     : secondProject?.coverImage ?? showcaseImage;
-  const mirrorShowcaseImage = existsSync(join(process.cwd(), "public", "productImg", "hero-2.jpg"))
-    ? mirrorShowcaseImagePath
-    : thirdProject?.coverImage ?? showcaseHoverImage;
-
-  const objectGallery = [...listPublicFolderImages("chaveta"), ...listPublicFolderImages("zil")];
+  const mirrorShowcaseImage = thirdProject?.coverImage ?? showcaseHoverImage;
 
   const heroFromDb = heroSlidesFromProjects(projects);
   const fromFolders = buildHeroSlidesFromObjectFolders(12);
@@ -41,7 +38,7 @@ export default async function Home() {
       heroSlides = [{ src: fromFolders[0] }];
     } else {
       heroSlides = [
-        { src: "/productImg/istockphoto-1372682637-2048x2048.jpg" },
+        { src: "/media/fallback-b.jpg" },
         { src: showcaseImage },
         { src: showcaseHoverImage },
         { src: mirrorShowcaseImage },
@@ -49,15 +46,9 @@ export default async function Home() {
     }
   }
 
-  const quoteProjectImage = existsSync(join(process.cwd(), "public", "Next-Project.png"))
-    ? "/Next-Project.png"
-    : objectGallery[Math.min(3, objectGallery.length > 0 ? objectGallery.length - 1 : 0)] ??
-      FALLBACK_IMG;
-  const ctaProjectImage =
-    objectGallery[5] ??
-    objectGallery[2] ??
-    mirrorShowcaseImage ??
-    quoteProjectImage;
+  const quoteProjectImage = existsSync(join(process.cwd(), "public", "media", "quote-bg.png"))
+    ? QUOTE_BG
+    : FALLBACK_IMG;
   const archiveProjects = projects;
   const featuredProject = getHomeFeaturedProject(projects);
 
@@ -67,9 +58,9 @@ export default async function Home() {
         <HomeHeroSlider slides={heroSlides} />
         <HomePageSections
           quoteProjectImage={quoteProjectImage}
-          ctaProjectImage={ctaProjectImage}
           archiveProjects={archiveProjects}
           featuredProject={featuredProject}
+          founderImage={founderImage}
         />
       </main>
     </div>

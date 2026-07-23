@@ -2,191 +2,277 @@ import Image from "next/image";
 import Link from "next/link";
 import type { Project } from "@prisma/client";
 import { ProjectInteriorGallery } from "@/components/project-interior-gallery";
-import { ProjectStatsBar, type StatItem } from "@/components/project-stats-bar";
+import { ProjectMiniDescription } from "@/components/project-mini-description";
+import { ProjectMaterialsTeamSection } from "@/components/project-materials-team-section";
+import { ProjectRoomsSection } from "@/components/project-rooms-section";
 import { ProjectVirtualTour } from "@/components/project-virtual-tour";
 import { RevealOnScroll } from "@/components/reveal-on-scroll";
 import { SiteHeader } from "@/components/site-header";
 import { DEFAULT_VIRTUAL_TOUR_URL } from "@/lib/kuula-embed";
+import { parseMaterials, parseParagraphs, parseRooms, parseTeam } from "@/lib/project-content";
+import { getInstagramHref, getSiteContact } from "@/lib/site-contact";
 
 type ProjectDetailPageProps = {
   project: Project;
   gallery: string[];
+  nextProject: Project | null;
 };
 
-function buildProjectStats(project: Project): StatItem[] {
-  return [
-    { icon: "area", label: "Площадь", value: project.areaLabel ?? "—" },
-    { icon: "rooms", label: "Комнаты", value: project.category === "Квартира" ? "2" : project.category },
-    { icon: "bath", label: "Санузел", value: "1" },
-    { icon: "style", label: "Стиль", value: "Современный" },
-    { icon: "duration", label: "Срок", value: project.durationLabel ?? "—" },
-  ];
-}
+const ABOUT_FALLBACK = [
+  "Дизайн-студии Clavis достался проект мечты — в том смысле, что над ним можно было работать без спешки. Семья с двумя детьми, купившая эту квартиру, жила в доме по соседству, и срочности в переезде не было. Получился уютный интерьер, который сочетает в себе функциональность и эстетику в духе контемпорари модернизма. Дизайнер учла все пожелания заказчиков и гибко подстраивалась под возникавшие по ходу работы изменения.",
+  "Базовый старт был такой: три изолированные спальни, общая кухня-гостиная—прихожая, два санузла — всё это на площади 101,7 кв. м. Квартира спроектирована с учётом хоккейных увлечений отца и сына: в спальне предусмотрен специальный шкаф для сушки и хранения формы. Ещё одна интересная деталь хозяйской спальни — зонирование перегородкой, отделяющей кровать от системы хранения и небольшого уголка с письменным столом. Для дочери спроектирована изолированная комната, обеспечивающая спокойствие и приватность.",
+  "В отделке использован высококачественный микроцемент. Покрытие сделано в «облачной» технике с плавными размытыми переходами: так пространство получилось более сложным и глубоким. Цветовая палитра была тщательно подобрана: заказчики хотели интерьер в приглушенных природных тонах — в итоге оттенки выбирали по кругу Иттена с опорой на зеленый, синий и оранжевый цвета.",
+];
 
-function aboutHeadline(project: Project): string {
-  if (project.taskBrief) {
-    const firstSentence = project.taskBrief.split(/(?<=[.!?])\s+/)[0];
-    if (firstSentence.length <= 80) return firstSentence.replace(/\.$/, "");
-  }
-  return "Интерьер, созданный для повседневной жизни";
-}
+const ABOUT_SIDE_FALLBACK = [
+  "Акцентными стали зелёный и бордовый: это журнальный столик с диваном и яркое кресло, расположенные в гостиной. Вся корпусная мебель изготовлена на заказ в студии Duomo Project, а предметы мягкой мебели — в Julium Space. Кухонный гарнитур заказывали в Lithium. Текстиль и декор подбирала Анна Бабенко.",
+  "Зональное освещение с диммерами сформировало теневые акценты, добавляя глубину и визуально расширяя помещения. Техническое задание от заказчиков подчеркивало важность правильного света для создания уюта, и с этой задачей дизайн-студия отлично справилась.",
+];
 
 function aboutParagraphs(project: Project): string[] {
-  const paragraphs: string[] = [project.description];
-  if (project.taskBrief) {
-    const rest = project.taskBrief.split(/(?<=[.!?])\s+/).slice(1).join(" ").trim();
-    if (rest && rest !== project.description) paragraphs.push(rest);
-  }
-  return paragraphs;
+  const fromDb = parseParagraphs(project.aboutBody);
+  return fromDb.length > 0 ? fromDb : ABOUT_FALLBACK;
 }
 
-export function ProjectDetailPage({ project, gallery }: ProjectDetailPageProps) {
-  const heroImage = gallery[0] ?? project.coverImage;
-  const aboutImage = gallery[1] ?? gallery[0] ?? project.coverImage;
-  const galleryImages = gallery;
-  const stats = buildProjectStats(project);
-  const headline = aboutHeadline(project);
-  const paragraphs = aboutParagraphs(project);
+function aboutImageCaptionParagraphs(project: Project): string[] {
+  const fromDb = parseParagraphs(project.aboutSideBody);
+  return fromDb.length > 0 ? fromDb : ABOUT_SIDE_FALLBACK;
+}
 
-  const metaLine = [project.location, project.areaLabel, project.year]
-    .filter(Boolean)
-    .join(" • ")
-    .toUpperCase();
+function projectTagline(project: Project): string {
+  if (project.taskBrief) {
+    const first = project.taskBrief.split(/(?<=[.!?])\s+/)[0]?.trim();
+    if (first && first.length <= 120) return first.replace(/\.$/, "");
+  }
+  return project.description;
+}
+
+function projectLayoutLabel(project: Project): string {
+  if (project.layoutLabel?.trim()) return project.layoutLabel.trim();
+  return "—";
+}
+
+function NextProjectHero({ project }: { project: Project }) {
+  return (
+    <section aria-label="Следующий проект">
+      <Link
+        href={`/portfolio/${project.slug}`}
+        className="group relative isolate block min-h-[280px] overflow-hidden md:min-h-[360px]"
+      >
+        <Image
+          src={project.coverImage}
+          alt={project.title}
+          fill
+          sizes="100vw"
+          className="object-cover object-center transition-transform duration-700 group-hover:scale-[1.02]"
+        />
+        <div className="absolute inset-0 bg-[#151210]/45 transition-colors duration-500 group-hover:bg-[#151210]/35" />
+
+        <div className="relative z-10 flex min-h-[280px] items-center justify-between gap-8 px-6 py-12 text-white md:min-h-[360px] md:px-10 lg:px-12">
+          <div>
+            <p className="text-[11px] font-medium uppercase tracking-[0.32em] text-white/65 md:text-xs">
+              Следующий проект
+            </p>
+            <h2 className="mt-4 font-serif text-[2rem] font-semibold leading-[1.08] tracking-[-0.03em] text-white md:text-[3rem] lg:text-[3.4rem]">
+              {project.title}
+            </h2>
+          </div>
+
+          <span
+            aria-hidden
+            className="flex h-9 w-9 shrink-0 items-center justify-center bg-[#f5f2ea] text-base text-[#151210] transition-transform duration-300 group-hover:translate-x-0.5 md:h-10 md:w-10 md:text-lg"
+          >
+            →
+          </span>
+        </div>
+      </Link>
+    </section>
+  );
+}
+
+export async function ProjectDetailPage({ project, gallery, nextProject }: ProjectDetailPageProps) {
+  const contact = await getSiteContact();
+  const instagramHref = getInstagramHref(contact);
+  const heroImage = gallery[0] ?? project.coverImage;
+  const aboutImage = project.aboutImage?.trim() || gallery[1] || gallery[0] || project.coverImage;
+  const galleryImages = gallery;
+  const paragraphs = aboutParagraphs(project);
+  const imageCaptionParagraphs = aboutImageCaptionParagraphs(project);
+  const tagline = projectTagline(project);
+  const rooms = parseRooms(project.roomsJson);
+  const materials = parseMaterials(project.materialsJson);
+  const team = parseTeam(project.teamJson);
+  const tourUrl = project.virtualTourUrl?.trim() || DEFAULT_VIRTUAL_TOUR_URL;
+
+  const heroSpecs = [
+    { label: "Площадь", value: project.areaLabel ?? "—" },
+    { label: "Стиль", value: project.styleLabel?.trim() || "Современный" },
+    { label: "Планировка", value: projectLayoutLabel(project) },
+    { label: "Локация", value: project.location },
+  ];
 
   return (
     <div className="min-h-screen bg-[#f5f3f0]">
-      {/* Hero — split screen */}
-      <section className="grid min-h-[100svh] lg:grid-cols-[minmax(0,42%)_minmax(0,58%)]">
-        <div className="relative flex flex-col bg-[#332f2c] text-white">
-          <SiteHeader variant="project" />
+      <section className="relative grid min-h-[100svh] lg:grid-cols-2">
+        <div className="relative z-20 flex min-h-[100svh] flex-col bg-[#151210] text-[#f4f1ed]">
+          <div className="px-6 pt-7 md:px-10 md:pt-8 lg:px-12 lg:pt-10">
+            <Link
+              href="/portfolio"
+              className="inline-flex items-center gap-2 text-[11px] font-medium uppercase tracking-[0.26em] text-white/55 transition-colors duration-300 hover:text-white md:text-xs"
+            >
+              <span aria-hidden>←</span>
+              Все проекты
+            </Link>
+          </div>
 
-          <div className="flex flex-1 flex-col justify-center px-6 pb-12 pt-4 md:px-10 md:pb-16 lg:px-12 lg:pb-20">
-            <p className="text-[10px] font-medium uppercase tracking-[0.32em] text-white/65 md:text-[11px]">
-              {metaLine}
+          <div className="flex flex-1 flex-col justify-center px-6 py-12 md:px-10 md:py-16 lg:px-12 lg:py-20">
+            <p className="text-[11px] font-medium uppercase tracking-[0.3em] text-white/45 md:text-xs">
+              Clavis · {project.year}
             </p>
 
-            <h1 className="mt-6 font-serif text-[2.75rem] leading-[1.02] tracking-[-0.02em] text-white md:mt-8 md:text-6xl lg:text-[4.25rem]">
+            <h1 className="mt-5 max-w-[12ch] font-serif text-[2.6rem] font-semibold leading-[1.05] tracking-[-0.03em] text-white md:mt-6 md:text-[3.4rem] lg:text-[3.9rem]">
               {project.title}
             </h1>
 
-            <span className="mt-6 block h-px w-10 bg-[#b07d55] md:mt-8" aria-hidden />
-
-            <p className="mt-6 max-w-md text-[15px] leading-[1.75] text-white/82 md:mt-8 md:text-base md:leading-[1.78]">
-              {project.description}
+            <p className="mt-5 max-w-md text-[14px] leading-relaxed text-white/60 md:mt-6 md:text-[15px]">
+              {tagline}
             </p>
 
-            <div className="mt-8 flex flex-wrap items-center gap-5 md:mt-10">
-              <Link
-                href="#project-gallery"
-                className="inline-flex items-center gap-2 bg-white px-6 py-3.5 text-[10px] font-medium uppercase tracking-[0.24em] text-[#151210] transition-opacity duration-300 hover:opacity-90 md:text-[11px]"
+            <span className="mt-8 block h-px w-full max-w-md bg-white/15 md:mt-10" aria-hidden />
+
+            <dl className="mt-8 grid max-w-md grid-cols-2 gap-x-8 gap-y-6 md:mt-10 md:gap-x-10 md:gap-y-7">
+              {heroSpecs.map((spec) => (
+                <div key={spec.label}>
+                  <dt className="text-[10px] font-medium uppercase tracking-[0.22em] text-white/40 md:text-[11px]">
+                    {spec.label}
+                  </dt>
+                  <dd className="mt-2 text-[14px] font-medium text-white md:text-[15px]">{spec.value}</dd>
+                </div>
+              ))}
+            </dl>
+          </div>
+
+          <div className="px-6 pb-8 md:px-10 md:pb-10 lg:px-12 lg:pb-12">
+            {instagramHref ? (
+              <a
+                href={instagramHref}
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex items-center gap-2 text-[11px] font-medium uppercase tracking-[0.24em] text-white/55 transition-colors duration-300 hover:text-white md:text-xs"
               >
-                Смотреть проект
-                <span aria-hidden>→</span>
-              </Link>
-              <Link
-                href="#project-tour"
-                className="text-[10px] font-medium uppercase tracking-[0.24em] text-white/90 underline decoration-white/40 underline-offset-[6px] transition-colors duration-300 hover:text-white md:text-[11px]"
-              >
-                Виртуальный тур
-              </Link>
-              <Link
-                href="#project-about"
-                className="text-[10px] font-medium uppercase tracking-[0.24em] text-white/90 underline decoration-white/40 underline-offset-[6px] transition-colors duration-300 hover:text-white md:text-[11px]"
-              >
-                Все детали
-              </Link>
-            </div>
+                Instagram студии*
+                <span aria-hidden className="text-[13px] leading-none">
+                  ↗
+                </span>
+              </a>
+            ) : null}
           </div>
         </div>
 
-        <div className="relative min-h-[50vh] lg:min-h-0">
-          <Link
-            href="/portfolio"
-            className="absolute right-6 top-6 z-10 text-[10px] font-medium uppercase tracking-[0.28em] text-white/90 transition-colors duration-300 hover:text-white md:right-10 md:top-8 md:text-[11px]"
-          >
-            Все проекты
-            <span className="ml-2" aria-hidden>
-              →
-            </span>
-          </Link>
-
-          <div className="relative h-full min-h-[50vh] lg:min-h-[100svh]">
-            <Image
-              src={heroImage}
-              alt={project.title}
-              fill
-              priority
-              sizes="(max-width: 1024px) 100vw, 58vw"
-              className="premium-photo object-cover"
-            />
+        <div className="relative min-h-[60vh] lg:min-h-[100svh]">
+          <div className="absolute inset-x-0 top-0 z-30 lg:hidden">
+            <SiteHeader variant="project" />
           </div>
+
+          <Image
+            src={heroImage}
+            alt={project.title}
+            fill
+            priority
+            sizes="(max-width: 1024px) 100vw, 50vw"
+            className="object-cover object-center"
+          />
+
+          <Link
+            href="#project-tour"
+            className="absolute bottom-6 right-6 z-20 inline-flex items-center gap-3 bg-[#f5f2ea] px-4 py-3 text-[11px] font-medium uppercase tracking-[0.2em] text-[#151210] transition-opacity duration-300 hover:opacity-85 md:bottom-8 md:right-8 md:px-5 md:text-xs"
+          >
+            <span
+              aria-hidden
+              className="inline-flex h-6 w-6 items-center justify-center rounded-full border border-[#151210]/35"
+            >
+              <svg viewBox="0 0 12 12" className="h-2.5 w-2.5 fill-current" aria-hidden>
+                <path d="M3.2 1.6v8.8L10.4 6 3.2 1.6Z" />
+              </svg>
+            </span>
+            Виртуальный тур
+          </Link>
         </div>
       </section>
 
-      <ProjectStatsBar stats={stats} />
+      <ProjectMiniDescription project={project} />
 
-      {/* About */}
-      <section id="project-about" className="bg-[#f5f3f0]">
-        <div className="grid lg:min-h-[min(100svh,880px)] lg:grid-cols-[minmax(0,1fr)_minmax(0,1.08fr)] lg:items-stretch">
-          <div className="flex items-center px-6 py-16 md:px-10 md:py-20 lg:px-12 lg:py-24 xl:px-16">
-            <RevealOnScroll once className="mx-auto w-full max-w-xl">
-              <div className="space-y-6 md:space-y-8">
-                <div className="space-y-3">
-                  <span className="block h-px w-8 bg-[#b07d55]" aria-hidden />
-                  <p className="text-[10px] font-medium uppercase tracking-[0.32em] text-[#4d131a]/70 md:text-[11px]">
-                    О проекте
-                  </p>
-                </div>
-
-                <h2 className="font-serif text-3xl leading-[1.12] tracking-[-0.02em] text-[#151210] md:text-4xl lg:text-[2.75rem]">
-                  {headline}
-                </h2>
-
-                <div className="space-y-5">
+      <section id="project-about" className="bg-[#f5f2ea]" aria-label="Описание проекта">
+        <div className="mx-auto max-w-[1440px] px-6 pb-6 pt-4 md:px-10 md:pb-8 md:pt-6 lg:px-12 lg:pb-8 lg:pt-6">
+          <RevealOnScroll once>
+            <div className="grid items-stretch gap-10 md:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)] md:gap-12 lg:gap-16 xl:gap-20">
+              <div className="flex h-full flex-col">
+                <div className="space-y-6 md:space-y-7">
                   {paragraphs.map((text, index) => (
                     <p
                       key={index}
-                      className="text-[15px] leading-[1.78] text-[#2a2420]/90 md:text-base md:leading-[1.82]"
+                      className="text-[15px] leading-[1.8] text-[#3a3530] md:text-[16px] md:leading-[1.85]"
                     >
                       {text}
                     </p>
                   ))}
                 </div>
 
-                <Link
-                  href="#project-gallery"
-                  className="inline-flex items-center gap-2 text-[10px] font-medium uppercase tracking-[0.26em] text-[#151210] transition-opacity duration-300 hover:opacity-70 md:text-[11px]"
+                <p
+                  aria-hidden
+                  className="mt-8 text-center text-[13px] font-medium tracking-[0.08em] text-[#b07d55] md:mt-auto md:pt-8"
                 >
-                  Смотреть полный проект
-                  <span aria-hidden>→</span>
-                </Link>
+                  01
+                </p>
               </div>
-            </RevealOnScroll>
-          </div>
 
-          <div className="relative min-h-[55vh] w-full lg:min-h-0">
-            <Image
-              src={aboutImage}
-              alt={`${project.title} — обзор пространства`}
-              fill
-              sizes="(max-width: 1024px) 100vw, 55vw"
-              className="premium-photo object-cover"
-            />
-          </div>
+              <div className="flex h-full flex-col">
+                <div className="space-y-6 md:space-y-7">
+                  <div className="relative aspect-[4/3] w-full overflow-hidden md:aspect-[5/4]">
+                    <Image
+                      src={aboutImage}
+                      alt={`${project.title} — обзор пространства`}
+                      fill
+                      sizes="(max-width: 768px) 100vw, 45vw"
+                      className="object-cover object-center"
+                    />
+                  </div>
+
+                  {imageCaptionParagraphs.map((text, index) => (
+                    <p
+                      key={index}
+                      className="text-[15px] leading-[1.8] text-[#3a3530] md:text-[16px] md:leading-[1.85]"
+                    >
+                      {text}
+                    </p>
+                  ))}
+                </div>
+
+                <p
+                  aria-hidden
+                  className="mt-8 text-center text-[13px] font-medium tracking-[0.08em] text-[#b07d55] md:mt-auto md:pt-8"
+                >
+                  02
+                </p>
+              </div>
+            </div>
+          </RevealOnScroll>
         </div>
       </section>
 
-      <ProjectVirtualTour
-        id="project-tour"
-        tourUrl={DEFAULT_VIRTUAL_TOUR_URL}
-        title="Кухня — гостиная"
-      />
+      <ProjectRoomsSection rooms={rooms} gallery={gallery} title={project.title} />
+
+      <ProjectMaterialsTeamSection materials={materials} team={team} />
+
+      <ProjectVirtualTour id="project-tour" tourUrl={tourUrl} image={aboutImage} />
 
       <ProjectInteriorGallery
         id="project-gallery"
         images={galleryImages.length > 0 ? galleryImages : [heroImage]}
         title={project.title}
       />
+
+      {nextProject ? <NextProjectHero project={nextProject} /> : null}
     </div>
   );
 }

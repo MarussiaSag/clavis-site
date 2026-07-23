@@ -24,11 +24,12 @@ export function AboutPhilosophySection() {
           </div>
 
           <div className="border-t border-[#d9d3cc] pt-12 md:border-l md:border-t-0 md:pl-12 md:pt-0 lg:pl-16">
-            <blockquote className="space-y-8">
-              <p className="font-serif text-[1.65rem] font-medium leading-snug tracking-[-0.02em] text-[#151210] md:text-[1.95rem] lg:text-[2.125rem]">
-                Лучший дизайн не объявляет о себе. Он просто делает всё остальное неизбежным.
+            <blockquote>
+              <p className="font-serif text-[1.7rem] font-normal italic leading-[1.38] tracking-[-0.01em] text-[#1a1a1a] md:text-[1.95rem] md:leading-[1.4] lg:text-[2.2rem] lg:leading-[1.38]">
+                «Лучший дизайн не объявляет о себе. Он просто даёт себя ощущать — день за днём, год за
+                годом.»
               </p>
-              <footer className="text-[11px] font-semibold uppercase tracking-[0.3em] text-[#b07d55] md:text-xs">
+              <footer className="mt-8 text-[11px] font-semibold uppercase tracking-[0.3em] text-[#b07d55] md:mt-10 md:text-xs">
                 — Команда CLAVIS
               </footer>
             </blockquote>

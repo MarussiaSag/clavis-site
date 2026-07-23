@@ -54,22 +54,59 @@ npm run build
 export NODE_ENV=production
 
 echo "→ копирование standalone в $RUNTIME_DIR"
-mkdir -p "$RUNTIME_DIR/.next"
-rsync -a --delete .next/standalone/ "$RUNTIME_DIR/" \
-  --exclude 'public/chaveta' \
-  --exclude 'public/zil'
-rsync -a .next/static/ "$RUNTIME_DIR/.next/static/"
+mkdir -p "$RUNTIME_DIR/.next" "$RUNTIME_DIR/logs"
+
+# rsync --delete убирает из runtime всё, чего нет в standalone (.env, data, галереи).
+BACKUP_DIR="$(mktemp -d)"
+for item in .env data logs public/chaveta public/zil; do
+  if [ -e "$RUNTIME_DIR/$item" ]; then
+    mkdir -p "$BACKUP_DIR/$(dirname "$item")"
+    cp -a "$RUNTIME_DIR/$item" "$BACKUP_DIR/$item"
+  fi
+done
+
+if [ "$REPO_DIR" = "$RUNTIME_DIR" ]; then
+  echo "  repo = runtime: обновляем только артефакты сборки"
+  # standalone/.next не содержит static; rsync --delete иначе сотрёт .next/static в том же каталоге.
+  STATIC_BACKUP="$(mktemp -d)"
+  if [ -d ".next/static" ]; then
+    cp -a .next/static "$STATIC_BACKUP/"
+  fi
+  rsync -a .next/standalone/server.js "$RUNTIME_DIR/"
+  rsync -a .next/standalone/node_modules/ "$RUNTIME_DIR/node_modules/"
+  rsync -a --delete .next/standalone/.next/ "$RUNTIME_DIR/.next/"
+  if [ -d "$STATIC_BACKUP/static" ]; then
+    rsync -a "$STATIC_BACKUP/static/" "$RUNTIME_DIR/.next/static/"
+  fi
+  rm -rf "$STATIC_BACKUP"
+else
+  rsync -a --delete .next/standalone/ "$RUNTIME_DIR/" \
+    --exclude 'public/chaveta' \
+    --exclude 'public/zil'
+  rsync -a .next/static/ "$RUNTIME_DIR/.next/static/"
+fi
+
 rsync -a public/ "$RUNTIME_DIR/public/" \
   --exclude 'chaveta/' \
   --exclude 'zil/'
 
-if [ -f "$RUNTIME_DIR/.env" ]; then
-  cp "$RUNTIME_DIR/.env" "$RUNTIME_DIR/.env"
+for item in .env data logs public/chaveta public/zil; do
+  if [ -e "$BACKUP_DIR/$item" ]; then
+    mkdir -p "$RUNTIME_DIR/$(dirname "$item")"
+    cp -a "$BACKUP_DIR/$item" "$RUNTIME_DIR/$item"
+  fi
+done
+rm -rf "$BACKUP_DIR"
+
+mkdir -p "$RUNTIME_DIR/data"
+if [ ! -f "$RUNTIME_DIR/.env" ]; then
+  echo "Внимание: $RUNTIME_DIR/.env не найден — создайте из .env.example"
 fi
 
 if command -v pm2 >/dev/null 2>&1; then
-  echo "→ pm2 restart clavis-site"
-  pm2 restart clavis-site || pm2 start "$REPO_DIR/ecosystem.config.cjs"
+  echo "→ pm2: node server.js (standalone, не next start)"
+  pm2 delete clavis-site 2>/dev/null || true
+  pm2 start "$REPO_DIR/ecosystem.config.cjs"
   pm2 save
 else
   echo "PM2 не найден. Запуск: cd $RUNTIME_DIR && node server.js"

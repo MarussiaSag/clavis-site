@@ -12,13 +12,56 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model SiteContent {
-  id          Int      @id @default(1)
-  heroTitle   String
-  heroSubtitle String
-  aboutTitle  String
-  aboutText   String
+model SiteSettings {
+  id                Int      @id @default(1)
+  city              String
+  address           String
+  mapUrl            String
+  phone             String
+  phoneHref         String
+  email             String
+  tagline           String
+  hoursWeekdays     String
+  hoursWeekend      String
+  instagramFootnote String
+  updatedAt         DateTime @updatedAt
+}
+
+model SocialLink {
+  id        Int      @id @default(autoincrement())
+  label     String
+  href      String
+  sortOrder Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model StudioHighlight {
+  id          Int      @id @default(autoincrement())
+  title       String
+  description String
+  sortOrder   Int      @default(0)
+  createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+}
+
+model AboutStudio {
+  id        Int                 @id @default(1)
+  teamPhoto String
+  updatedAt DateTime            @updatedAt
+  people    AboutStudioPerson[]
+}
+
+model AboutStudioPerson {
+  id            Int         @id @default(autoincrement())
+  name          String
+  role          String
+  competencies  String
+  sortOrder     Int         @default(0)
+  aboutStudioId Int         @default(1)
+  aboutStudio   AboutStudio @relation(fields: [aboutStudioId], references: [id], onDelete: Cascade)
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
 }
 
 model Project {
@@ -33,6 +76,18 @@ model Project {
   areaLabel      String?
   durationLabel  String?
   taskBrief      String?
+  styleLabel     String?
+  layoutLabel    String?
+  aboutSummary   String?
+  quote          String?
+  quoteAttribution String?
+  aboutBody      String?
+  aboutSideBody  String?
+  aboutImage     String?
+  roomsJson      String?
+  materialsJson  String?
+  teamJson       String?
+  virtualTourUrl String?
   isFeaturedHome Boolean  @default(false)
   showOnHero  Boolean  @default(true)
   heroOrder   Int      @default(0)
@@ -60,4 +115,11 @@ model BlogPost {
   readingMinutes  Int      @default(5)
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
+}
+
+model SiteImage {
+  id        Int      @id @default(autoincrement())
+  slot      String   @unique
+  url       String
+  updatedAt DateTime @updatedAt
 }

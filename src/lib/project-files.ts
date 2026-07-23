@@ -1,7 +1,7 @@
 import { mkdir, writeFile } from "node:fs/promises";
 import { basename, join } from "node:path";
 import { readdirSync } from "node:fs";
-import { listPublicFolderImages } from "@/lib/object-photos";
+import { optimizeUploadedImage } from "@/lib/optimize-image";
 
 const IMAGE_EXT = /\.(jpe?g|png|webp|avif)$/i;
 const UPLOAD_FOLDER = "projects";
@@ -49,48 +49,17 @@ export function orderedProjectGallery(slug: string, coverImage: string): string[
   return [cover, ...rest];
 }
 
-function slugPoolOffset(slug: string, size: number): number {
-  if (size <= 0) return 0;
-  let hash = 0;
-  for (const char of slug) hash = (hash + char.charCodeAt(0)) % size;
-  return hash;
-}
-
-/** Project photos first, then unique shots from object albums until `minCount` is reached. */
+/** Project photos only — no stock album padding. */
 export function buildProjectInteriorGallery(
   slug: string,
   coverImage: string,
   minCount = 6,
 ): string[] {
   const primary = orderedProjectGallery(slug, coverImage);
-  const pool = [
-    ...listPublicFolderImages("zil"),
-    ...listPublicFolderImages("chaveta"),
-    ...listPublicFolderImages("productImg"),
-  ];
-
-  const unique = new Set<string>();
-  const result: string[] = [];
-
-  for (const src of primary) {
-    if (!unique.has(src)) {
-      unique.add(src);
-      result.push(src);
-    }
+  if (primary.length > 0) {
+    return primary.slice(0, Math.max(minCount, primary.length));
   }
-
-  if (pool.length > 0) {
-    const offset = slugPoolOffset(slug, pool.length);
-    for (let i = 0; i < pool.length && result.length < minCount; i++) {
-      const src = pool[(offset + i) % pool.length];
-      if (!unique.has(src)) {
-        unique.add(src);
-        result.push(src);
-      }
-    }
-  }
-
-  return result.length > 0 ? result.slice(0, minCount) : [normalizePublicAssetPath(coverImage)];
+  return [normalizePublicAssetPath(coverImage)];
 }
 
 const MAX_BYTES = 15 * 1024 * 1024;
@@ -158,16 +127,23 @@ export async function saveUploadedProjectPhotos(
     if (cover.size > MAX_BYTES) {
       return { ok: false, message: "Главное фото не больше 15 МБ." };
     }
-    const ext = extensionForUploadedImage(cover);
-    if (!ext) {
+    const sourceExt = extensionForUploadedImage(cover);
+    if (!sourceExt) {
       return {
         ok: false,
         message: "Главное фото: допустимы JPEG, PNG, WebP или AVIF.",
       };
     }
-    const buf = Buffer.from(await cover.arrayBuffer());
-    await writeFile(join(projectDir, `cover.${ext}`), buf);
-    coverUrl = `/${UPLOAD_FOLDER}/${safeSlug}/cover.${ext}`;
+    try {
+      const optimized = await optimizeUploadedImage(
+        Buffer.from(await cover.arrayBuffer()),
+        sourceExt,
+      );
+      await writeFile(join(projectDir, `cover.${optimized.extension}`), optimized.buffer);
+      coverUrl = `/${UPLOAD_FOLDER}/${safeSlug}/cover.${optimized.extension}`;
+    } catch {
+      return { ok: false, message: "Не удалось обработать главное фото. Попробуйте другой файл." };
+    }
   }
 
   let index = 0;
@@ -177,17 +153,73 @@ export async function saveUploadedProjectPhotos(
     if (file.size > MAX_BYTES) {
       return { ok: false, message: `Фото «${basename(file.name)}» больше 15 МБ.` };
     }
-    const ext = extensionForUploadedImage(file);
-    if (!ext) {
+    const sourceExt = extensionForUploadedImage(file);
+    if (!sourceExt) {
       return {
         ok: false,
         message: `Файл «${basename(file.name)}» должен быть JPEG, PNG, WebP или AVIF.`,
       };
     }
     const stem = safeGalleryStem(file.name, index);
-    const buf = Buffer.from(await file.arrayBuffer());
-    await writeFile(join(projectDir, `${stem}.${ext}`), buf);
+    try {
+      const optimized = await optimizeUploadedImage(
+        Buffer.from(await file.arrayBuffer()),
+        sourceExt,
+      );
+      await writeFile(join(projectDir, `${stem}.${optimized.extension}`), optimized.buffer);
+    } catch {
+      return {
+        ok: false,
+        message: `Не удалось обработать фото «${basename(file.name)}». Попробуйте другой файл.`,
+      };
+    }
   }
 
   return { ok: true, coverUrl, projectDirRelative: `${UPLOAD_FOLDER}/${safeSlug}` };
+}
+
+export type SaveNamedImageResult =
+  | { ok: true; url: string }
+  | { ok: false; message: string };
+
+/** Saves a single named image under `public/projects/<slug>/<stem>.<ext>`. */
+export async function saveNamedProjectImage(
+  slug: string,
+  file: File,
+  stem: string,
+): Promise<SaveNamedImageResult> {
+  const safeSlug = sanitizeProjectSlug(slug);
+  if (!safeSlug) return { ok: false, message: "Некорректный slug." };
+  if (!file.size) return { ok: false, message: "Пустой файл." };
+  if (file.size > MAX_BYTES) {
+    return { ok: false, message: `Фото «${basename(file.name)}» больше 15 МБ.` };
+  }
+  const sourceExt = extensionForUploadedImage(file);
+  if (!sourceExt) {
+    return {
+      ok: false,
+      message: `Файл «${basename(file.name)}» должен быть JPEG, PNG, WebP или AVIF.`,
+    };
+  }
+
+  const safeStem = stem
+    .toLowerCase()
+    .replace(/[^a-z0-9_-]+/g, "-")
+    .replace(/^-+|-+$/g, "")
+    .slice(0, 64);
+  if (!safeStem) return { ok: false, message: "Некорректное имя файла." };
+
+  const projectDir = join(process.cwd(), "public", UPLOAD_FOLDER, safeSlug);
+  await mkdir(projectDir, { recursive: true });
+
+  try {
+    const optimized = await optimizeUploadedImage(
+      Buffer.from(await file.arrayBuffer()),
+      sourceExt,
+    );
+    await writeFile(join(projectDir, `${safeStem}.${optimized.extension}`), optimized.buffer);
+    return { ok: true, url: `/${UPLOAD_FOLDER}/${safeSlug}/${safeStem}.${optimized.extension}` };
+  } catch {
+    return { ok: false, message: `Не удалось обработать фото «${basename(file.name)}».` };
+  }
 }

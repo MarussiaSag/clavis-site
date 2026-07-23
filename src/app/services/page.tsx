@@ -2,6 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { SiteHeader } from "@/components/site-header";
 import { RevealOnScroll } from "@/components/reveal-on-scroll";
+import { getSiteImages } from "@/lib/site-images";
 
 type Service = {
   n: string;
@@ -81,58 +82,70 @@ const services: Service[] = [
   },
 ];
 
-export default function ServicesPage() {
+export default async function ServicesPage() {
+  const images = await getSiteImages();
+  const galleryPhotos = [
+    { src: images["services.gallery.1"], alt: "Интерьер проекта Chaveta", short: false },
+    { src: images["services.gallery.2"], alt: "Интерьер проекта Zil", short: true },
+    { src: images["services.gallery.3"], alt: "Деталь проекта Chaveta", short: false },
+  ];
+
   return (
     <div className="min-h-screen">
       <SiteHeader />
       <main className="w-full">
-        <section className="bg-[#f2efea]">
-          <div className="mx-auto w-full max-w-[1240px] px-6 py-14 md:px-10 md:py-20 lg:py-24">
-            <div className="grid items-center gap-10 md:grid-cols-[minmax(0,1fr)_minmax(0,0.78fr)] md:gap-12 lg:gap-16">
+        <section className="bg-[#f5f2ea]">
+          <div className="mx-auto w-full max-w-[1240px] px-6 pb-16 pt-6 md:px-10 md:pb-24 md:pt-8 lg:pb-28 lg:pt-10">
+            <div className="grid gap-12 md:grid-cols-2 md:items-stretch md:gap-x-16 lg:gap-x-24">
               <RevealOnScroll>
-                <div className="max-w-3xl space-y-5">
-                  <p className="text-[11px] font-semibold uppercase tracking-[0.36em] text-[#b07d55] md:text-xs">
+                <div className="flex h-full flex-col">
+                  <p className="text-[11px] font-medium uppercase tracking-[0.36em] text-[#8a8a8a] md:text-xs">
                     Услуги
                   </p>
-                  <h1 className="font-serif text-4xl font-semibold leading-[1.02] tracking-[-0.03em] text-[#151210] md:text-6xl lg:text-[4rem]">
-                    Полный цикл — от идеи до финального декора
+                  <h1 className="mt-8 font-serif text-[2.75rem] font-semibold leading-[1.08] tracking-[-0.03em] text-[#151210] md:mt-10 md:text-[3.5rem] lg:text-[4.25rem] lg:leading-[1.05]">
+                    Полный цикл —{" "}
+                    <span className="block">от идеи до</span>
+                    <em className="block font-normal italic">финального</em>
+                    <em className="block font-normal italic">объекта</em>
                   </h1>
-                  <p className="max-w-2xl text-[15px] leading-relaxed text-[#2a2420]/85 md:text-base">
-                    Берём проект под кураторское внимание и ведём связку архитектуры, инженерии
-                    и производства. Ниже — состав услуг и ориентир по стоимости. Финальную смету
-                    собираем по составу работ и материалам объекта.
-                  </p>
                 </div>
               </RevealOnScroll>
 
-              <RevealOnScroll delayMs={140}>
-                <div className="relative mx-auto aspect-square w-full max-w-[320px] md:ml-auto md:mr-0 md:max-w-[420px] lg:max-w-[460px]">
-                  <Image
-                    src="/service/clavis-circle.svg"
-                    alt="Эмблема CLAVIS — круг услуг студии"
-                    fill
-                    priority
-                    sizes="(max-width: 768px) 320px, (max-width: 1024px) 420px, 460px"
-                    className="object-contain"
-                  />
+              <RevealOnScroll delayMs={140} className="h-full">
+                <div className="flex h-full min-h-0 flex-col items-start md:items-end md:justify-between">
+                  <div className="relative aspect-square w-[148px] shrink-0 sm:w-[168px] md:w-[180px] lg:w-[200px]">
+                    <Image
+                      src="/service/clavis-circle.svg"
+                      alt="Эмблема CLAVIS — круг услуг студии"
+                      fill
+                      priority
+                      sizes="(max-width: 640px) 148px, (max-width: 1024px) 180px, 200px"
+                      className="object-contain"
+                    />
+                  </div>
+                  <p className="mt-10 max-w-[20rem] text-[15px] leading-[1.65] text-[#6a6a6a] md:mt-0 md:max-w-[21rem] md:text-right md:text-[15px] lg:max-w-[22rem]">
+                    Мы сопровождаем проект на каждом этапе — от первой встречи до финальной
+                    расстановки предметов. Можно подключить нас на любой стадии или довериться
+                    полностью.
+                  </p>
                 </div>
               </RevealOnScroll>
             </div>
           </div>
         </section>
 
-        <section aria-label="Интерьеры студии CLAVIS" className="bg-[#f2efea]">
-          <div className="mx-auto w-full max-w-[1240px] px-6 pb-10 md:px-10 md:pb-14 lg:pb-16">
+        <section aria-label="Интерьеры студии CLAVIS" className="bg-[#f5f2ea]">
+          <div className="mx-auto w-full max-w-[1440px] px-4 pb-12 md:px-6 md:pb-16 lg:px-8 lg:pb-20">
             <RevealOnScroll>
-              <ul className="grid list-none grid-cols-1 gap-3 p-0 sm:grid-cols-3 sm:gap-4">
-                {[
-                  { src: "/chaveta/5.jpg", alt: "Интерьер проекта Chaveta" },
-                  { src: "/zil/12.jpg", alt: "Интерьер проекта Zil" },
-                  { src: "/chaveta/27.jpg", alt: "Деталь проекта Chaveta" },
-                ].map((photo) => (
+              <ul className="flex list-none flex-col gap-3 p-0 sm:flex-row sm:items-center sm:gap-3 md:gap-4">
+                {galleryPhotos.map((photo) => (
                   <li
                     key={photo.src}
-                    className="relative aspect-[4/5] overflow-hidden bg-[#e8e2dc] sm:aspect-[3/5] md:aspect-[4/5]"
+                    className={`relative w-full overflow-hidden bg-[#e8e2dc] sm:flex-1 ${
+                      photo.short
+                        ? "aspect-[4/5] sm:aspect-[3/4] md:aspect-[4/5]"
+                        : "aspect-[4/5] sm:aspect-[3/5] md:aspect-[2/3] lg:aspect-[3/5]"
+                    }`}
                   >
                     <Image
                       src={photo.src}
@@ -149,48 +162,52 @@ export default function ServicesPage() {
           </div>
         </section>
 
-        <section className="bg-[#fafafa]">
-          <div className="mx-auto w-full max-w-[1240px] px-6 py-12 md:px-10 md:py-16 lg:py-20">
+        <section className="bg-[#f5f2ea]">
+          <div className="mx-auto w-full max-w-[1440px] px-4 py-12 md:px-6 md:py-16 lg:px-8 lg:py-20">
             <RevealOnScroll>
-              <ol className="grid list-none gap-px overflow-hidden border border-[#d4cdc4] bg-[#d4cdc4] p-0 md:grid-cols-2 lg:grid-cols-3">
-                {services.map((service) => {
+              <ol className="grid list-none p-0 md:grid-cols-2 lg:grid-cols-3">
+                {services.map((service, index) => {
                   const hasFixedPrice = Boolean(service.priceUnit);
+                  const colMd = index % 2;
+                  const colLg = index % 3;
+                  const borderClass = [
+                    index < 8 ? "border-b" : "",
+                    index >= 6 ? "lg:border-b-0" : "",
+                    colMd === 0 && index !== 8 ? "md:border-r" : "",
+                    colLg !== 2 ? "lg:border-r" : "lg:border-r-0",
+                  ]
+                    .filter(Boolean)
+                    .join(" ");
+
                   return (
                     <li
                       key={service.n}
-                      className="group relative flex min-h-[320px] flex-col gap-6 bg-[#fafafa] p-7 transition-colors duration-300 hover:bg-[#f4f1ed] md:min-h-[360px] md:p-9"
+                      className={`group relative flex min-h-[200px] flex-col border-[#cfc7be] px-0 py-6 transition-colors duration-300 hover:bg-[#ebe6de] sm:min-h-[210px] sm:px-6 md:min-h-[220px] md:px-8 md:py-7 lg:px-10 ${borderClass}`}
                     >
-                      <div className="flex items-baseline justify-between gap-4">
-                        <span className="text-[11px] font-semibold tabular-nums tracking-[0.26em] text-[#b07d55] md:text-xs">
-                          {service.n}
-                        </span>
-                        <span
-                          aria-hidden="true"
-                          className="h-px flex-1 origin-right scale-x-0 bg-[#b07d55]/40 transition-transform duration-500 group-hover:scale-x-100"
-                        />
-                      </div>
+                      <span className="font-mono text-xs tabular-nums text-[#9a9289]">
+                        {service.n}
+                      </span>
 
-                      <div className="space-y-3">
-                        <h2 className="font-serif text-2xl font-semibold tracking-[-0.02em] text-[#151210] md:text-[1.75rem]">
-                          {service.title}
-                        </h2>
-                        <p className="text-[14px] leading-relaxed text-[#2a2420]/85 md:text-[15px]">
-                          {service.description}
-                        </p>
-                      </div>
+                      <h2 className="mt-5 font-serif text-[1.65rem] font-semibold leading-[1.15] tracking-[-0.02em] text-[#141414] transition-colors duration-300 group-hover:text-[#8c6b5a] md:mt-6 md:text-[1.75rem]">
+                        {service.title}
+                      </h2>
 
-                      <div className="mt-auto border-t border-[#d4cdc4] pt-5">
+                      <p className="mt-3 max-w-md text-[14px] leading-relaxed text-[#5c5c5c] md:mt-4 md:text-[15px]">
+                        {service.description}
+                      </p>
+
+                      <div className="mt-auto pt-6">
                         {hasFixedPrice ? (
-                          <p className="flex items-baseline gap-2">
-                            <span className="font-serif text-2xl font-medium text-[#3d0d0a] md:text-[1.75rem]">
+                          <p className="flex flex-wrap items-baseline gap-x-2 gap-y-1">
+                            <span className="font-serif text-xl font-medium text-[#141414] md:text-[1.35rem]">
                               {service.price}
                             </span>
-                            <span className="text-[11px] font-medium uppercase tracking-[0.22em] text-[#b07d55] md:text-xs">
+                            <span className="text-[11px] font-medium uppercase tracking-[0.22em] text-[#9a9289] md:text-xs">
                               {service.priceUnit}
                             </span>
                           </p>
                         ) : (
-                          <p className="max-w-[16rem] text-[11px] font-semibold uppercase leading-snug tracking-[0.24em] text-[#3d0d0a] md:text-xs">
+                          <p className="max-w-[16rem] text-[11px] font-medium uppercase leading-snug tracking-[0.2em] text-[#4d4d4d] md:text-xs">
                             {service.price}
                           </p>
                         )}
@@ -210,10 +227,10 @@ export default function ServicesPage() {
           </div>
         </section>
 
-        <section aria-label="Сценарий пространства" className="relative isolate overflow-hidden bg-[#1a1614]">
+        <section aria-label="Обсудить проект" className="relative isolate overflow-hidden bg-[#1a1614]">
           <div className="relative min-h-[58vh] w-full md:min-h-[68vh]">
             <Image
-              src="/zil/17.jpg"
+              src={images["services.cta"]}
               alt="Интерьер студии CLAVIS — сценарий пространства"
               fill
               sizes="100vw"
@@ -223,45 +240,28 @@ export default function ServicesPage() {
             <div className="hero-text-overlay pointer-events-none absolute inset-0" />
             <div className="premium-overlay pointer-events-none absolute inset-0" />
 
-            <div className="relative z-10 mx-auto flex h-full min-h-[58vh] w-full max-w-[1240px] flex-col justify-end px-6 pb-12 md:min-h-[68vh] md:px-10 md:pb-16">
-              <RevealOnScroll>
-                <div className="max-w-2xl space-y-5 text-[#f1ece7]">
-                  <p className="text-[11px] font-semibold uppercase tracking-[0.36em] text-[#e7d8d1]/85 md:text-xs">
-                    CLAVIS — сценарии пространства
-                  </p>
-                  <p className="font-serif text-2xl leading-[1.18] tracking-[-0.02em] text-[#f4f1ed] md:text-4xl">
-                    Каждая услуга — это часть единой партитуры: материал, свет, ритм планировки
-                    и сценарий жизни в одном проекте.
-                  </p>
+            <div className="relative z-10 mx-auto flex h-full min-h-[58vh] w-full max-w-[1440px] items-end px-4 pb-12 md:min-h-[68vh] md:px-6 md:pb-16 lg:px-8 lg:pb-20">
+              <RevealOnScroll className="w-full">
+                <div className="grid w-full gap-10 text-[#f1ece7] md:grid-cols-2 md:items-end md:gap-16 lg:gap-24">
+                  <h2 className="max-w-xl font-serif text-3xl font-semibold leading-[1.12] tracking-[-0.02em] text-[#f4f1ed] md:text-4xl lg:text-5xl">
+                    Соберём состав работ и точную смету под{" "}
+                    <em className="font-normal italic">ваш объект</em>
+                  </h2>
+
+                  <div className="flex max-w-md flex-col gap-8 md:ml-auto md:max-w-sm lg:max-w-md">
+                    <p className="text-[15px] leading-relaxed text-[#e7d8d1]/85 md:text-base">
+                      Расскажите о проекте — мы подготовим персональное предложение с перечнем
+                      услуг и предварительной стоимостью в течение трёх рабочих дней.
+                    </p>
+                    <Link
+                      href="/contacts"
+                      className="inline-flex w-fit items-center justify-center border border-[#e7d8d1]/70 px-6 py-3 text-[12px] font-medium uppercase tracking-[0.2em] text-[#f4f1ed] transition-colors duration-300 hover:border-[#f4f1ed] hover:bg-[#f4f1ed] hover:text-[#1a1614] md:text-[13px]"
+                    >
+                      Связаться с нами →
+                    </Link>
+                  </div>
                 </div>
               </RevealOnScroll>
-            </div>
-          </div>
-        </section>
-
-        <section className="border-t border-[#a38d83] bg-[#1a1614] text-[#e7d8d1]">
-          <div className="mx-auto flex w-full max-w-[1240px] flex-col items-start gap-8 px-6 py-14 md:flex-row md:items-center md:justify-between md:gap-12 md:px-10 md:py-20">
-            <div className="max-w-xl space-y-4">
-              <p className="text-[11px] font-semibold uppercase tracking-[0.34em] text-[#b07d55] md:text-xs">
-                Готовы обсудить проект?
-              </p>
-              <h2 className="font-serif text-3xl font-semibold leading-[1.04] tracking-[-0.02em] text-[#f4f1ed] md:text-5xl">
-                Соберём состав работ и точную смету под ваш объект
-              </h2>
-            </div>
-            <div className="flex flex-wrap gap-3">
-              <Link
-                href="/contacts"
-                className="inline-flex items-center justify-center bg-[#f4f1ed] px-6 py-3 text-[12px] font-medium uppercase tracking-[0.2em] text-[#1a1614] transition-colors duration-300 hover:bg-[#e7d8d1] md:text-[13px]"
-              >
-                Обсудить проект
-              </Link>
-              <Link
-                href="/portfolio"
-                className="inline-flex items-center justify-center border border-[#a38d83] bg-transparent px-6 py-3 text-[12px] font-medium uppercase tracking-[0.2em] text-[#e7d8d1] transition-colors duration-300 hover:border-[#f4f1ed] hover:text-[#f4f1ed] md:text-[13px]"
-              >
-                Смотреть портфолио
-              </Link>
             </div>
           </div>
         </section>

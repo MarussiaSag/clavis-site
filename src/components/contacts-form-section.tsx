@@ -1,7 +1,7 @@
+import { createInquiry } from "@/app/actions";
+import { getSiteContact, socialLinksFromContact } from "@/lib/site-contact";
 import Image from "next/image";
 import Link from "next/link";
-import { createInquiry } from "@/app/actions";
-import { SITE_SOCIAL_LINKS } from "@/lib/site-contact";
 
 type ContactsFormSectionProps = {
   consultationImageSrc: string;
@@ -25,13 +25,6 @@ function SocialIcon({ label }: { label: string }) {
           <path d="M5 12l12-5-3 11-3-4-5 2 3-4-9 0z" />
         </svg>
       );
-    case "Pinterest":
-      return (
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className={common} aria-hidden>
-          <circle cx="12" cy="12" r="8" />
-          <path d="M10 16v-4c0-1.2.8-2 2-2s2 .8 2 2" />
-        </svg>
-      );
     default:
       return (
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className={common} aria-hidden>
@@ -44,7 +37,9 @@ function SocialIcon({ label }: { label: string }) {
 const fieldClassName =
   "w-full border-0 border-b border-[#c9bfb4] bg-transparent px-0 py-3 text-[15px] text-[#151210] placeholder:text-[#2a2420]/45 outline-none transition-colors focus:border-[#2a2420]/70";
 
-export function ContactsFormSection({ consultationImageSrc }: ContactsFormSectionProps) {
+export async function ContactsFormSection({ consultationImageSrc }: ContactsFormSectionProps) {
+  const socialLinks = socialLinksFromContact(await getSiteContact());
+
   return (
     <section className="bg-[#f5f1eb]">
       <div className="mx-auto grid w-full max-w-[1240px] gap-12 px-6 py-12 md:grid-cols-[minmax(0,0.95fr)_minmax(0,1.05fr)] md:gap-16 md:px-10 md:py-16 lg:gap-20">
@@ -54,7 +49,7 @@ export function ContactsFormSection({ consultationImageSrc }: ContactsFormSectio
               Мы в социальных сетях
             </p>
             <ul className="divide-y divide-[#d4cdc4] border-y border-[#d4cdc4]">
-              {SITE_SOCIAL_LINKS.map((social) => (
+              {socialLinks.map((social) => (
                 <li key={social.label}>
                   <a
                     href={social.href}
@@ -63,7 +58,10 @@ export function ContactsFormSection({ consultationImageSrc }: ContactsFormSectio
                     className="group flex items-center gap-4 py-4 transition-colors duration-300 hover:text-[#3d0d0a]"
                   >
                     <SocialIcon label={social.label} />
-                    <span className="flex-1 text-[15px] text-[#151210] md:text-base">{social.label}</span>
+                    <span className="flex-1 text-[15px] text-[#151210] md:text-base">
+                      {social.label}
+                      {social.label === "Instagram" ? "*" : null}
+                    </span>
                     <span className="text-sm text-[#2a2420]/45 transition-transform duration-300 group-hover:translate-x-0.5 group-hover:text-[#2a2420]/70">
                       →
                     </span>

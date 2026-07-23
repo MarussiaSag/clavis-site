@@ -2,12 +2,14 @@ import Image from "next/image";
 import Link from "next/link";
 import { RevealOnScroll } from "@/components/reveal-on-scroll";
 
-const FOUNDER_IMAGE = "/Tatiana/IMG_6579.JPG";
-
 const FOUNDER_QUOTE =
   "Я всегда верила, что правильное пространство способно изменить то, как вы воспринимаете собственную жизнь.";
 
-export function HomeFounderMagazineSection() {
+type HomeFounderMagazineSectionProps = {
+  imageSrc: string;
+};
+
+export function HomeFounderMagazineSection({ imageSrc }: HomeFounderMagazineSectionProps) {
   return (
     <section className="grid border-b border-[#a38d83] md:grid-cols-2" aria-labelledby="home-about-heading">
       <RevealOnScroll
@@ -17,8 +19,15 @@ export function HomeFounderMagazineSection() {
       >
         <div className="max-w-xl">
           <p className="ui-eyebrow text-[#8a8a8a]">О студии</p>
-          <h2 id="home-about-heading" className="ui-title mt-4 text-[#141414]">
-            Дизайн, который отражает то, как живут люди
+          <h2
+            id="home-about-heading"
+            className="mt-4 font-serif text-[2.25rem] font-normal leading-[1.12] tracking-[-0.03em] text-[#141414] md:text-[2.75rem] lg:text-[3.1rem] lg:leading-[1.1]"
+          >
+            Дизайн, который
+            <br />
+            <em className="font-normal italic">отражает то,</em>
+            <br />
+            как живут люди.
           </h2>
 
           <div className="ui-body mt-6 space-y-5">
@@ -57,7 +66,7 @@ export function HomeFounderMagazineSection() {
       <RevealOnScroll className="relative min-h-[420px] md:min-h-[720px]" delayMs={120} once>
         <figure className="relative h-full min-h-[420px] md:min-h-[720px]">
           <Image
-            src={FOUNDER_IMAGE}
+            src={imageSrc}
             alt="Татьяна Кожевникова — основатель студии CLAVIS"
             fill
             sizes="(max-width: 768px) 100vw, 50vw"

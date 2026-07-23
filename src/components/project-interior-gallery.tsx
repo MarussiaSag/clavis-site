@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 
 type ProjectInteriorGalleryProps = {
   images: string[];
@@ -9,67 +9,44 @@ type ProjectInteriorGalleryProps = {
   id?: string;
 };
 
-const DRAG_THRESHOLD_PX = 8;
+function GalleryTile({
+  src,
+  alt,
+  index,
+  total,
+  onOpen,
+  className,
+  sizes,
+}: {
+  src: string;
+  alt: string;
+  index: number;
+  total: number;
+  onOpen: (index: number) => void;
+  className: string;
+  sizes: string;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={() => onOpen(index)}
+      aria-label={`Открыть фото ${index + 1} из ${total}`}
+      className={`group relative overflow-hidden bg-[#e8e2dc] text-left ${className}`}
+    >
+      <Image
+        src={src}
+        alt={alt}
+        fill
+        sizes={sizes}
+        className="object-cover object-center transition-transform duration-500 group-hover:scale-[1.02]"
+      />
+      <span className="pointer-events-none absolute inset-0 bg-[#151210]/0 transition-colors duration-300 group-hover:bg-[#151210]/8" />
+    </button>
+  );
+}
 
 export function ProjectInteriorGallery({ images, title, id }: ProjectInteriorGalleryProps) {
-  const trackRef = useRef<HTMLDivElement | null>(null);
-  const [activeIndex, setActiveIndex] = useState(0);
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
-  const dragActiveRef = useRef(false);
-  const dragMovedRef = useRef(false);
-  const pressedIndexRef = useRef<number | null>(null);
-  const dragOriginRef = useRef({ x: 0, y: 0, scrollLeft: 0 });
-
-  const updateActiveIndex = useCallback(() => {
-    const track = trackRef.current;
-    if (!track || images.length === 0) return;
-
-    const children = Array.from(track.children) as HTMLElement[];
-    if (children.length === 0) return;
-
-    const trackLeft = track.getBoundingClientRect().left;
-    let closest = 0;
-    let closestDistance = Number.POSITIVE_INFINITY;
-
-    children.forEach((child, index) => {
-      const distance = Math.abs(child.getBoundingClientRect().left - trackLeft);
-      if (distance < closestDistance) {
-        closestDistance = distance;
-        closest = index;
-      }
-    });
-
-    setActiveIndex(closest);
-  }, [images.length]);
-
-  useEffect(() => {
-    const track = trackRef.current;
-    if (!track) return;
-
-    const onScroll = () => updateActiveIndex();
-    track.addEventListener("scroll", onScroll, { passive: true });
-    updateActiveIndex();
-
-    return () => track.removeEventListener("scroll", onScroll);
-  }, [updateActiveIndex]);
-
-  useEffect(() => {
-    const track = trackRef.current;
-    if (!track) return;
-
-    const onWheel = (event: WheelEvent) => {
-      const maxScroll = track.scrollWidth - track.clientWidth;
-      if (maxScroll <= 4) return;
-
-      if (event.shiftKey && Math.abs(event.deltaY) > Math.abs(event.deltaX)) {
-        event.preventDefault();
-        track.scrollLeft += event.deltaY;
-      }
-    };
-
-    track.addEventListener("wheel", onWheel, { passive: false });
-    return () => track.removeEventListener("wheel", onWheel);
-  }, []);
 
   useEffect(() => {
     if (lightboxIndex === null) return;
@@ -101,142 +78,76 @@ export function ProjectInteriorGallery({ images, title, id }: ProjectInteriorGal
     };
   }, [lightboxIndex, images.length]);
 
-  const onPointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
-    if (e.pointerType === "mouse" && e.buttons !== 1) return;
-
-    const slide = (e.target as HTMLElement).closest<HTMLElement>("[data-slide-index]");
-    pressedIndexRef.current = slide ? Number(slide.dataset.slideIndex) : null;
-
-    dragActiveRef.current = true;
-    dragMovedRef.current = false;
-    dragOriginRef.current = {
-      x: e.clientX,
-      y: e.clientY,
-      scrollLeft: trackRef.current?.scrollLeft ?? 0,
-    };
-
-    if (e.pointerType === "mouse") {
-      trackRef.current?.setPointerCapture(e.pointerId);
-    }
-  };
-
-  const onPointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
-    if (!dragActiveRef.current) return;
-
-    const dx = e.clientX - dragOriginRef.current.x;
-    const dy = e.clientY - dragOriginRef.current.y;
-    if (Math.abs(dx) > DRAG_THRESHOLD_PX || Math.abs(dy) > DRAG_THRESHOLD_PX) {
-      dragMovedRef.current = true;
-    }
-
-    if (e.pointerType === "mouse") {
-      const track = trackRef.current;
-      if (!track) return;
-      track.scrollLeft = dragOriginRef.current.scrollLeft - dx;
-    }
-  };
-
-  const finishPointer = (e: React.PointerEvent<HTMLDivElement>) => {
-    if (!dragActiveRef.current) return;
-
-    const wasDrag = dragMovedRef.current;
-    const pressedIndex = pressedIndexRef.current;
-
-    dragActiveRef.current = false;
-    dragMovedRef.current = false;
-    pressedIndexRef.current = null;
-
-    if (e.pointerType === "mouse") {
-      try {
-        trackRef.current?.releasePointerCapture(e.pointerId);
-      } catch {
-        /* pointer already released */
-      }
-    }
-
-    if (!wasDrag && pressedIndex !== null && !Number.isNaN(pressedIndex)) {
-      setLightboxIndex(pressedIndex);
-    }
-
-    updateActiveIndex();
-  };
-
-  const openLightbox = (index: number) => {
-    setLightboxIndex(index);
-  };
-
-  const goToPrevious = () => {
-    setLightboxIndex((current) =>
-      current === null ? null : (current - 1 + images.length) % images.length,
-    );
-  };
-
-  const goToNext = () => {
-    setLightboxIndex((current) => (current === null ? null : (current + 1) % images.length));
-  };
-
   if (images.length === 0) return null;
 
   const total = images.length;
-  const current = String(activeIndex + 1).padStart(2, "0");
   const totalLabel = String(total).padStart(2, "0");
+
+  const openLightbox = (index: number) => setLightboxIndex(index);
+  const goToPrevious = () =>
+    setLightboxIndex((current) =>
+      current === null ? null : (current - 1 + images.length) % images.length,
+    );
+  const goToNext = () =>
+    setLightboxIndex((current) => (current === null ? null : (current + 1) % images.length));
 
   return (
     <>
-      <section id={id} className="bg-[#f5f3f0] py-16 md:py-24" aria-labelledby="project-interior-heading">
-        <div className="mx-auto max-w-[1440px] px-6 md:px-10">
-          <header className="mb-8 flex items-end justify-between gap-6 md:mb-12">
-            <h2
-              id="project-interior-heading"
-              className="font-serif text-3xl tracking-[-0.02em] text-[#151210] md:text-4xl"
-            >
-              Интерьер
-            </h2>
-            <p className="text-[11px] uppercase tracking-[0.28em] text-[#4d131a]/60 md:text-xs" aria-live="polite">
-              <span className="text-[#151210]">{current}</span>
-              <span className="mx-3 inline-block w-16 border-t border-[#a38d83]/70 align-middle" aria-hidden />
-              {totalLabel}
-            </p>
-          </header>
-        </div>
+      <section
+        id={id}
+        className="bg-[#f5f2ea] pb-14 pt-8 md:pb-20 md:pt-10"
+        aria-labelledby="project-photos-heading"
+      >
+        <div className="mx-auto max-w-[1440px] px-6 md:px-10 lg:px-12">
+          <p
+            id="project-photos-heading"
+            className="text-[11px] font-medium uppercase tracking-[0.32em] text-[#a38d83] md:text-xs"
+          >
+            Фотографии проекта
+          </p>
 
-        <div
-          ref={trackRef}
-          role="region"
-          aria-label={`Галерея интерьера — ${title}. Листайте свайпом или перетаскиванием.`}
-          onPointerDown={onPointerDown}
-          onPointerMove={onPointerMove}
-          onPointerUp={finishPointer}
-          onPointerLeave={finishPointer}
-          onPointerCancel={finishPointer}
-          className="flex gap-2 overflow-x-auto overscroll-x-contain px-6 pb-2 [scrollbar-width:none] snap-x snap-proximity md:gap-3 md:px-10 md:touch-pan-x md:cursor-grab md:active:cursor-grabbing [&::-webkit-scrollbar]:hidden"
-          style={{ WebkitOverflowScrolling: "touch" }}
-        >
-          {images.map((src, index) => (
-            <button
-              key={`${src}-${index}`}
-              type="button"
-              data-slide-index={index}
-              onKeyDown={(event) => {
-                if (event.key === "Enter" || event.key === " ") {
-                  event.preventDefault();
-                  openLightbox(index);
-                }
-              }}
-              aria-label={`Открыть фото ${index + 1} из ${total}`}
-              className="group relative aspect-[3/4] w-[72vw] shrink-0 snap-start overflow-hidden bg-[#e8e2dc] text-left sm:w-[48vw] md:w-[32vw] lg:w-[24vw]"
-            >
-              <Image
-                src={src}
-                alt={`${title} — интерьер ${index + 1}`}
-                fill
-                sizes="(max-width: 768px) 72vw, (max-width: 1024px) 48vw, 24vw"
-                className="premium-photo pointer-events-none object-cover transition-transform duration-500 group-hover:scale-[1.02]"
-                draggable={false}
-              />
-              <span className="pointer-events-none absolute inset-0 bg-[#151210]/0 transition-colors duration-300 group-hover:bg-[#151210]/10" />
-            </button>
-          ))}
+          <div className="mt-8 space-y-2.5 md:mt-10 md:space-y-3">
+            {Array.from({ length: Math.ceil(images.length / 2) }, (_, rowIndex) => {
+              const leftIndex = rowIndex * 2;
+              const rightIndex = leftIndex + 1;
+              const leftSrc = images[leftIndex];
+              const rightSrc = images[rightIndex];
+              const wideOnLeft = rowIndex % 2 === 0;
+
+              return (
+                <div
+                  key={`row-${rowIndex}`}
+                  className={`grid grid-cols-1 gap-2.5 md:items-stretch md:gap-3 ${
+                    wideOnLeft
+                      ? "md:grid-cols-[minmax(0,1.65fr)_minmax(0,1fr)]"
+                      : "md:grid-cols-[minmax(0,1fr)_minmax(0,1.65fr)]"
+                  }`}
+                >
+                  <GalleryTile
+                    src={leftSrc}
+                    alt={`${title} — фото ${leftIndex + 1}`}
+                    index={leftIndex}
+                    total={total}
+                    onOpen={openLightbox}
+                    sizes="(max-width: 768px) 100vw, 60vw"
+                    className="aspect-[16/11] w-full md:aspect-auto md:min-h-[300px] lg:min-h-[360px]"
+                  />
+
+                  {rightSrc ? (
+                    <GalleryTile
+                      src={rightSrc}
+                      alt={`${title} — фото ${rightIndex + 1}`}
+                      index={rightIndex}
+                      total={total}
+                      onOpen={openLightbox}
+                      sizes="(max-width: 768px) 100vw, 40vw"
+                      className="aspect-[3/4] w-full md:aspect-auto md:h-full md:min-h-[300px] lg:min-h-[360px]"
+                    />
+                  ) : null}
+                </div>
+              );
+            })}
+          </div>
         </div>
       </section>
 
@@ -291,7 +202,7 @@ export function ProjectInteriorGallery({ images, title, id }: ProjectInteriorGal
             <Image
               key={images[lightboxIndex]}
               src={images[lightboxIndex]}
-              alt={`${title} — интерьер ${lightboxIndex + 1}`}
+              alt={`${title} — фото ${lightboxIndex + 1}`}
               fill
               sizes="100vw"
               className="premium-photo object-contain"

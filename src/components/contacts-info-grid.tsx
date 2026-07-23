@@ -1,4 +1,4 @@
-import { SITE_CONTACT } from "@/lib/site-contact";
+import { getSiteContact } from "@/lib/site-contact";
 
 function ColumnDivider() {
   return (
@@ -12,7 +12,9 @@ function MobileDivider() {
   return <div className="h-px w-full bg-[#d4cdc4] md:hidden" aria-hidden />;
 }
 
-export function ContactsInfoGrid() {
+export async function ContactsInfoGrid() {
+  const contact = await getSiteContact();
+
   return (
     <section className="border-b border-[#d4cdc4] bg-[#f5f1eb]" aria-label="Контактная информация">
       <div className="mx-auto w-full max-w-[1240px] px-6 py-14 md:px-10 md:py-16 lg:py-20">
@@ -22,10 +24,10 @@ export function ContactsInfoGrid() {
               Офис
             </p>
             <p className="max-w-xs text-[15px] leading-relaxed text-[#151210] md:text-base">
-              {SITE_CONTACT.address}
+              {contact.address}
             </p>
             <a
-              href={SITE_CONTACT.mapUrl}
+              href={contact.mapUrl}
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex text-[11px] font-medium uppercase tracking-[0.24em] text-[#2a2420]/75 transition-colors duration-300 hover:text-[#3d0d0a] md:text-xs"
@@ -43,10 +45,10 @@ export function ContactsInfoGrid() {
                 Телефон
               </p>
               <a
-                href={SITE_CONTACT.phoneHref}
+                href={contact.phoneHref}
                 className="block text-[15px] text-[#151210] transition-colors duration-300 hover:text-[#751f26] md:text-base"
               >
-                {SITE_CONTACT.phone}
+                {contact.phone}
               </a>
             </div>
             <div className="space-y-2">
@@ -54,10 +56,10 @@ export function ContactsInfoGrid() {
                 Email
               </p>
               <a
-                href={`mailto:${SITE_CONTACT.email}`}
+                href={`mailto:${contact.email}`}
                 className="block text-[15px] text-[#151210] transition-colors duration-300 hover:text-[#751f26] md:text-base"
               >
-                {SITE_CONTACT.email}
+                {contact.email}
               </a>
             </div>
           </div>
@@ -70,8 +72,8 @@ export function ContactsInfoGrid() {
               Часы работы
             </p>
             <div className="space-y-1 text-[15px] leading-relaxed text-[#151210] md:text-base">
-              <p>{SITE_CONTACT.workingHours.weekdays}</p>
-              <p>{SITE_CONTACT.workingHours.weekend}</p>
+              <p>{contact.workingHours.weekdays}</p>
+              <p>{contact.workingHours.weekend}</p>
             </div>
           </div>
         </div>

@@ -1,9 +1,21 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
-import { ADMIN_SESSION_COOKIE, verifySessionToken } from "@/lib/admin-session";
+import {
+  ADMIN_SESSION_COOKIE,
+  isDevAdminBypass,
+  verifySessionToken,
+} from "@/lib/admin-session";
 
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
+
+  if (isDevAdminBypass()) {
+    if (pathname === "/admin/login") {
+      return NextResponse.redirect(new URL("/admin/basics", request.url));
+    }
+    return NextResponse.next();
+  }
+
   const session = request.cookies.get(ADMIN_SESSION_COOKIE)?.value;
   const isAuthed = verifySessionToken(session);
 
@@ -17,7 +29,7 @@ export function middleware(request: NextRequest) {
   }
 
   if (pathname === "/admin/login" && isAuthed) {
-    return NextResponse.redirect(new URL("/admin", request.url));
+    return NextResponse.redirect(new URL("/admin/basics", request.url));
   }
 
   return NextResponse.next();

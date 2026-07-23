@@ -14,21 +14,21 @@ import { fullWidthSectionHeader, fullWidthSectionX, sectionContainer, sectionCon
 
 export type HomePageSectionsProps = {
   quoteProjectImage: string;
-  ctaProjectImage: string;
   archiveProjects: Project[];
   featuredProject: HomeFeaturedProject | null;
+  founderImage: string;
 };
 
 export function HomePageSections({
   quoteProjectImage,
-  ctaProjectImage,
   archiveProjects,
   featuredProject,
+  founderImage,
 }: HomePageSectionsProps) {
   return (
     <>
       <HomeStudioHighlightsSection />
-      <HomeFounderMagazineSection />
+      <HomeFounderMagazineSection imageSrc={founderImage} />
       <section className="grid border-b border-[#a38d83] md:grid-cols-2">
         <div className="relative min-h-[460px] overflow-hidden md:min-h-[700px]">
           <div
@@ -103,26 +103,30 @@ export function HomePageSections({
 
       <HomeFaqSection />
 
-      <section className="border-t border-[#a38d83]">
-        <div className="relative min-h-[58vh] overflow-hidden md:min-h-[72vh]">
-          <div
-            className="premium-photo absolute inset-0 bg-cover bg-center"
-            style={{ backgroundImage: `url(${ctaProjectImage})` }}
-          />
-          <div className="hero-text-overlay absolute inset-0" />
-          <div className={`absolute inset-x-0 bottom-0 ${fullWidthSectionX} pb-12 md:pb-16`}>
-            <div className="ui-header max-w-3xl text-[#f1ece7]">
-              <h2 className="ui-title text-[#f1ece7]">Готовы обсудить ваш проект?</h2>
-              <p className="text-base leading-relaxed text-[#e7d8d1]/90 md:text-lg">
-                Оставьте заявку, и мы свяжемся с вами для консультации
-              </p>
-              <Link
-                href="/contacts"
-                className="inline-flex w-auto self-start border border-[#f1ece7] px-5 py-2.5 text-[11px] font-medium uppercase tracking-[0.2em] text-[#f1ece7] transition-colors duration-300 hover:bg-[#f1ece7]/15 md:text-xs"
-              >
-                Связаться
-              </Link>
-            </div>
+      <section className="bg-[#141414]" aria-labelledby="home-cta-heading">
+        <div className={`${fullWidthSectionX} flex min-h-[58vh] flex-col items-center justify-center py-20 text-center md:min-h-[68vh] md:py-28`}>
+          <div className="mx-auto flex max-w-3xl flex-col items-center gap-6 md:gap-7">
+            <p className="text-[11px] font-medium uppercase tracking-[0.36em] text-white/45 md:text-xs">
+              Начнём
+            </p>
+            <h2
+              id="home-cta-heading"
+              className="font-serif text-[2.5rem] font-normal leading-[1.12] tracking-[-0.03em] text-[#f1ece7] md:text-[3.25rem] lg:text-[3.75rem] lg:leading-[1.08]"
+            >
+              Готовы обсудить
+              <br />
+              <em className="font-normal italic">ваш проект?</em>
+            </h2>
+            <p className="max-w-xl text-[15px] leading-[1.7] text-[#b8b0a8] md:text-lg md:leading-[1.65]">
+              Мы берём ограниченное число новых проектов в год. Напишите нам — мы будем рады узнать о
+              вашем пространстве.
+            </p>
+            <Link
+              href="/contacts"
+              className="mt-2 inline-flex border border-[#f1ece7] px-5 py-2.5 text-[11px] font-medium uppercase tracking-[0.2em] text-[#f1ece7] transition-colors duration-300 hover:bg-[#f1ece7]/15 md:text-xs"
+            >
+              Связаться
+            </Link>
           </div>
         </div>
       </section>

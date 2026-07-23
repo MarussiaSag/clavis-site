@@ -22,7 +22,11 @@ export async function HomeBlogSection() {
                 Посмотреть статьи
               </Link>
             </div>
-            <h2 className="ui-title text-[#f1ece7]">Идеи и вдохновение для вашего интерьера</h2>
+            <h2 className="font-serif text-[2.25rem] font-normal leading-[1.12] tracking-[-0.03em] text-[#f1ece7] md:text-[2.75rem] lg:text-[3.1rem] lg:leading-[1.1]">
+              Идеи и вдохновение
+              <br />
+              <em className="font-normal italic">для вашего интерьера</em>
+            </h2>
           </div>
         </RevealOnScroll>
       </div>

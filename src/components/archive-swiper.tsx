@@ -161,37 +161,48 @@ export function ArchiveSwiper({ projects, centered = false }: ArchiveSwiperProps
     dragActiveRef.current = true;
     dragMovedRef.current = false;
     dragOriginRef.current = { x: e.clientX, scrollLeft: track.scrollLeft };
-    track.setPointerCapture(e.pointerId);
   };
 
   const onPointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
     const track = trackRef.current;
     if (!dragActiveRef.current || !track) return;
     const dx = e.clientX - dragOriginRef.current.x;
-    if (Math.abs(dx) > 4) dragMovedRef.current = true;
+    if (Math.abs(dx) <= 8) return;
+
+    if (!dragMovedRef.current) {
+      dragMovedRef.current = true;
+      blockNavigateRef.current = true;
+      try {
+        track.setPointerCapture(e.pointerId);
+      } catch {
+        /* ignore */
+      }
+    }
+
     track.scrollLeft = dragOriginRef.current.scrollLeft - dx;
   };
 
   const finishPointer = (e: React.PointerEvent<HTMLDivElement>) => {
     if (!dragActiveRef.current) return;
     dragActiveRef.current = false;
-    try {
-      trackRef.current?.releasePointerCapture(e.pointerId);
-    } catch {
-      /* pointer already released */
-    }
     const wasDrag = dragMovedRef.current;
     dragMovedRef.current = false;
+
     if (wasDrag) {
+      try {
+        trackRef.current?.releasePointerCapture(e.pointerId);
+      } catch {
+        /* pointer already released */
+      }
       blockNavigateRef.current = true;
       window.setTimeout(() => {
         blockNavigateRef.current = false;
-      }, 420);
+      }, 120);
+      syncActiveIndex();
     }
-    syncActiveIndex();
   };
 
-  const onLinkClickCapture = (e: React.MouseEvent<HTMLAnchorElement>) => {
+  const onLinkClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
     if (!blockNavigateRef.current) return;
     e.preventDefault();
     e.stopPropagation();
@@ -229,7 +240,7 @@ export function ArchiveSwiper({ projects, centered = false }: ArchiveSwiperProps
               key={project.id}
               href={`/portfolio/${project.slug}`}
               data-archive-card
-              onClickCapture={onLinkClickCapture}
+              onClick={onLinkClick}
               draggable={false}
               onMouseEnter={() => setActiveIndex(index)}
               className={`group block shrink-0 ${cardWidthClass}`}

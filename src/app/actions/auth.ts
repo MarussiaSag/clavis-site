@@ -31,7 +31,7 @@ export async function adminLoginAction(
   });
 
   const from = String(formData.get("from") ?? "").trim();
-  redirect(from.startsWith("/admin") ? from : "/admin");
+  redirect(from.startsWith("/admin") && from !== "/admin/login" ? from : "/admin/basics");
 }
 
 export async function adminLogoutAction() {

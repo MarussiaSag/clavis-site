@@ -17,7 +17,7 @@ export function HomeHeroSlider({ slides }: HomeHeroSliderProps) {
     () =>
       slides.length > 0
         ? slides
-        : [{ src: "/productImg/istockphoto-1372682637-2048x2048.jpg" }],
+        : [{ src: "/media/fallback-b.jpg" }],
     [slides],
   );
   const [activeIndex, setActiveIndex] = useState(0);
@@ -124,10 +124,10 @@ export function HomeHeroSlider({ slides }: HomeHeroSliderProps) {
 
         <div className="absolute bottom-0 left-0 right-0 z-20 px-6 pb-20 md:px-10 md:pb-24">
           {activeSlide.title ? (
-            <div key={captionKey} className="hero-slide-caption max-w-xl space-y-2">
+            <div key={captionKey} className="hero-slide-caption max-w-2xl space-y-2">
               {activeSlide.portfolioHref ? (
                 <Link href={activeSlide.portfolioHref} className="group block space-y-2">
-                  <h1 className="font-serif text-2xl leading-tight text-[#f4f1ed] transition-colors duration-300 group-hover:text-[#faf6f2] md:text-3xl">
+                  <h1 className="font-serif text-3xl leading-[1.1] tracking-[-0.02em] text-[#f4f1ed] transition-colors duration-300 group-hover:text-[#faf6f2] md:text-5xl lg:text-[3.5rem]">
                     {activeSlide.title}
                   </h1>
                   {activeSlide.meta ? (
@@ -138,7 +138,7 @@ export function HomeHeroSlider({ slides }: HomeHeroSliderProps) {
                 </Link>
               ) : (
                 <>
-                  <h1 className="font-serif text-2xl leading-tight text-[#f4f1ed] md:text-3xl">
+                  <h1 className="font-serif text-3xl leading-[1.1] tracking-[-0.02em] text-[#f4f1ed] md:text-5xl lg:text-[3.5rem]">
                     {activeSlide.title}
                   </h1>
                   {activeSlide.meta ? (

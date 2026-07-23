@@ -1,40 +1,64 @@
-import { kuulaEmbedSrc } from "@/lib/kuula-embed";
+import Image from "next/image";
 
 type ProjectVirtualTourProps = {
   tourUrl: string;
-  title: string;
+  image: string;
   id?: string;
 };
 
-export function ProjectVirtualTour({ tourUrl, title, id }: ProjectVirtualTourProps) {
-  const embedSrc = kuulaEmbedSrc(tourUrl);
-  if (!embedSrc) return null;
+export function ProjectVirtualTour({ tourUrl, image, id }: ProjectVirtualTourProps) {
+  if (!tourUrl) return null;
 
   return (
-    <section id={id} className="bg-[#332f2c] py-16 md:py-24" aria-labelledby="project-tour-heading">
-      <div className="mx-auto max-w-[1440px] px-6 md:px-10">
-        <header className="mb-8 space-y-3 md:mb-10">
-          <span className="block h-px w-8 bg-[#b07d55]" aria-hidden />
-          <p className="text-[10px] font-medium uppercase tracking-[0.32em] text-white/60 md:text-[11px]">
-            Виртуальный тур
+    <section
+      id={id}
+      className="relative isolate min-h-[70vh] overflow-hidden md:min-h-[78vh]"
+      aria-labelledby="project-tour-heading"
+    >
+      <Image
+        src={image}
+        alt=""
+        fill
+        sizes="100vw"
+        className="object-cover object-center"
+        aria-hidden
+      />
+      <div className="absolute inset-0 bg-[#151210]/72" aria-hidden />
+
+      <div className="relative z-10 flex min-h-[70vh] items-center justify-center px-6 py-20 md:min-h-[78vh] md:px-10 md:py-24">
+        <div className="mx-auto max-w-2xl text-center text-white">
+          <p className="text-[11px] font-medium uppercase tracking-[0.32em] text-white/70 md:text-xs">
+            Исследуйте пространство
           </p>
+
           <h2
             id="project-tour-heading"
-            className="font-serif text-3xl tracking-[-0.02em] text-white md:text-4xl"
+            className="mt-5 font-serif text-[2.4rem] font-normal leading-[1.12] tracking-[-0.02em] md:mt-6 md:text-[3.25rem] lg:text-[3.6rem]"
           >
-            {title}
+            Виртуальный тур
           </h2>
-        </header>
 
-        <div className="relative aspect-[16/10] w-full overflow-hidden bg-[#1f1c1a] md:aspect-[16/9]">
-          <iframe
-            src={embedSrc}
-            title={`Виртуальный тур — ${title}`}
-            className="absolute inset-0 h-full w-full border-0"
-            allow="xr-spatial-tracking; gyroscope; accelerometer"
-            allowFullScreen
-            loading="lazy"
-          />
+          <p className="mx-auto mt-6 max-w-lg text-[15px] leading-[1.75] text-white/75 md:mt-7 md:text-base md:leading-[1.8]">
+            Пройдитесь по каждой комнате в интерактивном 360°-туре. Почувствуйте масштаб и
+            атмосферу пространства до личного визита.
+          </p>
+
+          <a
+            href={tourUrl}
+            target="_blank"
+            rel="noreferrer"
+            className="mt-9 inline-flex items-center gap-3 border border-white/80 px-6 py-3.5 text-[11px] font-medium uppercase tracking-[0.24em] text-white transition-colors duration-300 hover:border-white hover:bg-white hover:text-[#151210] md:mt-10 md:px-7 md:text-xs"
+          >
+            <span
+              aria-hidden
+              className="inline-flex h-5 w-5 items-center justify-center rounded-full border border-current"
+            >
+              <svg viewBox="0 0 12 12" className="h-2.5 w-2.5 fill-current" aria-hidden>
+                <path d="M3.2 1.6v8.8L10.4 6 3.2 1.6Z" />
+              </svg>
+            </span>
+            Начать тур
+          </a>
         </div>
       </div>
     </section>

@@ -5,13 +5,61 @@ import { useState } from "react";
 import { PUBLIC_NAV_LINKS } from "@/lib/nav-links";
 
 type SiteHeaderProps = {
-  variant?: "default" | "hero" | "project" | "contacts";
+  variant?: "default" | "hero" | "project" | "contacts" | "about";
 };
+
+const HEADER_LOGO = "/logos/svg/header-logo.svg";
 
 export function SiteHeader({ variant = "default" }: SiteHeaderProps) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const burgerLineColor =
-    variant === "project" ? "bg-white/90" : variant === "hero" ? "bg-[#a38d83]" : "bg-[#a38d83]";
+    variant === "project" || variant === "about"
+      ? "bg-white/90"
+      : variant === "hero"
+        ? "bg-[#a38d83]"
+        : "bg-[#a38d83]";
+
+  const showHomeLogo = variant !== "hero";
+
+  const burgerButton = (
+    <button
+      type="button"
+      aria-label="Открыть меню"
+      onClick={() => setIsMenuOpen(true)}
+      className="inline-flex h-10 w-10 shrink-0 items-center justify-center"
+    >
+      <span className="sr-only">Открыть меню</span>
+      <span className="flex flex-col gap-1.5">
+        <span className={`h-0.5 w-5 ${burgerLineColor}`} />
+        <span className={`h-0.5 w-5 ${burgerLineColor}`} />
+        <span className={`h-0.5 w-5 ${burgerLineColor}`} />
+      </span>
+    </button>
+  );
+
+  const logoOnDark = variant === "project" || variant === "about";
+
+  const homeLogoLink = showHomeLogo ? (
+    <Link
+      href="/"
+      aria-label="На главную"
+      className="inline-flex h-10 items-center transition-opacity duration-300 hover:opacity-80"
+    >
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
+        src={HEADER_LOGO}
+        alt="Clavis"
+        className={`h-7 w-auto md:h-8 ${logoOnDark ? "brightness-0 invert" : ""}`}
+      />
+    </Link>
+  ) : null;
+
+  const leftControls = (
+    <div className="flex items-center gap-3 md:gap-4">
+      {burgerButton}
+      {homeLogoLink}
+    </div>
+  );
 
   const menuPanel = (
     <div
@@ -26,7 +74,7 @@ export function SiteHeader({ variant = "default" }: SiteHeaderProps) {
         className="absolute inset-0 bg-black/35"
       />
       <aside
-        className={`absolute left-0 top-0 h-full w-[82vw] max-w-sm bg-[#f4f1ed] p-6 shadow-2xl transition-transform duration-300 md:p-8 ${
+        className={`absolute left-0 top-0 flex h-full w-[82vw] max-w-sm flex-col bg-[#f4f1ed] p-6 shadow-2xl transition-transform duration-300 md:p-8 ${
           isMenuOpen ? "translate-x-0" : "-translate-x-full"
         }`}
       >
@@ -53,6 +101,21 @@ export function SiteHeader({ variant = "default" }: SiteHeaderProps) {
             </Link>
           ))}
         </nav>
+        <div className="mt-auto pt-10">
+          <Link
+            href="/"
+            aria-label="На главную"
+            onClick={() => setIsMenuOpen(false)}
+            className="inline-flex items-center transition-opacity duration-300 hover:opacity-80"
+          >
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src="/logos/svg/header-logo.svg"
+              alt="Clavis"
+              className="h-7 w-auto md:h-8"
+            />
+          </Link>
+        </div>
       </aside>
     </div>
   );
@@ -61,45 +124,25 @@ export function SiteHeader({ variant = "default" }: SiteHeaderProps) {
     return (
       <header className="relative z-10">
         <div className="flex items-center justify-between px-6 py-5 md:px-10 md:py-6">
-          <button
-            type="button"
-            aria-label="Открыть меню"
-            onClick={() => setIsMenuOpen(true)}
-            className="inline-flex h-10 w-10 items-center justify-center"
-          >
-            <span className="sr-only">Открыть меню</span>
-            <span className="flex flex-col gap-1.5">
-              <span className={`h-0.5 w-5 ${burgerLineColor}`} />
-              <span className={`h-0.5 w-5 ${burgerLineColor}`} />
-              <span className={`h-0.5 w-5 ${burgerLineColor}`} />
-            </span>
-          </button>
+          {leftControls}
         </div>
         {menuPanel}
       </header>
     );
   }
 
-  if (variant === "contacts") {
+  if (variant === "contacts" || variant === "about") {
     return (
       <header className="fixed inset-x-0 top-0 z-40">
         <div className="relative flex items-center justify-between px-6 py-5 md:px-10">
-          <button
-            type="button"
-            aria-label="Открыть меню"
-            onClick={() => setIsMenuOpen(true)}
-            className="inline-flex h-10 w-10 items-center justify-center"
-          >
-            <span className="sr-only">Открыть меню</span>
-            <span className="flex flex-col gap-1.5">
-              <span className={`h-0.5 w-5 ${burgerLineColor}`} />
-              <span className={`h-0.5 w-5 ${burgerLineColor}`} />
-              <span className={`h-0.5 w-5 ${burgerLineColor}`} />
-            </span>
-          </button>
+          {leftControls}
           <Link
             href="/portfolio"
-            className="text-[11px] uppercase tracking-[0.22em] text-[#2a2420]/85 transition-colors duration-300 hover:text-[#3d0d0a] md:text-xs"
+            className={`text-[11px] uppercase tracking-[0.22em] transition-colors duration-300 md:text-xs ${
+              variant === "about"
+                ? "text-white/90 hover:text-white md:text-[#2a2420]/80 md:hover:text-[#3d0d0a]"
+                : "text-[#2a2420]/85 hover:text-[#3d0d0a]"
+            }`}
           >
             Все проекты →
           </Link>
@@ -113,19 +156,7 @@ export function SiteHeader({ variant = "default" }: SiteHeaderProps) {
     return (
       <header className="fixed inset-x-0 top-0 z-40">
         <div className="relative flex items-center justify-between px-6 py-5 md:px-10">
-          <button
-            type="button"
-            aria-label="Открыть меню"
-            onClick={() => setIsMenuOpen(true)}
-            className="inline-flex h-10 w-10 items-center justify-center"
-          >
-            <span className="sr-only">Открыть меню</span>
-            <span className="flex flex-col gap-1.5">
-              <span className={`h-0.5 w-5 ${burgerLineColor}`} />
-              <span className={`h-0.5 w-5 ${burgerLineColor}`} />
-              <span className={`h-0.5 w-5 ${burgerLineColor}`} />
-            </span>
-          </button>
+          {leftControls}
           <Link
             href="/"
             className="hidden shrink-0 whitespace-nowrap text-right text-[11px] uppercase leading-none text-[#f4f1ed]/90 transition-colors duration-300 hover:text-[#faf6f2] md:block md:text-xs"
@@ -147,19 +178,7 @@ export function SiteHeader({ variant = "default" }: SiteHeaderProps) {
     <>
       <header className="fixed inset-x-0 top-0 z-40 border-b border-[#a38d83] bg-[#f4f1ed]">
         <div className="relative flex w-full items-center justify-between px-6 py-5 md:px-10">
-          <button
-            type="button"
-            aria-label="Открыть меню"
-            onClick={() => setIsMenuOpen(true)}
-            className="inline-flex h-10 w-10 items-center justify-center"
-          >
-            <span className="sr-only">Открыть меню</span>
-            <span className="flex flex-col gap-1.5">
-              <span className={`h-0.5 w-5 ${burgerLineColor}`} />
-              <span className={`h-0.5 w-5 ${burgerLineColor}`} />
-              <span className={`h-0.5 w-5 ${burgerLineColor}`} />
-            </span>
-          </button>
+          {leftControls}
           <div className="h-10 w-10" />
         </div>
         {menuPanel}

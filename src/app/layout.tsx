@@ -5,12 +5,14 @@ import "./globals.css";
 
 const manrope = Manrope({
   variable: "--font-manrope",
-  subsets: ["latin"],
+  subsets: ["latin", "cyrillic"],
 });
 
 const playfair = Playfair_Display({
   variable: "--font-playfair",
-  subsets: ["latin"],
+  subsets: ["latin", "cyrillic"],
+  weight: ["400", "500", "600"],
+  style: ["normal", "italic"],
 });
 
 export const metadata = siteMetadata;
