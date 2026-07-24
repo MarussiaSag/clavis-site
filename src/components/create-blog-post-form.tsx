@@ -63,7 +63,7 @@ export function CreateBlogPostForm() {
 
       <div className="space-y-2 md:col-span-2">
         <p className="text-sm text-[#4d131a]/85">
-          Обложка сохраняется в{" "}
+          Обложка (разворот 01) сохраняется в{" "}
           <code className="rounded bg-[#e7d8d1] px-1">public/blog/ваш-slug/</code>
         </p>
         <input
@@ -79,6 +79,22 @@ export function CreateBlogPostForm() {
         placeholder="URL обложки (если не загружаете файл)"
         className="border border-[#a38d83] bg-[#e7d8d1] px-4 py-3 md:col-span-2"
       />
+
+      <div className="space-y-2 border border-[#d4cdc4] bg-[#f4f1ed]/50 p-4 md:col-span-2">
+        <p className="text-[11px] font-medium uppercase tracking-[0.2em] text-[#6a6a6a]">
+          Мини-галерея
+        </p>
+        <p className="text-sm text-[#6a6a6a]">
+          Необязательно. Фото появятся под разворотом статьи.
+        </p>
+        <input
+          name="galleryFiles"
+          type="file"
+          accept="image/jpeg,image/png,image/webp,image/avif"
+          multiple
+          className="w-full text-sm file:mr-3 file:border file:border-[#a38d83] file:bg-[#f4f1ed] file:px-3 file:py-2"
+        />
+      </div>
 
       <button
         type="submit"

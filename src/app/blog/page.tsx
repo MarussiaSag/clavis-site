@@ -20,9 +20,8 @@ export default async function BlogPage() {
           <div className="mx-auto w-full max-w-[1180px] px-6 pb-8 pt-6 md:px-10 md:pb-10 md:pt-8">
             <p className="ui-eyebrow text-[#8a8a8a]">Блог</p>
             <div className="mt-4 grid gap-6 md:mt-6 md:grid-cols-2 md:items-end md:gap-12 lg:gap-16">
-              <h1 className="font-serif text-[2.25rem] font-normal leading-[1.12] tracking-[-0.03em] text-[#141414] md:text-[2.75rem] lg:text-[3.1rem] lg:leading-[1.1]">
-                Идеи и вдохновение
-                <br />
+              <h1 className="font-serif text-[1.75rem] font-normal leading-[1.18] tracking-[-0.02em] text-[#141414] md:text-[2.1rem] lg:text-[2.35rem] lg:leading-[1.15]">
+                Идеи и вдохновение:{" "}
                 <em className="font-normal italic">для вашего интерьера</em>
               </h1>
               <p className="ui-body md:max-w-md md:justify-self-end md:text-right">

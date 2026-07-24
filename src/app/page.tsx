@@ -16,6 +16,7 @@ const QUOTE_BG = "/media/quote-bg.png";
 export default async function Home() {
   const { projects } = await getSiteData();
   const founderImage = await getSiteImage("home.founder");
+  const ctaImage = await getSiteImage("home.cta");
   const [leadProject, secondProject, thirdProject] = projects;
 
   const showcaseImage = existsSync(join(process.cwd(), "public", "media", "showcase-hero.jpg"))
@@ -61,6 +62,7 @@ export default async function Home() {
           archiveProjects={archiveProjects}
           featuredProject={featuredProject}
           founderImage={founderImage}
+          ctaImage={ctaImage}
         />
       </main>
     </div>

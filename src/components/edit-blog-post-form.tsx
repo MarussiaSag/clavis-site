@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useActionState } from "react";
 import type { BlogPost as BlogPostModel } from "@prisma/client";
 import { updateBlogPostAction, type UpdateBlogPostState } from "@/app/actions";
@@ -7,11 +8,12 @@ import { parseBlogContent } from "@/lib/blog-posts";
 
 type EditBlogPostFormProps = {
   post: BlogPostModel;
+  galleryImages?: string[];
 };
 
 const initial: UpdateBlogPostState = null;
 
-export function EditBlogPostForm({ post }: EditBlogPostFormProps) {
+export function EditBlogPostForm({ post, galleryImages = [] }: EditBlogPostFormProps) {
   const [state, formAction, isPending] = useActionState(updateBlogPostAction, initial);
   const publishedAt = post.publishedAt.toISOString().slice(0, 10);
   const content = parseBlogContent(post.content).join("\n\n");
@@ -78,8 +80,14 @@ export function EditBlogPostForm({ post }: EditBlogPostFormProps) {
 
       <div className="space-y-2 md:col-span-2">
         <p className="text-sm text-[#4d131a]/85">
-          Текущая обложка: <code className="rounded bg-[#e7d8d1] px-1">{post.coverImage}</code>
+          Текущая обложка (разворот 01):{" "}
+          <code className="rounded bg-[#e7d8d1] px-1">{post.coverImage}</code>
         </p>
+        {post.coverImage ? (
+          <div className="relative aspect-[5/4] w-full max-w-[220px] overflow-hidden border border-[#d4cdc4] bg-[#eae6e0]">
+            <Image src={post.coverImage} alt="" fill className="object-cover" sizes="220px" />
+          </div>
+        ) : null}
         <input
           name="coverFile"
           type="file"
@@ -94,6 +102,49 @@ export function EditBlogPostForm({ post }: EditBlogPostFormProps) {
         placeholder="URL обложки"
         className="border border-[#a38d83] bg-[#e7d8d1] px-4 py-3 md:col-span-2"
       />
+
+      <div className="space-y-3 border border-[#d4cdc4] bg-[#f4f1ed]/50 p-4 md:col-span-2">
+        <div className="space-y-1">
+          <p className="text-[11px] font-medium uppercase tracking-[0.2em] text-[#6a6a6a]">
+            Мини-галерея
+          </p>
+          <p className="text-sm text-[#6a6a6a]">
+            Фото под разворотом 01/02. Сохраняются в{" "}
+            <code className="rounded bg-[#e7d8d1] px-1">public/blog/{post.slug}/</code>
+          </p>
+        </div>
+
+        {galleryImages.length > 0 ? (
+          <ul className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+            {galleryImages.map((src) => (
+              <li key={src} className="space-y-2 border border-[#d4cdc4] bg-white/50 p-2">
+                <div className="relative aspect-[4/5] overflow-hidden bg-[#eae6e0]">
+                  <Image src={src} alt="" fill className="object-cover" sizes="180px" />
+                </div>
+                <label className="flex items-center gap-2 text-[11px] uppercase tracking-[0.14em] text-[#751f26]">
+                  <input type="checkbox" name="removeGallery" value={src} className="accent-[#751f26]" />
+                  Удалить
+                </label>
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <p className="text-sm text-[#6a6a6a]">Пока нет фото в галерее.</p>
+        )}
+
+        <label className="grid gap-2">
+          <span className="text-[11px] uppercase tracking-[0.2em] text-[#6a6a6a]">
+            Добавить фото
+          </span>
+          <input
+            name="galleryFiles"
+            type="file"
+            accept="image/jpeg,image/png,image/webp,image/avif"
+            multiple
+            className="w-full text-sm file:mr-3 file:border file:border-[#a38d83] file:bg-[#f4f1ed] file:px-3 file:py-2"
+          />
+        </label>
+      </div>
 
       <button
         type="submit"

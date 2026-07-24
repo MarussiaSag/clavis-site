@@ -68,7 +68,9 @@ export function HomeFaqSection() {
               <p id="home-faq-heading" className="ui-eyebrow text-[#8a8a8a]">
                 Частые вопросы
               </p>
-              <h2 className="ui-title text-[#141414]">Ответы на популярные вопросы</h2>
+              <h2 className="ui-title text-[#141414]">
+                Ответы на <em className="italic">популярные</em> вопросы
+              </h2>
             </div>
 
             <div className="grid min-w-0 gap-x-12 gap-y-0 sm:grid-cols-2 lg:gap-x-16">

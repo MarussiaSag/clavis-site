@@ -264,6 +264,12 @@ export async function createBlogPostAction(
     return { error: saved.message };
   }
 
+  const { galleryFilesFromFormData, saveUploadedBlogGallery } = await import("@/lib/blog-files");
+  const gallerySaved = await saveUploadedBlogGallery(slug, galleryFilesFromFormData(formData));
+  if (!gallerySaved.ok) {
+    return { error: gallerySaved.message };
+  }
+
   try {
     await prisma.blogPost.create({
       data: {
@@ -346,6 +352,28 @@ export async function updateBlogPostAction(
 
   if (!saved.ok) {
     return { error: saved.message };
+  }
+
+  const {
+    galleryFilesFromFormData,
+    saveUploadedBlogGallery,
+    deleteBlogGalleryImage,
+  } = await import("@/lib/blog-files");
+
+  const removeUrls = formData
+    .getAll("removeGallery")
+    .map((item) => String(item).trim())
+    .filter(Boolean);
+  for (const url of removeUrls) {
+    const removed = await deleteBlogGalleryImage(existing.slug, url);
+    if (!removed.ok) {
+      return { error: removed.message };
+    }
+  }
+
+  const gallerySaved = await saveUploadedBlogGallery(slug, galleryFilesFromFormData(formData));
+  if (!gallerySaved.ok) {
+    return { error: gallerySaved.message };
   }
 
   try {

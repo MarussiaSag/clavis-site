@@ -29,7 +29,7 @@ export default async function AboutPage() {
         <AboutProcessSection />
         <AboutWorkflowSection />
         <AboutLeadershipSection />
-        <AboutCtaSection />
+        <AboutCtaSection imageSrc={images["about.cta"]} />
       </main>
     </div>
   );

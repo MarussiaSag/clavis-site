@@ -8,6 +8,12 @@ export const SITE_IMAGE_SLOTS = [
     defaultUrl: "/media/home-founder.jpg",
   },
   {
+    slot: "home.cta",
+    label: "Главная — фото под CTA",
+    group: "Главная",
+    defaultUrl: "/media/home-cta.jpg",
+  },
+  {
     slot: "about.hero",
     label: "О нас — hero",
     group: "О нас",
@@ -30,6 +36,12 @@ export const SITE_IMAGE_SLOTS = [
     label: "О нас — лента 3",
     group: "О нас",
     defaultUrl: "/media/about-ribbon-3.jpg",
+  },
+  {
+    slot: "about.cta",
+    label: "О нас — фон CTA",
+    group: "О нас",
+    defaultUrl: "/media/about-cta.jpg",
   },
   {
     slot: "services.gallery.1",

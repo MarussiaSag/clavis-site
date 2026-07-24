@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { DeleteBlogPostButton } from "@/components/delete-blog-post-button";
 import { EditBlogPostForm } from "@/components/edit-blog-post-form";
 import { AdminPanelShell } from "@/components/admin-panel-shell";
+import { listBlogGalleryImages } from "@/lib/blog-files";
 import { prisma } from "@/lib/prisma";
 
 type AdminEditBlogPostPageProps = {
@@ -17,6 +18,8 @@ export default async function AdminEditBlogPostPage({ params }: AdminEditBlogPos
   const post = await prisma.blogPost.findUnique({ where: { id } });
   if (!post) notFound();
 
+  const galleryImages = listBlogGalleryImages(post.slug, post.coverImage);
+
   return (
     <AdminPanelShell title="Редактировать статью" description={post.title}>
       <div className="flex flex-wrap items-center justify-between gap-4">
@@ -29,7 +32,7 @@ export default async function AdminEditBlogPostPage({ params }: AdminEditBlogPos
         <DeleteBlogPostButton id={post.id} title={post.title} />
       </div>
 
-      <EditBlogPostForm post={post} />
+      <EditBlogPostForm post={post} galleryImages={galleryImages} />
     </AdminPanelShell>
   );
 }

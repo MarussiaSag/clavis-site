@@ -8,178 +8,121 @@ type BlogPostMagazineProps = {
   gallery: string[];
 };
 
-function splitContent(paragraphs: string[]) {
-  if (paragraphs.length <= 1) {
-    return { first: paragraphs, second: [] as string[] };
-  }
-  if (paragraphs.length === 2) {
-    return { first: [paragraphs[0]], second: [paragraphs[1]] };
-  }
-  const mid = Math.ceil(paragraphs.length / 2);
-  return {
-    first: paragraphs.slice(0, mid),
-    second: paragraphs.slice(mid),
-  };
+function BlogTitle({ title }: { title: string }) {
+  const colonIndex = title.indexOf(":");
+  if (colonIndex === -1) return <>{title}</>;
+
+  const before = title.slice(0, colonIndex + 1);
+  const after = title.slice(colonIndex + 1).trimStart();
+  if (!after) return <>{title}</>;
+
+  return (
+    <>
+      {before}{" "}
+      <em className="font-normal italic">{after}</em>
+    </>
+  );
 }
 
 export function BlogPostMagazine({ post, gallery }: BlogPostMagazineProps) {
-  const { first, second } = splitContent(post.content);
-  const spreadTwoImage = gallery[0] ?? post.coverImage;
   const showGallery = gallery.length > 0;
+  const bodyParagraphs = post.content.length > 0 ? post.content : [post.excerpt];
 
   return (
     <article className="bg-[#f5f2ea]">
-      <div className="mx-auto w-full max-w-[1440px] px-4 pt-6 md:px-6 md:pt-8 lg:px-8">
+      <header className="mx-auto max-w-[1440px] px-6 pt-6 md:px-10 md:pt-8 lg:px-12">
         <Link
           href="/blog"
           className="inline-flex text-[11px] uppercase tracking-[0.24em] text-[#6a6a6a] transition-colors duration-300 hover:text-[#141414]"
         >
           ← Все статьи
         </Link>
-      </div>
 
-      {/* Spread 01 */}
-      <section
-        aria-label="Разворот 01"
-        className="mx-auto mt-6 grid w-full max-w-[1440px] md:mt-8 md:min-h-[78vh] md:grid-cols-2"
-      >
-        <figure className="relative aspect-[4/5] overflow-hidden bg-[#e8e2dc] md:aspect-auto md:min-h-[78vh]">
-          <Image
-            src={post.coverImage}
-            alt=""
-            fill
-            priority
-            sizes="(max-width: 768px) 100vw, 50vw"
-            className="object-cover object-center"
-            quality={90}
-          />
-          <figcaption className="sr-only">Иллюстрация к статье</figcaption>
-        </figure>
+        <div className="mt-8 flex flex-wrap items-center gap-x-4 gap-y-2 text-[11px] uppercase tracking-[0.22em] text-[#8a8a8a] md:mt-10">
+          <time dateTime={post.publishedAt}>{formatBlogDate(post.publishedAt)}</time>
+          <span aria-hidden>·</span>
+          <span>{post.readingMinutes} мин чтения</span>
+        </div>
 
-        <div className="flex flex-col justify-between border-t border-[#d4cdc4] px-6 py-10 md:border-l md:border-t-0 md:px-10 md:py-12 lg:px-14 lg:py-14">
-          <div>
-            <div className="flex items-baseline justify-between gap-4">
-              <p className="text-[11px] font-medium uppercase tracking-[0.36em] text-[#b07d55] md:text-xs">
-                Блог
-              </p>
+        <h1 className="mt-4 max-w-3xl font-serif text-[1.75rem] font-normal leading-[1.18] tracking-[-0.02em] text-[#151210] md:mt-5 md:text-[2.1rem] lg:text-[2.35rem] lg:leading-[1.15]">
+          <BlogTitle title={post.title} />
+        </h1>
+      </header>
+
+      <section className="bg-[#f5f2ea]" aria-label="Разворот статьи">
+        <div className="mx-auto max-w-[1440px] px-6 pb-6 pt-8 md:px-10 md:pb-8 md:pt-10 lg:px-12 lg:pb-8 lg:pt-12">
+          <div className="grid items-stretch gap-10 md:grid-cols-[minmax(0,0.95fr)_minmax(0,1.05fr)] md:gap-12 lg:gap-16 xl:gap-20">
+            <div className="flex h-full flex-col">
+              <div className="relative aspect-[4/3] w-full overflow-hidden bg-[#e8e2dc] md:aspect-[5/4]">
+                <Image
+                  src={post.coverImage}
+                  alt={post.title}
+                  fill
+                  priority
+                  sizes="(max-width: 768px) 100vw, 45vw"
+                  className="object-cover object-center"
+                  quality={90}
+                />
+              </div>
+
               <p
                 aria-hidden
-                className="font-serif text-5xl leading-none tracking-[-0.04em] text-[#cfc7be] md:text-6xl lg:text-7xl"
+                className="mt-8 text-center text-[13px] font-medium tracking-[0.08em] text-[#b07d55] md:mt-auto md:pt-8"
               >
                 01
               </p>
             </div>
 
-            <div className="mt-6 flex flex-wrap items-center gap-x-4 gap-y-2 text-[11px] uppercase tracking-[0.22em] text-[#8a8a8a]">
-              <time dateTime={post.publishedAt}>{formatBlogDate(post.publishedAt)}</time>
-              <span aria-hidden>·</span>
-              <span>{post.readingMinutes} мин чтения</span>
-            </div>
+            <div className="flex h-full flex-col">
+              <div className="space-y-6 md:space-y-7">
+                {post.excerpt ? (
+                  <p className="text-[15px] leading-[1.8] text-[#3a3530] md:text-[16px] md:leading-[1.85]">
+                    {post.excerpt}
+                  </p>
+                ) : null}
+                {bodyParagraphs.map((text) => (
+                  <p
+                    key={text}
+                    className="text-[15px] leading-[1.8] text-[#3a3530] md:text-[16px] md:leading-[1.85]"
+                  >
+                    {text}
+                  </p>
+                ))}
+              </div>
 
-            <h1 className="mt-5 max-w-xl font-serif text-[2.15rem] font-normal leading-[1.12] tracking-[-0.03em] text-[#151210] md:mt-6 md:text-[2.65rem] lg:text-[3.1rem] lg:leading-[1.08]">
-              {post.title}
-            </h1>
-
-            <p className="mt-5 max-w-lg text-[15px] leading-[1.7] text-[#5c5c5c] md:mt-6 md:text-base md:leading-[1.72]">
-              {post.excerpt}
-            </p>
-          </div>
-
-          {first.length > 0 ? (
-            <div className="mt-10 space-y-5 text-[15px] leading-[1.78] text-[#2a2420]/90 md:mt-12 md:text-[15px] md:leading-[1.8] lg:text-base">
-              {first.map((paragraph) => (
-                <p key={paragraph}>{paragraph}</p>
-              ))}
-            </div>
-          ) : null}
-        </div>
-      </section>
-
-      {/* Spread 02 */}
-      {(second.length > 0 || spreadTwoImage) && (
-        <section
-          aria-label="Разворот 02"
-          className="mx-auto mt-3 grid w-full max-w-[1440px] md:mt-4 md:min-h-[72vh] md:grid-cols-2"
-        >
-          <figure className="relative order-1 aspect-[4/5] overflow-hidden bg-[#e8e2dc] md:order-none md:aspect-auto md:min-h-[72vh]">
-            <Image
-              src={spreadTwoImage}
-              alt=""
-              fill
-              sizes="(max-width: 768px) 100vw, 50vw"
-              className={`object-cover ${gallery[0] ? "object-center" : "object-right"}`}
-              quality={90}
-            />
-            <figcaption className="sr-only">Продолжение иллюстраций</figcaption>
-          </figure>
-
-          <div className="order-2 flex flex-col justify-between border-t border-[#d4cdc4] px-6 py-10 md:order-none md:border-l md:border-t-0 md:px-10 md:py-12 lg:px-14 lg:py-14">
-            <div className="flex items-baseline justify-between gap-4">
-              <p className="text-[11px] font-medium uppercase tracking-[0.36em] text-[#8a8a8a] md:text-xs">
-                Продолжение
-              </p>
               <p
                 aria-hidden
-                className="font-serif text-5xl leading-none tracking-[-0.04em] text-[#cfc7be] md:text-6xl lg:text-7xl"
+                className="mt-8 text-center text-[13px] font-medium tracking-[0.08em] text-[#b07d55] md:mt-auto md:pt-8"
               >
                 02
               </p>
             </div>
-
-            {second.length > 0 ? (
-              <div className="mt-10 space-y-5 text-[15px] leading-[1.78] text-[#2a2420]/90 md:mt-0 md:text-[15px] md:leading-[1.8] lg:text-base">
-                {second.map((paragraph) => (
-                  <p key={paragraph}>{paragraph}</p>
-                ))}
-              </div>
-            ) : (
-              <p className="mt-10 max-w-md font-serif text-2xl italic leading-snug text-[#6a6a6a] md:mt-0 md:text-3xl">
-                {post.excerpt}
-              </p>
-            )}
           </div>
-        </section>
-      )}
+        </div>
+      </section>
 
-      {/* Gallery */}
       {showGallery ? (
         <section
-          aria-label="Галерея статьи"
-          className="mx-auto w-full max-w-[1440px] px-4 pb-14 pt-10 md:px-6 md:pb-20 md:pt-14 lg:px-8"
+          aria-label="Мини-галерея статьи"
+          className="mx-auto max-w-[1440px] px-6 pb-14 pt-2 md:px-10 md:pb-16 md:pt-4 lg:px-12"
         >
-          <header className="mb-6 flex items-end justify-between gap-4 md:mb-8">
-            <p className="text-[11px] font-medium uppercase tracking-[0.36em] text-[#b07d55] md:text-xs">
-              Галерея
-            </p>
-            <p className="text-[11px] uppercase tracking-[0.2em] text-[#8a8a8a]">
-              {gallery.length} {gallery.length === 1 ? "кадр" : gallery.length < 5 ? "кадра" : "кадров"}
-            </p>
-          </header>
-
-          <ul className="grid list-none grid-cols-1 gap-3 p-0 sm:grid-cols-2 lg:grid-cols-3 lg:gap-4">
-            {gallery.map((src, index) => (
-              <li
-                key={src}
-                className={`relative overflow-hidden bg-[#e8e2dc] ${
-                  index === 0 && gallery.length > 2
-                    ? "aspect-[4/5] sm:col-span-2 sm:aspect-[16/10] lg:col-span-2"
-                    : "aspect-[4/5]"
-                }`}
-              >
+          <ul className="grid list-none grid-cols-2 gap-2 p-0 sm:grid-cols-3 md:grid-cols-4 md:gap-3 lg:grid-cols-5">
+            {gallery.map((src) => (
+              <li key={src} className="relative aspect-[4/5] overflow-hidden bg-[#e8e2dc]">
                 <Image
                   src={src}
                   alt=""
                   fill
-                  sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                  sizes="(max-width: 640px) 50vw, (max-width: 1024px) 25vw, 20vw"
                   className="object-cover"
-                  quality={88}
+                  quality={86}
                 />
               </li>
             ))}
           </ul>
         </section>
       ) : (
-        <div className="pb-14 md:pb-20" />
+        <div className="pb-14 md:pb-16" />
       )}
     </article>
   );
