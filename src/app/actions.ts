@@ -421,117 +421,124 @@ export async function saveSiteBasicsAction(
   _prev: SaveSiteBasicsState,
   formData: FormData,
 ): Promise<SaveSiteBasicsState> {
-  await requireAdmin();
+  try {
+    await requireAdmin();
 
-  const { phoneToTelHref } = await import("@/lib/site-contact");
+    const { phoneToTelHref } = await import("@/lib/site-contact");
 
-  const city = String(formData.get("city") ?? "").trim();
-  const address = String(formData.get("address") ?? "").trim();
-  const mapUrl = String(formData.get("mapUrl") ?? "").trim();
-  const phone = String(formData.get("phone") ?? "").trim();
-  const email = String(formData.get("email") ?? "").trim();
-  const tagline = String(formData.get("tagline") ?? "").trim();
-  const hoursWeekdays = String(formData.get("hoursWeekdays") ?? "").trim();
-  const hoursWeekend = String(formData.get("hoursWeekend") ?? "").trim();
-  const instagramFootnote = String(formData.get("instagramFootnote") ?? "").trim();
+    const city = String(formData.get("city") ?? "").trim();
+    const address = String(formData.get("address") ?? "").trim();
+    const mapUrl = String(formData.get("mapUrl") ?? "").trim();
+    const phone = String(formData.get("phone") ?? "").trim();
+    const email = String(formData.get("email") ?? "").trim();
+    const tagline = String(formData.get("tagline") ?? "").trim();
+    const hoursWeekdays = String(formData.get("hoursWeekdays") ?? "").trim();
+    const hoursWeekend = String(formData.get("hoursWeekend") ?? "").trim();
+    const instagramFootnote = String(formData.get("instagramFootnote") ?? "").trim();
 
-  if (
-    !city ||
-    !address ||
-    !mapUrl ||
-    !phone ||
-    !email ||
-    !tagline ||
-    !hoursWeekdays ||
-    !hoursWeekend ||
-    !instagramFootnote
-  ) {
-    return { error: "Заполните все обязательные поля." };
-  }
-
-  const socialCount = Number(formData.get("socialCount") ?? 0);
-  if (!Number.isFinite(socialCount) || socialCount < 0) {
-    return { error: "Некорректный список соцсетей." };
-  }
-
-  const socialItems: { id?: number; label: string; href: string }[] = [];
-  for (let i = 0; i < socialCount; i += 1) {
-    const label = String(formData.get(`social_label_${i}`) ?? "").trim();
-    const href = String(formData.get(`social_href_${i}`) ?? "").trim();
-    const idRaw = String(formData.get(`social_id_${i}`) ?? "").trim();
-    const id = idRaw ? Number(idRaw) : undefined;
-
-    if (!label || !href) {
-      return { error: `Заполните название и ссылку для соцсети ${i + 1}.` };
+    if (
+      !city ||
+      !address ||
+      !mapUrl ||
+      !phone ||
+      !email ||
+      !tagline ||
+      !hoursWeekdays ||
+      !hoursWeekend ||
+      !instagramFootnote
+    ) {
+      return { error: "Заполните все обязательные поля." };
     }
 
-    socialItems.push({
-      id: Number.isFinite(id) && id! > 0 ? id : undefined,
-      label,
-      href,
-    });
-  }
-
-  const phoneHref = phoneToTelHref(phone);
-  const keepIds = socialItems.map((item) => item.id).filter((id): id is number => id != null);
-
-  await prisma.$transaction(async (tx) => {
-    await tx.siteSettings.upsert({
-      where: { id: 1 },
-      update: {
-        city,
-        address,
-        mapUrl,
-        phone,
-        phoneHref,
-        email,
-        tagline,
-        hoursWeekdays,
-        hoursWeekend,
-        instagramFootnote,
-      },
-      create: {
-        id: 1,
-        city,
-        address,
-        mapUrl,
-        phone,
-        phoneHref,
-        email,
-        tagline,
-        hoursWeekdays,
-        hoursWeekend,
-        instagramFootnote,
-      },
-    });
-
-    if (keepIds.length > 0) {
-      await tx.socialLink.deleteMany({ where: { id: { notIn: keepIds } } });
-    } else {
-      await tx.socialLink.deleteMany();
+    const socialCount = Number(formData.get("socialCount") ?? 0);
+    if (!Number.isFinite(socialCount) || socialCount < 0) {
+      return { error: "Некорректный список соцсетей." };
     }
 
-    for (let i = 0; i < socialItems.length; i += 1) {
-      const item = socialItems[i];
-      if (item.id != null) {
-        await tx.socialLink.update({
-          where: { id: item.id },
-          data: { label: item.label, href: item.href, sortOrder: i },
-        });
-      } else {
-        await tx.socialLink.create({
-          data: { label: item.label, href: item.href, sortOrder: i },
-        });
+    const socialItems: { id?: number; label: string; href: string }[] = [];
+    for (let i = 0; i < socialCount; i += 1) {
+      const label = String(formData.get(`social_label_${i}`) ?? "").trim();
+      const href = String(formData.get(`social_href_${i}`) ?? "").trim();
+      const idRaw = String(formData.get(`social_id_${i}`) ?? "").trim();
+      const id = idRaw ? Number(idRaw) : undefined;
+
+      if (!label || !href) {
+        return { error: `Заполните название и ссылку для соцсети ${i + 1}.` };
       }
-    }
-  });
 
-  revalidatePath("/");
-  revalidatePath("/contacts");
-  revalidatePath("/portfolio");
-  revalidatePath("/admin");
-  revalidatePath("/admin/basics");
-  return { ok: true };
+      socialItems.push({
+        id: Number.isFinite(id) && id! > 0 ? id : undefined,
+        label,
+        href,
+      });
+    }
+
+    const phoneHref = phoneToTelHref(phone);
+    const keepIds = socialItems.map((item) => item.id).filter((id): id is number => id != null);
+
+    await prisma.$transaction(async (tx) => {
+      await tx.siteSettings.upsert({
+        where: { id: 1 },
+        update: {
+          city,
+          address,
+          mapUrl,
+          phone,
+          phoneHref,
+          email,
+          tagline,
+          hoursWeekdays,
+          hoursWeekend,
+          instagramFootnote,
+        },
+        create: {
+          id: 1,
+          city,
+          address,
+          mapUrl,
+          phone,
+          phoneHref,
+          email,
+          tagline,
+          hoursWeekdays,
+          hoursWeekend,
+          instagramFootnote,
+        },
+      });
+
+      if (keepIds.length > 0) {
+        await tx.socialLink.deleteMany({ where: { id: { notIn: keepIds } } });
+      } else {
+        await tx.socialLink.deleteMany();
+      }
+
+      for (let i = 0; i < socialItems.length; i += 1) {
+        const item = socialItems[i];
+        if (item.id != null) {
+          await tx.socialLink.update({
+            where: { id: item.id },
+            data: { label: item.label, href: item.href, sortOrder: i },
+          });
+        } else {
+          await tx.socialLink.create({
+            data: { label: item.label, href: item.href, sortOrder: i },
+          });
+        }
+      }
+    });
+
+    revalidatePath("/");
+    revalidatePath("/contacts");
+    revalidatePath("/portfolio");
+    revalidatePath("/admin");
+    revalidatePath("/admin/basics");
+    return { ok: true };
+  } catch (error) {
+    console.error("[saveSiteBasicsAction]", error);
+    return {
+      error: error instanceof Error ? error.message : "Не удалось сохранить основные данные.",
+    };
+  }
 }
 
 export type SaveStudioHighlightsState = { error?: string; ok?: boolean } | null;
@@ -540,72 +547,79 @@ export async function saveStudioHighlightsAction(
   _prev: SaveStudioHighlightsState,
   formData: FormData,
 ): Promise<SaveStudioHighlightsState> {
-  await requireAdmin();
+  try {
+    await requireAdmin();
 
-  const { MAX_STUDIO_HIGHLIGHTS } = await import("@/lib/home-studio-highlights");
-  const count = Number(formData.get("count") ?? 0);
-  if (!Number.isFinite(count) || count < 0) {
-    return { error: "Некорректное количество фактов." };
-  }
-  if (count > MAX_STUDIO_HIGHLIGHTS) {
-    return { error: `Можно сохранить не больше ${MAX_STUDIO_HIGHLIGHTS} фактов.` };
-  }
-
-  const items: { id?: number; title: string; description: string }[] = [];
-  for (let i = 0; i < count; i += 1) {
-    const title = String(formData.get(`title_${i}`) ?? "").trim();
-    const description = String(formData.get(`description_${i}`) ?? "").trim();
-    const idRaw = String(formData.get(`id_${i}`) ?? "").trim();
-    const id = idRaw ? Number(idRaw) : undefined;
-
-    if (!title || !description) {
-      return { error: `Заполните заголовок и описание для факта ${i + 1}.` };
+    const { MAX_STUDIO_HIGHLIGHTS } = await import("@/lib/home-studio-highlights");
+    const count = Number(formData.get("count") ?? 0);
+    if (!Number.isFinite(count) || count < 0) {
+      return { error: "Некорректное количество фактов." };
+    }
+    if (count > MAX_STUDIO_HIGHLIGHTS) {
+      return { error: `Можно сохранить не больше ${MAX_STUDIO_HIGHLIGHTS} фактов.` };
     }
 
-    items.push({
-      id: Number.isFinite(id) && id! > 0 ? id : undefined,
-      title,
-      description,
-    });
-  }
+    const items: { id?: number; title: string; description: string }[] = [];
+    for (let i = 0; i < count; i += 1) {
+      const title = String(formData.get(`title_${i}`) ?? "").trim();
+      const description = String(formData.get(`description_${i}`) ?? "").trim();
+      const idRaw = String(formData.get(`id_${i}`) ?? "").trim();
+      const id = idRaw ? Number(idRaw) : undefined;
 
-  const keepIds = items.map((item) => item.id).filter((id): id is number => id != null);
+      if (!title || !description) {
+        return { error: `Заполните заголовок и описание для факта ${i + 1}.` };
+      }
 
-  await prisma.$transaction(async (tx) => {
-    if (keepIds.length > 0) {
-      await tx.studioHighlight.deleteMany({
-        where: { id: { notIn: keepIds } },
+      items.push({
+        id: Number.isFinite(id) && id! > 0 ? id : undefined,
+        title,
+        description,
       });
-    } else {
-      await tx.studioHighlight.deleteMany();
     }
 
-    for (let i = 0; i < items.length; i += 1) {
-      const item = items[i];
-      if (item.id != null) {
-        await tx.studioHighlight.update({
-          where: { id: item.id },
-          data: {
-            title: item.title,
-            description: item.description,
-            sortOrder: i,
-          },
+    const keepIds = items.map((item) => item.id).filter((id): id is number => id != null);
+
+    await prisma.$transaction(async (tx) => {
+      if (keepIds.length > 0) {
+        await tx.studioHighlight.deleteMany({
+          where: { id: { notIn: keepIds } },
         });
       } else {
-        await tx.studioHighlight.create({
-          data: {
-            title: item.title,
-            description: item.description,
-            sortOrder: i,
-          },
-        });
+        await tx.studioHighlight.deleteMany();
       }
-    }
-  });
 
-  revalidatePath("/");
-  revalidatePath("/admin/home");
-  return { ok: true };
+      for (let i = 0; i < items.length; i += 1) {
+        const item = items[i];
+        if (item.id != null) {
+          await tx.studioHighlight.update({
+            where: { id: item.id },
+            data: {
+              title: item.title,
+              description: item.description,
+              sortOrder: i,
+            },
+          });
+        } else {
+          await tx.studioHighlight.create({
+            data: {
+              title: item.title,
+              description: item.description,
+              sortOrder: i,
+            },
+          });
+        }
+      }
+    });
+
+    revalidatePath("/");
+    revalidatePath("/admin/home");
+    return { ok: true };
+  } catch (error) {
+    console.error("[saveStudioHighlightsAction]", error);
+    return {
+      error: error instanceof Error ? error.message : "Не удалось сохранить факты.",
+    };
+  }
 }
 
 export type SaveAboutStudioPeopleState = { error?: string; ok?: boolean } | null;
@@ -614,99 +628,106 @@ export async function saveAboutStudioPeopleAction(
   _prev: SaveAboutStudioPeopleState,
   formData: FormData,
 ): Promise<SaveAboutStudioPeopleState> {
-  await requireAdmin();
+  try {
+    await requireAdmin();
 
-  const { MAX_ABOUT_STUDIO_PEOPLE, ensureAboutStudio } = await import(
-    "@/lib/about-studio-people"
-  );
-  const { saveUploadedStudioTeamPhoto } = await import("@/lib/about-files");
+    const { MAX_ABOUT_STUDIO_PEOPLE, ensureAboutStudio } = await import(
+      "@/lib/about-studio-people"
+    );
+    const { saveUploadedStudioTeamPhoto } = await import("@/lib/about-files");
 
-  await ensureAboutStudio();
+    await ensureAboutStudio();
 
-  const count = Number(formData.get("count") ?? 0);
-  if (!Number.isFinite(count) || count < 0) {
-    return { error: "Некорректное количество людей." };
-  }
-  if (count > MAX_ABOUT_STUDIO_PEOPLE) {
-    return { error: `Можно сохранить не больше ${MAX_ABOUT_STUDIO_PEOPLE} человек.` };
-  }
-
-  const teamPhotoFile = formData.get("teamPhotoFile");
-  const file = teamPhotoFile instanceof File && teamPhotoFile.size > 0 ? teamPhotoFile : null;
-  const existingTeamPhoto = String(formData.get("teamPhotoUrl") ?? "").trim();
-
-  const savedPhoto = await saveUploadedStudioTeamPhoto(file, null, existingTeamPhoto || null);
-  if (!savedPhoto.ok) {
-    return { error: savedPhoto.message };
-  }
-
-  const items: { id?: number; name: string; role: string; competencies: string }[] = [];
-  for (let i = 0; i < count; i += 1) {
-    const name = String(formData.get(`name_${i}`) ?? "").trim();
-    const role = String(formData.get(`role_${i}`) ?? "").trim();
-    const competencies = String(formData.get(`competencies_${i}`) ?? "").trim();
-    const idRaw = String(formData.get(`id_${i}`) ?? "").trim();
-    const id = idRaw ? Number(idRaw) : undefined;
-
-    if (!name || !role || !competencies) {
-      return { error: `Заполните фамилию, должность и компетенции для человека ${i + 1}.` };
+    const count = Number(formData.get("count") ?? 0);
+    if (!Number.isFinite(count) || count < 0) {
+      return { error: "Некорректное количество людей." };
+    }
+    if (count > MAX_ABOUT_STUDIO_PEOPLE) {
+      return { error: `Можно сохранить не больше ${MAX_ABOUT_STUDIO_PEOPLE} человек.` };
     }
 
-    items.push({
-      id: Number.isFinite(id) && id! > 0 ? id : undefined,
-      name,
-      role,
-      competencies,
-    });
-  }
+    const teamPhotoFile = formData.get("teamPhotoFile");
+    const file = teamPhotoFile instanceof File && teamPhotoFile.size > 0 ? teamPhotoFile : null;
+    const existingTeamPhoto = String(formData.get("teamPhotoUrl") ?? "").trim();
 
-  const keepIds = items.map((item) => item.id).filter((id): id is number => id != null);
+    const savedPhoto = await saveUploadedStudioTeamPhoto(file, null, existingTeamPhoto || null);
+    if (!savedPhoto.ok) {
+      return { error: savedPhoto.message };
+    }
 
-  await prisma.$transaction(async (tx) => {
-    await tx.aboutStudio.upsert({
-      where: { id: 1 },
-      create: { id: 1, teamPhoto: savedPhoto.teamPhotoUrl },
-      update: { teamPhoto: savedPhoto.teamPhotoUrl },
-    });
+    const items: { id?: number; name: string; role: string; competencies: string }[] = [];
+    for (let i = 0; i < count; i += 1) {
+      const name = String(formData.get(`name_${i}`) ?? "").trim();
+      const role = String(formData.get(`role_${i}`) ?? "").trim();
+      const competencies = String(formData.get(`competencies_${i}`) ?? "").trim();
+      const idRaw = String(formData.get(`id_${i}`) ?? "").trim();
+      const id = idRaw ? Number(idRaw) : undefined;
 
-    if (keepIds.length > 0) {
-      await tx.aboutStudioPerson.deleteMany({
-        where: { aboutStudioId: 1, id: { notIn: keepIds } },
+      if (!name || !role || !competencies) {
+        return { error: `Заполните фамилию, должность и компетенции для человека ${i + 1}.` };
+      }
+
+      items.push({
+        id: Number.isFinite(id) && id! > 0 ? id : undefined,
+        name,
+        role,
+        competencies,
       });
-    } else {
-      await tx.aboutStudioPerson.deleteMany({ where: { aboutStudioId: 1 } });
     }
 
-    for (let i = 0; i < items.length; i += 1) {
-      const item = items[i];
-      if (item.id != null) {
-        await tx.aboutStudioPerson.update({
-          where: { id: item.id },
-          data: {
-            name: item.name,
-            role: item.role,
-            competencies: item.competencies,
-            sortOrder: i,
-            aboutStudioId: 1,
-          },
+    const keepIds = items.map((item) => item.id).filter((id): id is number => id != null);
+
+    await prisma.$transaction(async (tx) => {
+      await tx.aboutStudio.upsert({
+        where: { id: 1 },
+        create: { id: 1, teamPhoto: savedPhoto.teamPhotoUrl },
+        update: { teamPhoto: savedPhoto.teamPhotoUrl },
+      });
+
+      if (keepIds.length > 0) {
+        await tx.aboutStudioPerson.deleteMany({
+          where: { aboutStudioId: 1, id: { notIn: keepIds } },
         });
       } else {
-        await tx.aboutStudioPerson.create({
-          data: {
-            name: item.name,
-            role: item.role,
-            competencies: item.competencies,
-            sortOrder: i,
-            aboutStudioId: 1,
-          },
-        });
+        await tx.aboutStudioPerson.deleteMany({ where: { aboutStudioId: 1 } });
       }
-    }
-  });
 
-  revalidatePath("/about");
-  revalidatePath("/admin/about");
-  return { ok: true };
+      for (let i = 0; i < items.length; i += 1) {
+        const item = items[i];
+        if (item.id != null) {
+          await tx.aboutStudioPerson.update({
+            where: { id: item.id },
+            data: {
+              name: item.name,
+              role: item.role,
+              competencies: item.competencies,
+              sortOrder: i,
+              aboutStudioId: 1,
+            },
+          });
+        } else {
+          await tx.aboutStudioPerson.create({
+            data: {
+              name: item.name,
+              role: item.role,
+              competencies: item.competencies,
+              sortOrder: i,
+              aboutStudioId: 1,
+            },
+          });
+        }
+      }
+    });
+
+    revalidatePath("/about");
+    revalidatePath("/admin/about");
+    return { ok: true };
+  } catch (error) {
+    console.error("[saveAboutStudioPeopleAction]", error);
+    return {
+      error: error instanceof Error ? error.message : "Не удалось сохранить блок «О студии».",
+    };
+  }
 }
 
 export type SaveSiteImagesState = { error?: string; ok?: boolean } | null;
@@ -715,38 +736,45 @@ export async function saveSiteImagesAction(
   _prev: SaveSiteImagesState,
   formData: FormData,
 ): Promise<SaveSiteImagesState> {
-  await requireAdmin();
+  try {
+    await requireAdmin();
 
-  const { SITE_IMAGE_SLOTS, ensureSiteImages } = await import("@/lib/site-images");
-  const { saveUploadedSiteImage } = await import("@/lib/site-image-files");
+    const { SITE_IMAGE_SLOTS, ensureSiteImages } = await import("@/lib/site-images");
+    const { saveUploadedSiteImage } = await import("@/lib/site-image-files");
 
-  await ensureSiteImages();
+    await ensureSiteImages();
 
-  for (const item of SITE_IMAGE_SLOTS) {
-    const fileRaw = formData.get(`${item.slot}__file`);
-    const file = fileRaw instanceof File && fileRaw.size > 0 ? fileRaw : null;
-    const existingUrl = String(formData.get(`${item.slot}__url`) ?? "").trim();
+    for (const item of SITE_IMAGE_SLOTS) {
+      const fileRaw = formData.get(`${item.slot}__file`);
+      const file = fileRaw instanceof File && fileRaw.size > 0 ? fileRaw : null;
+      const existingUrl = String(formData.get(`${item.slot}__url`) ?? "").trim();
 
-    if (!file && !existingUrl) {
-      return { error: `Нет изображения для слота «${item.label}».` };
+      if (!file && !existingUrl) {
+        return { error: `Нет изображения для слота «${item.label}».` };
+      }
+
+      const saved = await saveUploadedSiteImage(item.slot, file, existingUrl || null);
+      if (!saved.ok) {
+        return { error: `${item.label}: ${saved.message}` };
+      }
+
+      await prisma.siteImage.upsert({
+        where: { slot: item.slot },
+        create: { slot: item.slot, url: saved.url },
+        update: { url: saved.url },
+      });
     }
 
-    const saved = await saveUploadedSiteImage(item.slot, file, existingUrl || null);
-    if (!saved.ok) {
-      return { error: `${item.label}: ${saved.message}` };
-    }
-
-    await prisma.siteImage.upsert({
-      where: { slot: item.slot },
-      create: { slot: item.slot, url: saved.url },
-      update: { url: saved.url },
-    });
+    revalidatePath("/");
+    revalidatePath("/about");
+    revalidatePath("/services");
+    revalidatePath("/contacts");
+    revalidatePath("/admin/media");
+    return { ok: true };
+  } catch (error) {
+    console.error("[saveSiteImagesAction]", error);
+    return {
+      error: error instanceof Error ? error.message : "Не удалось сохранить изображения.",
+    };
   }
-
-  revalidatePath("/");
-  revalidatePath("/about");
-  revalidatePath("/services");
-  revalidatePath("/contacts");
-  revalidatePath("/admin/media");
-  return { ok: true };
 }
