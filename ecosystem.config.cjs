@@ -42,6 +42,9 @@ module.exports = {
       env: {
         NODE_ENV: "production",
         PORT: 3000,
+        UPLOAD_PUBLIC_DIR: fileEnv.UPLOAD_PUBLIC_DIR || `${RUNTIME_DIR}/public`,
+        SHARP_OPTIMIZE: fileEnv.SHARP_OPTIMIZE || "false",
+        ADMIN_COOKIE_SECURE: fileEnv.ADMIN_COOKIE_SECURE || "false",
         ...fileEnv,
       },
     },

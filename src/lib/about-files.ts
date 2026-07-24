@@ -62,13 +62,17 @@ export async function saveUploadedStudioTeamPhoto(
       }
       const dir = publicPath(UPLOAD_FOLDER);
       await mkdir(dir, { recursive: true });
+      const { assertPublicDirWritable } = await import("@/lib/public-dir");
+      assertPublicDirWritable();
       await removeOldTeamPhotos(dir);
 
       const filename = `team-${Date.now()}.${optimized.extension}`;
       const absolutePath = join(dir, filename);
       await writeFile(absolutePath, optimized.buffer);
+      const { access } = await import("node:fs/promises");
+      await access(absolutePath);
       console.info(
-        `[saveUploadedStudioTeamPhoto] wrote ${absolutePath} (${optimized.buffer.length} bytes)`,
+        `[saveUploadedStudioTeamPhoto] publicDir=${dir} wrote ${absolutePath} (${optimized.buffer.length} bytes)`,
       );
       teamPhotoUrl = `/${UPLOAD_FOLDER}/${filename}`;
     } catch (error) {

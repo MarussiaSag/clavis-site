@@ -42,6 +42,8 @@ export async function saveUploadedSiteImage(
   const dir = publicPath(UPLOAD_FOLDER);
   await mkdir(dir, { recursive: true });
   try {
+    const { assertPublicDirWritable } = await import("@/lib/public-dir");
+    assertPublicDirWritable();
     const optimized = await optimizeUploadedImage(
       Buffer.from(await file.arrayBuffer()),
       sourceExt,
@@ -52,10 +54,20 @@ export async function saveUploadedSiteImage(
     const filename = `${safeSlot}-${Date.now()}.${optimized.extension}`;
     const absolutePath = join(dir, filename);
     await writeFile(absolutePath, optimized.buffer);
-    console.info(`[saveUploadedSiteImage] wrote ${absolutePath} (${optimized.buffer.length} bytes)`);
+    const { access } = await import("node:fs/promises");
+    await access(absolutePath);
+    console.info(
+      `[saveUploadedSiteImage] publicDir=${dir} wrote ${absolutePath} (${optimized.buffer.length} bytes)`,
+    );
     return { ok: true, url: `/${UPLOAD_FOLDER}/${filename}` };
   } catch (error) {
     console.error("[saveUploadedSiteImage]", error);
-    return { ok: false, message: "Не удалось обработать изображение. Попробуйте другой файл." };
+    return {
+      ok: false,
+      message:
+        error instanceof Error
+          ? error.message
+          : "Не удалось обработать изображение. Попробуйте другой файл.",
+    };
   }
 }
