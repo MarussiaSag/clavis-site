@@ -32,13 +32,26 @@ export async function ensureStudioHighlights() {
   const count = await prisma.studioHighlight.count();
   if (count > 0) return;
 
-  await prisma.studioHighlight.createMany({
-    data: HOME_STUDIO_HIGHLIGHTS_DEFAULTS.map((item, index) => ({
-      title: item.title,
-      description: item.description,
-      sortOrder: index,
-    })),
-  });
+  try {
+    await prisma.studioHighlight.createMany({
+      data: HOME_STUDIO_HIGHLIGHTS_DEFAULTS.map((item, index) => ({
+        title: item.title,
+        description: item.description,
+        sortOrder: index,
+      })),
+    });
+  } catch (error) {
+    if (
+      typeof error === "object" &&
+      error !== null &&
+      "code" in error &&
+      ((error as { code?: string }).code === "P2002" ||
+        (error as { code?: string }).code === "P2021")
+    ) {
+      return;
+    }
+    throw error;
+  }
 }
 
 export async function getStudioHighlights(): Promise<HomeStudioHighlight[]> {

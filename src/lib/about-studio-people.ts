@@ -41,12 +41,41 @@ export const MAX_ABOUT_STUDIO_PEOPLE = 12;
 
 export async function ensureAboutStudio() {
   const prisma = getPrismaClient();
-  const existing = await prisma.aboutStudio.findUnique({ where: { id: 1 } });
-  if (existing) {
-    const peopleCount = await prisma.aboutStudioPerson.count({
-      where: { aboutStudioId: 1 },
+  try {
+    await prisma.aboutStudio.upsert({
+      where: { id: 1 },
+      create: {
+        id: 1,
+        teamPhoto: ABOUT_STUDIO_TEAM_PHOTO_DEFAULT,
+        people: {
+          create: ABOUT_STUDIO_PEOPLE_DEFAULTS.map((item, index) => ({
+            name: item.name,
+            role: item.role,
+            competencies: item.competencies,
+            sortOrder: index,
+          })),
+        },
+      },
+      update: {},
     });
-    if (peopleCount === 0) {
+  } catch (error) {
+    if (
+      typeof error === "object" &&
+      error !== null &&
+      "code" in error &&
+      (error as { code?: string }).code === "P2002"
+    ) {
+      // Parallel prerender race — row already created by another worker.
+    } else {
+      throw error;
+    }
+  }
+
+  const peopleCount = await prisma.aboutStudioPerson.count({
+    where: { aboutStudioId: 1 },
+  });
+  if (peopleCount === 0) {
+    try {
       await prisma.aboutStudioPerson.createMany({
         data: ABOUT_STUDIO_PEOPLE_DEFAULTS.map((item, index) => ({
           name: item.name,
@@ -56,24 +85,18 @@ export async function ensureAboutStudio() {
           aboutStudioId: 1,
         })),
       });
+    } catch (error) {
+      if (
+        typeof error === "object" &&
+        error !== null &&
+        "code" in error &&
+        (error as { code?: string }).code === "P2002"
+      ) {
+        return;
+      }
+      throw error;
     }
-    return;
   }
-
-  await prisma.aboutStudio.create({
-    data: {
-      id: 1,
-      teamPhoto: ABOUT_STUDIO_TEAM_PHOTO_DEFAULT,
-      people: {
-        create: ABOUT_STUDIO_PEOPLE_DEFAULTS.map((item, index) => ({
-          name: item.name,
-          role: item.role,
-          competencies: item.competencies,
-          sortOrder: index,
-        })),
-      },
-    },
-  });
 }
 
 export async function getAboutStudioPeople(): Promise<AboutStudioPeopleData> {

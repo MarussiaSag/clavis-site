@@ -72,34 +72,46 @@ function isMissingDbTableError(error: unknown) {
 export async function ensureSiteSettings() {
   const prisma = getPrismaClient();
   const d = SITE_CONTACT_DEFAULTS;
-  const existing = await prisma.siteSettings.findUnique({ where: { id: 1 } });
-  if (!existing) {
-    await prisma.siteSettings.create({
-      data: {
-        id: 1,
-        city: d.city,
-        address: d.address,
-        mapUrl: d.mapUrl,
-        phone: d.phone,
-        phoneHref: d.phoneHref,
-        email: d.email,
-        tagline: d.tagline,
-        hoursWeekdays: d.workingHours.weekdays,
-        hoursWeekend: d.workingHours.weekend,
-        instagramFootnote: d.instagramFootnote,
-      },
-    });
-  }
+  await prisma.siteSettings.upsert({
+    where: { id: 1 },
+    create: {
+      id: 1,
+      city: d.city,
+      address: d.address,
+      mapUrl: d.mapUrl,
+      phone: d.phone,
+      phoneHref: d.phoneHref,
+      email: d.email,
+      tagline: d.tagline,
+      hoursWeekdays: d.workingHours.weekdays,
+      hoursWeekend: d.workingHours.weekend,
+      instagramFootnote: d.instagramFootnote,
+    },
+    update: {},
+  });
 
   const socialCount = await prisma.socialLink.count();
   if (socialCount === 0) {
-    await prisma.socialLink.createMany({
-      data: SITE_SOCIAL_LINK_DEFAULTS.map((item, index) => ({
-        label: item.label,
-        href: item.href,
-        sortOrder: index,
-      })),
-    });
+    try {
+      await prisma.socialLink.createMany({
+        data: SITE_SOCIAL_LINK_DEFAULTS.map((item, index) => ({
+          label: item.label,
+          href: item.href,
+          sortOrder: index,
+        })),
+      });
+    } catch (error) {
+      // Parallel prerender can race on empty seed — ignore unique/constraint races.
+      if (
+        typeof error === "object" &&
+        error !== null &&
+        "code" in error &&
+        (error as { code?: string }).code === "P2002"
+      ) {
+        return;
+      }
+      throw error;
+    }
   }
 }
 
