@@ -8,6 +8,12 @@ export const SITE_IMAGE_SLOTS = [
     defaultUrl: "/media/home-founder.jpg",
   },
   {
+    slot: "home.credo",
+    label: "Главная — фото у кредо",
+    group: "Главная",
+    defaultUrl: "/media/quote-bg.png",
+  },
+  {
     slot: "home.cta",
     label: "Главная — фото под CTA",
     group: "Главная",
