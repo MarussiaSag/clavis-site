@@ -1,18 +1,35 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useState, useTransition } from "react";
 import { createBlogPostAction, type CreateBlogPostState } from "@/app/actions";
+import { compressFormDataImages } from "@/lib/compress-image-client";
 
 const initial: CreateBlogPostState = null;
 
 export function CreateBlogPostForm() {
   const [state, formAction, isPending] = useActionState(createBlogPostAction, initial);
+  const [isCompressing, startCompress] = useTransition();
+  const [compressError, setCompressError] = useState<string | null>(null);
+  const busy = isPending || isCompressing;
+
+  function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    const form = event.currentTarget;
+    setCompressError(null);
+    startCompress(async () => {
+      try {
+        formAction(await compressFormDataImages(new FormData(form)));
+      } catch {
+        setCompressError("Не удалось сжать изображения. Попробуйте ещё раз.");
+      }
+    });
+  }
 
   return (
-    <form action={formAction} className="grid gap-4 border border-[#a38d83] p-6 md:grid-cols-2">
-      {state?.error ? (
+    <form onSubmit={handleSubmit} className="grid gap-4 border border-[#a38d83] p-6 md:grid-cols-2">
+      {state?.error || compressError ? (
         <p className="rounded border border-[#751f26] bg-[#f4f1ed] px-4 py-3 text-sm text-[#4d131a] md:col-span-2">
-          {state.error}
+          {state?.error ?? compressError}
         </p>
       ) : null}
 
@@ -98,10 +115,10 @@ export function CreateBlogPostForm() {
 
       <button
         type="submit"
-        disabled={isPending}
+        disabled={busy}
         className="w-fit bg-[#751f26] px-5 py-3 text-sm uppercase tracking-[0.15em] text-[#e7d8d1] hover:bg-[#4d131a] disabled:opacity-50"
       >
-        {isPending ? "Сохранение…" : "Добавить статью"}
+        {isCompressing ? "Сжатие…" : isPending ? "Сохранение…" : "Добавить статью"}
       </button>
     </form>
   );

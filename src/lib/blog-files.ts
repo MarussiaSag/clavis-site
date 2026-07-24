@@ -2,6 +2,7 @@ import { mkdir, unlink, writeFile } from "node:fs/promises";
 import { readdirSync } from "node:fs";
 import { basename, join } from "node:path";
 import { optimizeUploadedImage } from "@/lib/optimize-image";
+import { publicPath } from "@/lib/public-dir";
 import {
   extensionForUploadedImage,
   normalizePublicAssetPath,
@@ -9,7 +10,7 @@ import {
 } from "@/lib/project-files";
 
 const UPLOAD_FOLDER = "blog";
-const MAX_BYTES = 15 * 1024 * 1024;
+const MAX_UPLOAD_BYTES = 40 * 1024 * 1024;
 const IMAGE_EXT = /\.(jpe?g|png|webp|avif)$/i;
 
 export type SaveBlogCoverResult =
@@ -26,11 +27,11 @@ export function listBlogGalleryImages(slug: string, coverImage?: string | null):
   if (!safeSlug) return [];
 
   const cover = coverImage?.trim() ? normalizePublicAssetPath(coverImage.trim()) : "";
-  const dir = join(process.cwd(), "public", UPLOAD_FOLDER, safeSlug);
+  const dir = publicPath(UPLOAD_FOLDER, safeSlug);
 
   try {
     return readdirSync(dir)
-      .filter((name) => IMAGE_EXT.test(name) && !/^cover\./i.test(name))
+      .filter((name) => IMAGE_EXT.test(name) && !/^cover/i.test(name))
       .sort((a, b) => a.localeCompare(b, undefined, { numeric: true, sensitivity: "base" }))
       .map((name) => `/${UPLOAD_FOLDER}/${safeSlug}/${name}`)
       .filter((url) => url !== cover);
@@ -39,14 +40,15 @@ export function listBlogGalleryImages(slug: string, coverImage?: string | null):
   }
 }
 
-function nextGalleryIndex(dir: string): number {
+function nextGalleryIndex(postDir: string): number {
   try {
-    const indexes = readdirSync(dir)
-      .map((name) => name.match(/^gallery-(\d+)/i)?.[1])
-      .filter(Boolean)
-      .map((value) => Number(value));
-    if (indexes.length === 0) return 1;
-    return Math.max(...indexes) + 1;
+    const names = readdirSync(postDir);
+    let max = 0;
+    for (const name of names) {
+      const match = name.match(/^gallery-(\d+)\./i);
+      if (match) max = Math.max(max, Number(match[1]));
+    }
+    return max + 1;
   } catch {
     return 1;
   }
@@ -73,22 +75,23 @@ export async function saveUploadedBlogCover(
   }
 
   if (cover?.size) {
-    if (cover.size > MAX_BYTES) {
-      return { ok: false, message: "Обложка не больше 15 МБ." };
+    if (cover.size > MAX_UPLOAD_BYTES) {
+      return { ok: false, message: "Обложка не больше 40 МБ." };
     }
     const sourceExt = extensionForUploadedImage(cover);
     if (!sourceExt) {
       return { ok: false, message: "Обложка: допустимы JPEG, PNG, WebP или AVIF." };
     }
-    const postDir = join(process.cwd(), "public", UPLOAD_FOLDER, safeSlug);
+    const postDir = publicPath(UPLOAD_FOLDER, safeSlug);
     await mkdir(postDir, { recursive: true });
     try {
       const optimized = await optimizeUploadedImage(
         Buffer.from(await cover.arrayBuffer()),
         sourceExt,
       );
-      await writeFile(join(postDir, `cover.${optimized.extension}`), optimized.buffer);
-      coverUrl = `/${UPLOAD_FOLDER}/${safeSlug}/cover.${optimized.extension}`;
+      const filename = `cover-${Date.now()}.${optimized.extension}`;
+      await writeFile(join(postDir, filename), optimized.buffer);
+      coverUrl = `/${UPLOAD_FOLDER}/${safeSlug}/${filename}`;
     } catch {
       return { ok: false, message: "Не удалось обработать обложку. Попробуйте другой файл." };
     }
@@ -97,7 +100,7 @@ export async function saveUploadedBlogCover(
   return { ok: true, coverUrl };
 }
 
-/** Appends gallery images as `gallery-NN.webp` under `public/blog/<slug>/`. */
+/** Appends gallery images under `public/blog/<slug>/`. */
 export async function saveUploadedBlogGallery(
   slug: string,
   files: File[],
@@ -106,7 +109,7 @@ export async function saveUploadedBlogGallery(
   if (!safeSlug) return { ok: false, message: "Некорректный slug (латиница, цифры, дефисы)." };
   if (files.length === 0) return { ok: true, urls: [] };
 
-  const postDir = join(process.cwd(), "public", UPLOAD_FOLDER, safeSlug);
+  const postDir = publicPath(UPLOAD_FOLDER, safeSlug);
   await mkdir(postDir, { recursive: true });
 
   let index = nextGalleryIndex(postDir);
@@ -114,8 +117,8 @@ export async function saveUploadedBlogGallery(
 
   for (const file of files) {
     if (!file?.size) continue;
-    if (file.size > MAX_BYTES) {
-      return { ok: false, message: "Фото галереи не больше 15 МБ каждое." };
+    if (file.size > MAX_UPLOAD_BYTES) {
+      return { ok: false, message: "Фото галереи не больше 40 МБ каждое." };
     }
     const sourceExt = extensionForUploadedImage(file);
     if (!sourceExt) {
@@ -126,7 +129,7 @@ export async function saveUploadedBlogGallery(
         Buffer.from(await file.arrayBuffer()),
         sourceExt,
       );
-      const filename = `gallery-${String(index).padStart(2, "0")}.${optimized.extension}`;
+      const filename = `gallery-${String(index).padStart(2, "0")}-${Date.now()}.${optimized.extension}`;
       await writeFile(join(postDir, filename), optimized.buffer);
       urls.push(`/${UPLOAD_FOLDER}/${safeSlug}/${filename}`);
       index += 1;
@@ -152,12 +155,12 @@ export async function deleteBlogGalleryImage(
   }
 
   const name = basename(normalized);
-  if (!IMAGE_EXT.test(name) || /^cover\./i.test(name)) {
+  if (!IMAGE_EXT.test(name) || /^cover/i.test(name)) {
     return { ok: false, message: "Можно удалять только фото галереи." };
   }
 
   try {
-    await unlink(join(process.cwd(), "public", UPLOAD_FOLDER, safeSlug, name));
+    await unlink(join(publicPath(UPLOAD_FOLDER, safeSlug), name));
     return { ok: true };
   } catch {
     return { ok: false, message: "Не удалось удалить файл." };

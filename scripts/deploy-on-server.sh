@@ -71,7 +71,7 @@ mkdir -p "$RUNTIME_DIR/.next" "$RUNTIME_DIR/logs"
 
 # rsync --delete убирает из runtime всё, чего нет в standalone (.env, data, галереи).
 BACKUP_DIR="$(mktemp -d)"
-for item in .env data logs public/media public/projects public/chaveta public/zil; do
+for item in .env data logs public/media public/projects public/blog public/chaveta public/zil; do
   if [ -e "$RUNTIME_DIR/$item" ]; then
     mkdir -p "$BACKUP_DIR/$(dirname "$item")"
     cp -a "$RUNTIME_DIR/$item" "$BACKUP_DIR/$item"
@@ -96,6 +96,7 @@ else
   rsync -a --delete .next/standalone/ "$RUNTIME_DIR/" \
     --exclude 'public/media' \
     --exclude 'public/projects' \
+    --exclude 'public/blog' \
     --exclude 'public/chaveta' \
     --exclude 'public/zil'
   rsync -a .next/static/ "$RUNTIME_DIR/.next/static/"
@@ -120,9 +121,11 @@ rsync -a public/ "$RUNTIME_DIR/public/" \
   --exclude 'media/home.*' \
   --exclude 'media/about.*' \
   --exclude 'media/services.*' \
-  --exclude 'media/contacts.*'
+  --exclude 'media/contacts.*' \
+  --exclude 'blog/' \
+  --exclude 'projects/'
 
-for item in .env data logs public/media public/projects public/chaveta public/zil; do
+for item in .env data logs public/media public/projects public/blog public/chaveta public/zil; do
   if [ -e "$BACKUP_DIR/$item" ]; then
     mkdir -p "$RUNTIME_DIR/$(dirname "$item")"
     cp -a "$BACKUP_DIR/$item" "$RUNTIME_DIR/$item"

@@ -1,9 +1,9 @@
 "use client";
 
-import Image from "next/image";
-import { useActionState } from "react";
+import { useActionState, useState, useTransition } from "react";
 import type { BlogPost as BlogPostModel } from "@prisma/client";
 import { updateBlogPostAction, type UpdateBlogPostState } from "@/app/actions";
+import { compressFormDataImages } from "@/lib/compress-image-client";
 import { parseBlogContent } from "@/lib/blog-posts";
 
 type EditBlogPostFormProps = {
@@ -15,16 +15,32 @@ const initial: UpdateBlogPostState = null;
 
 export function EditBlogPostForm({ post, galleryImages = [] }: EditBlogPostFormProps) {
   const [state, formAction, isPending] = useActionState(updateBlogPostAction, initial);
+  const [isCompressing, startCompress] = useTransition();
+  const [compressError, setCompressError] = useState<string | null>(null);
+  const busy = isPending || isCompressing;
   const publishedAt = post.publishedAt.toISOString().slice(0, 10);
   const content = parseBlogContent(post.content).join("\n\n");
 
+  function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    const form = event.currentTarget;
+    setCompressError(null);
+    startCompress(async () => {
+      try {
+        formAction(await compressFormDataImages(new FormData(form)));
+      } catch {
+        setCompressError("Не удалось сжать изображения. Попробуйте ещё раз.");
+      }
+    });
+  }
+
   return (
-    <form action={formAction} className="grid gap-4 border border-[#a38d83] p-6 md:grid-cols-2">
+    <form onSubmit={handleSubmit} className="grid gap-4 border border-[#a38d83] p-6 md:grid-cols-2">
       <input type="hidden" name="id" value={post.id} />
 
-      {state?.error ? (
+      {state?.error || compressError ? (
         <p className="rounded border border-[#751f26] bg-[#f4f1ed] px-4 py-3 text-sm text-[#4d131a] md:col-span-2">
-          {state.error}
+          {state?.error ?? compressError}
         </p>
       ) : null}
 
@@ -85,7 +101,13 @@ export function EditBlogPostForm({ post, galleryImages = [] }: EditBlogPostFormP
         </p>
         {post.coverImage ? (
           <div className="relative aspect-[5/4] w-full max-w-[220px] overflow-hidden border border-[#d4cdc4] bg-[#eae6e0]">
-            <Image src={post.coverImage} alt="" fill className="object-cover" sizes="220px" />
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              key={post.coverImage}
+              src={post.coverImage}
+              alt=""
+              className="absolute inset-0 h-full w-full object-cover"
+            />
           </div>
         ) : null}
         <input
@@ -119,7 +141,8 @@ export function EditBlogPostForm({ post, galleryImages = [] }: EditBlogPostFormP
             {galleryImages.map((src) => (
               <li key={src} className="space-y-2 border border-[#d4cdc4] bg-white/50 p-2">
                 <div className="relative aspect-[4/5] overflow-hidden bg-[#eae6e0]">
-                  <Image src={src} alt="" fill className="object-cover" sizes="180px" />
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={src} alt="" className="absolute inset-0 h-full w-full object-cover" />
                 </div>
                 <label className="flex items-center gap-2 text-[11px] uppercase tracking-[0.14em] text-[#751f26]">
                   <input type="checkbox" name="removeGallery" value={src} className="accent-[#751f26]" />
@@ -148,10 +171,10 @@ export function EditBlogPostForm({ post, galleryImages = [] }: EditBlogPostFormP
 
       <button
         type="submit"
-        disabled={isPending}
+        disabled={busy}
         className="w-fit bg-[#751f26] px-5 py-3 text-sm uppercase tracking-[0.15em] text-[#e7d8d1] hover:bg-[#4d131a] disabled:opacity-50"
       >
-        {isPending ? "Сохранение…" : "Сохранить изменения"}
+        {isCompressing ? "Сжатие…" : isPending ? "Сохранение…" : "Сохранить изменения"}
       </button>
     </form>
   );

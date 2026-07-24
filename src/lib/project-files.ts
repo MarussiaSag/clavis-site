@@ -2,6 +2,7 @@ import { mkdir, writeFile } from "node:fs/promises";
 import { basename, join } from "node:path";
 import { readdirSync } from "node:fs";
 import { optimizeUploadedImage } from "@/lib/optimize-image";
+import { publicPath } from "@/lib/public-dir";
 
 const IMAGE_EXT = /\.(jpe?g|png|webp|avif)$/i;
 const UPLOAD_FOLDER = "projects";
@@ -24,7 +25,7 @@ export function normalizePublicAssetPath(src: string): string {
 export function listProjectImagesForSlug(slug: string): string[] {
   const safe = sanitizeProjectSlug(slug);
   if (!safe) return [];
-  const dir = join(process.cwd(), "public", UPLOAD_FOLDER, safe);
+  const dir = publicPath(UPLOAD_FOLDER, safe);
   try {
     return readdirSync(dir)
       .filter((name) => IMAGE_EXT.test(name))
@@ -62,7 +63,7 @@ export function buildProjectInteriorGallery(
   return [normalizePublicAssetPath(coverImage)];
 }
 
-const MAX_BYTES = 15 * 1024 * 1024;
+const MAX_UPLOAD_BYTES = 40 * 1024 * 1024;
 
 export function extensionForUploadedImage(file: File): "jpg" | "png" | "webp" | "avif" | null {
   const fromName = file.name.match(/\.(jpe?g|png|webp|avif)$/i)?.[1]?.toLowerCase();
@@ -107,7 +108,7 @@ export async function saveUploadedProjectPhotos(
     ? normalizePublicAssetPath(fallbackCoverUrl.trim())
     : "";
 
-  const projectDir = join(process.cwd(), "public", UPLOAD_FOLDER, safeSlug);
+  const projectDir = publicPath(UPLOAD_FOLDER, safeSlug);
 
   if (!cover?.size && !coverUrl) {
     return {
@@ -124,8 +125,8 @@ export async function saveUploadedProjectPhotos(
   }
 
   if (cover?.size) {
-    if (cover.size > MAX_BYTES) {
-      return { ok: false, message: "Главное фото не больше 15 МБ." };
+    if (cover.size > MAX_UPLOAD_BYTES) {
+      return { ok: false, message: "Главное фото не больше 40 МБ." };
     }
     const sourceExt = extensionForUploadedImage(cover);
     if (!sourceExt) {
@@ -139,8 +140,9 @@ export async function saveUploadedProjectPhotos(
         Buffer.from(await cover.arrayBuffer()),
         sourceExt,
       );
-      await writeFile(join(projectDir, `cover.${optimized.extension}`), optimized.buffer);
-      coverUrl = `/${UPLOAD_FOLDER}/${safeSlug}/cover.${optimized.extension}`;
+      const filename = `cover-${Date.now()}.${optimized.extension}`;
+      await writeFile(join(projectDir, filename), optimized.buffer);
+      coverUrl = `/${UPLOAD_FOLDER}/${safeSlug}/${filename}`;
     } catch {
       return { ok: false, message: "Не удалось обработать главное фото. Попробуйте другой файл." };
     }
@@ -150,8 +152,8 @@ export async function saveUploadedProjectPhotos(
   for (const file of gallery) {
     if (!file.size) continue;
     index += 1;
-    if (file.size > MAX_BYTES) {
-      return { ok: false, message: `Фото «${basename(file.name)}» больше 15 МБ.` };
+    if (file.size > MAX_UPLOAD_BYTES) {
+      return { ok: false, message: `Фото «${basename(file.name)}» больше 40 МБ.` };
     }
     const sourceExt = extensionForUploadedImage(file);
     if (!sourceExt) {
@@ -166,7 +168,10 @@ export async function saveUploadedProjectPhotos(
         Buffer.from(await file.arrayBuffer()),
         sourceExt,
       );
-      await writeFile(join(projectDir, `${stem}.${optimized.extension}`), optimized.buffer);
+      await writeFile(
+        join(projectDir, `${stem}-${Date.now()}.${optimized.extension}`),
+        optimized.buffer,
+      );
     } catch {
       return {
         ok: false,
@@ -191,8 +196,8 @@ export async function saveNamedProjectImage(
   const safeSlug = sanitizeProjectSlug(slug);
   if (!safeSlug) return { ok: false, message: "Некорректный slug." };
   if (!file.size) return { ok: false, message: "Пустой файл." };
-  if (file.size > MAX_BYTES) {
-    return { ok: false, message: `Фото «${basename(file.name)}» больше 15 МБ.` };
+  if (file.size > MAX_UPLOAD_BYTES) {
+    return { ok: false, message: `Фото «${basename(file.name)}» больше 40 МБ.` };
   }
   const sourceExt = extensionForUploadedImage(file);
   if (!sourceExt) {
@@ -209,7 +214,7 @@ export async function saveNamedProjectImage(
     .slice(0, 64);
   if (!safeStem) return { ok: false, message: "Некорректное имя файла." };
 
-  const projectDir = join(process.cwd(), "public", UPLOAD_FOLDER, safeSlug);
+  const projectDir = publicPath(UPLOAD_FOLDER, safeSlug);
   await mkdir(projectDir, { recursive: true });
 
   try {
@@ -217,8 +222,9 @@ export async function saveNamedProjectImage(
       Buffer.from(await file.arrayBuffer()),
       sourceExt,
     );
-    await writeFile(join(projectDir, `${safeStem}.${optimized.extension}`), optimized.buffer);
-    return { ok: true, url: `/${UPLOAD_FOLDER}/${safeSlug}/${safeStem}.${optimized.extension}` };
+    const filename = `${safeStem}-${Date.now()}.${optimized.extension}`;
+    await writeFile(join(projectDir, filename), optimized.buffer);
+    return { ok: true, url: `/${UPLOAD_FOLDER}/${safeSlug}/${filename}` };
   } catch {
     return { ok: false, message: `Не удалось обработать фото «${basename(file.name)}».` };
   }
