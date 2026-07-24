@@ -38,8 +38,6 @@ export async function saveUploadedStudioTeamPhoto(
     if (!sourceExt) {
       return { ok: false, message: "Фото: допустимы JPEG, PNG, WebP или AVIF." };
     }
-    const dir = join(process.cwd(), "public", UPLOAD_FOLDER);
-    await mkdir(dir, { recursive: true });
     try {
       const optimized = await optimizeUploadedImage(
         Buffer.from(await file.arrayBuffer()),
@@ -47,6 +45,20 @@ export async function saveUploadedStudioTeamPhoto(
       );
       if (optimized.buffer.length > MAX_STORED_BYTES) {
         return { ok: false, message: "После сжатия фото всё ещё больше 15 МБ." };
+      }
+      const dir = join(process.cwd(), "public", UPLOAD_FOLDER);
+      await mkdir(dir, { recursive: true });
+      // Remove previous team.* variants so the URL always matches the new file.
+      const { readdir, unlink } = await import("node:fs/promises");
+      try {
+        const existing = await readdir(dir);
+        await Promise.all(
+          existing
+            .filter((name) => /^team\./i.test(name))
+            .map((name) => unlink(join(dir, name)).catch(() => undefined)),
+        );
+      } catch {
+        // ignore cleanup errors
       }
       await writeFile(join(dir, `team.${optimized.extension}`), optimized.buffer);
       teamPhotoUrl = `/${UPLOAD_FOLDER}/team.${optimized.extension}`;

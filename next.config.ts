@@ -3,6 +3,11 @@ import type { NextConfig } from "next";
 const nextConfig: NextConfig = {
   output: "standalone",
   reactCompiler: true,
+  // Uploads are already resized/compressed in admin. Skipping the Next optimizer
+  // avoids broken images when sharp/libvips fails on the VPS.
+  images: {
+    unoptimized: true,
+  },
   experimental: {
     serverActions: {
       // Admin project form uploads cover + gallery + room photos in one request.
