@@ -32,7 +32,16 @@ if [ -f "$RUNTIME_DIR/.env" ]; then
   set -u
 fi
 
-export DATABASE_URL="${DATABASE_URL:-file:./data/prod.db}"
+# Next.js читает .env из корня репо при build — без копии worker может
+# попасть в другой SQLite-файл и упасть на prerender.
+if [ -f "$RUNTIME_DIR/.env" ]; then
+  cp -a "$RUNTIME_DIR/.env" "$REPO_DIR/.env"
+fi
+
+# Абсолютный путь снимает расхождение migrate (cwd) vs Prisma Client (schema dir).
+if [[ -z "${DATABASE_URL:-}" || "$DATABASE_URL" == file:./data/* || "$DATABASE_URL" == file:../data/* ]]; then
+  export DATABASE_URL="file:${RUNTIME_DIR}/data/prod.db"
+fi
 
 mkdir -p "$RUNTIME_DIR/data" "$RUNTIME_DIR/logs"
 
@@ -45,7 +54,7 @@ fi
 echo "→ npm ci"
 npm ci
 
-echo "→ prisma migrate deploy"
+echo "→ prisma migrate deploy (DATABASE_URL=$DATABASE_URL)"
 npx prisma migrate deploy
 
 echo "→ npm run build"

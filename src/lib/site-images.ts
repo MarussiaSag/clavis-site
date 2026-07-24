@@ -106,16 +106,28 @@ export async function ensureSiteImages() {
 }
 
 export async function getSiteImages(): Promise<SiteImageMap> {
-  await ensureSiteImages();
-  const prisma = getPrismaClient();
-  const rows = await prisma.siteImage.findMany();
-  const map = { ...DEFAULT_MAP };
-  for (const row of rows) {
-    if (row.slot in map && row.url.trim()) {
-      map[row.slot as SiteImageSlot] = row.url;
+  try {
+    await ensureSiteImages();
+    const prisma = getPrismaClient();
+    const rows = await prisma.siteImage.findMany();
+    const map = { ...DEFAULT_MAP };
+    for (const row of rows) {
+      if (row.slot in map && row.url.trim()) {
+        map[row.slot as SiteImageSlot] = row.url;
+      }
     }
+    return map;
+  } catch (error) {
+    if (
+      typeof error === "object" &&
+      error !== null &&
+      "code" in error &&
+      (error as { code?: string }).code === "P2021"
+    ) {
+      return { ...DEFAULT_MAP };
+    }
+    throw error;
   }
-  return map;
 }
 
 export async function getSiteImage(slot: SiteImageSlot): Promise<string> {

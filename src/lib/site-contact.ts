@@ -60,6 +60,15 @@ export function socialLinksFromContact(contact: SiteContact) {
   return contact.socialLinks.filter((item) => item.label.trim() && item.href.trim());
 }
 
+function isMissingDbTableError(error: unknown) {
+  return (
+    typeof error === "object" &&
+    error !== null &&
+    "code" in error &&
+    (error as { code?: string }).code === "P2021"
+  );
+}
+
 export async function ensureSiteSettings() {
   const prisma = getPrismaClient();
   const d = SITE_CONTACT_DEFAULTS;
@@ -95,30 +104,38 @@ export async function ensureSiteSettings() {
 }
 
 export async function getSiteContact(): Promise<SiteContact> {
-  await ensureSiteSettings();
-  const prisma = getPrismaClient();
-  const [row, socialRows] = await Promise.all([
-    prisma.siteSettings.findUniqueOrThrow({ where: { id: 1 } }),
-    prisma.socialLink.findMany({ orderBy: [{ sortOrder: "asc" }, { id: "asc" }] }),
-  ]);
+  try {
+    await ensureSiteSettings();
+    const prisma = getPrismaClient();
+    const [row, socialRows] = await Promise.all([
+      prisma.siteSettings.findUniqueOrThrow({ where: { id: 1 } }),
+      prisma.socialLink.findMany({ orderBy: [{ sortOrder: "asc" }, { id: "asc" }] }),
+    ]);
 
-  return {
-    city: row.city,
-    address: row.address,
-    mapUrl: row.mapUrl,
-    phone: row.phone,
-    phoneHref: row.phoneHref,
-    email: row.email,
-    tagline: row.tagline,
-    workingHours: {
-      weekdays: row.hoursWeekdays,
-      weekend: row.hoursWeekend,
-    },
-    socialLinks: socialRows.map((item) => ({
-      id: item.id,
-      label: item.label,
-      href: item.href,
-    })),
-    instagramFootnote: row.instagramFootnote,
-  };
+    return {
+      city: row.city,
+      address: row.address,
+      mapUrl: row.mapUrl,
+      phone: row.phone,
+      phoneHref: row.phoneHref,
+      email: row.email,
+      tagline: row.tagline,
+      workingHours: {
+        weekdays: row.hoursWeekdays,
+        weekend: row.hoursWeekend,
+      },
+      socialLinks: socialRows.map((item) => ({
+        id: item.id,
+        label: item.label,
+        href: item.href,
+      })),
+      instagramFootnote: row.instagramFootnote,
+    };
+  } catch (error) {
+    // Build/prerender can run before migrate or with a different SQLite file.
+    if (isMissingDbTableError(error)) {
+      return { ...SITE_CONTACT_DEFAULTS };
+    }
+    throw error;
+  }
 }
