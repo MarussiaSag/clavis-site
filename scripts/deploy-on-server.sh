@@ -54,6 +54,10 @@ fi
 echo "→ npm ci"
 npm ci
 
+# sharp: нативные биндинги под linux-x64 (иначе admin upload падает с ERR_DLOPEN_FAILED)
+echo "→ sharp linux-x64"
+npm install --os=linux --cpu=x64 --libc=glibc sharp
+
 echo "→ prisma migrate deploy (DATABASE_URL=$DATABASE_URL)"
 npx prisma migrate deploy
 
@@ -93,6 +97,18 @@ else
     --exclude 'public/chaveta' \
     --exclude 'public/zil'
   rsync -a .next/static/ "$RUNTIME_DIR/.next/static/"
+fi
+
+# Подтянуть полный sharp (libvips) из build-node_modules в runtime —
+# standalone иногда копирует неполный набор нативных файлов.
+if [ -d "$REPO_DIR/node_modules/sharp" ]; then
+  echo "→ копирование sharp в runtime"
+  mkdir -p "$RUNTIME_DIR/node_modules"
+  rsync -a --delete "$REPO_DIR/node_modules/sharp/" "$RUNTIME_DIR/node_modules/sharp/"
+  if [ -d "$REPO_DIR/node_modules/@img" ]; then
+    mkdir -p "$RUNTIME_DIR/node_modules/@img"
+    rsync -a "$REPO_DIR/node_modules/@img/" "$RUNTIME_DIR/node_modules/@img/"
+  fi
 fi
 
 rsync -a public/ "$RUNTIME_DIR/public/" \
