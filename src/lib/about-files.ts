@@ -1,4 +1,4 @@
-import { mkdir, writeFile } from "node:fs/promises";
+import { mkdir, readdir, unlink, writeFile } from "node:fs/promises";
 import { join } from "node:path";
 import { optimizeUploadedImage } from "@/lib/optimize-image";
 import {
@@ -13,6 +13,19 @@ const MAX_STORED_BYTES = 15 * 1024 * 1024;
 export type SaveStudioTeamPhotoResult =
   | { ok: true; teamPhotoUrl: string }
   | { ok: false; message: string };
+
+async function removeOldTeamPhotos(dir: string) {
+  try {
+    const existing = await readdir(dir);
+    await Promise.all(
+      existing
+        .filter((name) => /^team([.-]|$)/i.test(name))
+        .map((name) => unlink(join(dir, name)).catch(() => undefined)),
+    );
+  } catch {
+    // ignore cleanup errors
+  }
+}
 
 export async function saveUploadedStudioTeamPhoto(
   file: File | null,
@@ -48,20 +61,12 @@ export async function saveUploadedStudioTeamPhoto(
       }
       const dir = join(process.cwd(), "public", UPLOAD_FOLDER);
       await mkdir(dir, { recursive: true });
-      // Remove previous team.* variants so the URL always matches the new file.
-      const { readdir, unlink } = await import("node:fs/promises");
-      try {
-        const existing = await readdir(dir);
-        await Promise.all(
-          existing
-            .filter((name) => /^team\./i.test(name))
-            .map((name) => unlink(join(dir, name)).catch(() => undefined)),
-        );
-      } catch {
-        // ignore cleanup errors
-      }
-      await writeFile(join(dir, `team.${optimized.extension}`), optimized.buffer);
-      teamPhotoUrl = `/${UPLOAD_FOLDER}/team.${optimized.extension}`;
+      await removeOldTeamPhotos(dir);
+
+      // Unique name so browsers / admin preview don't keep a cached broken image.
+      const filename = `team-${Date.now()}.${optimized.extension}`;
+      await writeFile(join(dir, filename), optimized.buffer);
+      teamPhotoUrl = `/${UPLOAD_FOLDER}/${filename}`;
     } catch {
       return { ok: false, message: "Не удалось обработать фото. Попробуйте другой файл." };
     }

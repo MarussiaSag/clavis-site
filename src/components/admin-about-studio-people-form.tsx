@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useActionState, useEffect, useState, useTransition } from "react";
 import {
@@ -84,12 +83,12 @@ export function AdminAboutStudioPeopleForm({ initial }: AdminAboutStudioPeopleFo
 
         {teamPhoto ? (
           <div className="relative aspect-[3/4] w-full max-w-[220px] overflow-hidden border border-[#d4cdc4] bg-[#eae6e0]">
-            <Image
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              key={teamPhoto}
               src={teamPhoto}
               alt="Текущее фото команды"
-              fill
-              className="object-cover"
-              sizes="220px"
+              className="absolute inset-0 h-full w-full object-cover"
             />
           </div>
         ) : null}

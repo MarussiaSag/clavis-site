@@ -48,7 +48,8 @@ export async function saveUploadedSiteImage(
     if (optimized.buffer.length > MAX_STORED_BYTES) {
       return { ok: false, message: "После сжатия файл всё ещё больше 15 МБ. Уменьшите исходник." };
     }
-    const filename = `${safeSlot}.${optimized.extension}`;
+    // Timestamp avoids sticky browser cache when replacing the same slot.
+    const filename = `${safeSlot}-${Date.now()}.${optimized.extension}`;
     await writeFile(join(dir, filename), optimized.buffer);
     return { ok: true, url: `/${UPLOAD_FOLDER}/${filename}` };
   } catch {

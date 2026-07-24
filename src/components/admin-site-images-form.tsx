@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useActionState, useEffect, useState, useTransition } from "react";
 import {
@@ -61,12 +60,12 @@ export function AdminSiteImagesForm({ initial }: AdminSiteImagesFormProps) {
                   <input type="hidden" name={`${item.slot}__url`} value={url} />
                   {url ? (
                     <div className="relative aspect-[4/5] w-full max-w-[200px] overflow-hidden border border-[#d4cdc4] bg-[#eae6e0]">
-                      <Image
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        key={url}
                         src={url}
                         alt={item.label}
-                        fill
-                        className="object-cover"
-                        sizes="200px"
+                        className="absolute inset-0 h-full w-full object-cover"
                       />
                     </div>
                   ) : null}
