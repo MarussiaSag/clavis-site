@@ -42,15 +42,27 @@ export async function ensureStudioHighlights() {
 }
 
 export async function getStudioHighlights(): Promise<HomeStudioHighlight[]> {
-  await ensureStudioHighlights();
-  const prisma = getPrismaClient();
-  const rows = await prisma.studioHighlight.findMany({
-    orderBy: [{ sortOrder: "asc" }, { id: "asc" }],
-    take: MAX_STUDIO_HIGHLIGHTS,
-  });
-  return rows.map((row) => ({
-    id: row.id,
-    title: row.title,
-    description: row.description,
-  }));
+  try {
+    await ensureStudioHighlights();
+    const prisma = getPrismaClient();
+    const rows = await prisma.studioHighlight.findMany({
+      orderBy: [{ sortOrder: "asc" }, { id: "asc" }],
+      take: MAX_STUDIO_HIGHLIGHTS,
+    });
+    return rows.map((row) => ({
+      id: row.id,
+      title: row.title,
+      description: row.description,
+    }));
+  } catch (error) {
+    if (
+      typeof error === "object" &&
+      error !== null &&
+      "code" in error &&
+      (error as { code?: string }).code === "P2021"
+    ) {
+      return HOME_STUDIO_HIGHLIGHTS_DEFAULTS;
+    }
+    throw error;
+  }
 }
