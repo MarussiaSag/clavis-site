@@ -26,6 +26,7 @@ export async function isAdminAuthenticated(): Promise<boolean> {
 
 export async function requireAdmin() {
   if (!(await isAdminAuthenticated())) {
-    throw new Error("Требуется авторизация администратора.");
+    // Return-friendly signal for actions using useActionState (don't throw HTML/redirect noise).
+    throw new Error("Требуется авторизация администратора. Выйдите и войдите снова.");
   }
 }
