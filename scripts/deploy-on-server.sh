@@ -67,11 +67,13 @@ npm run build
 export NODE_ENV=production
 
 echo "→ копирование standalone в $RUNTIME_DIR"
-mkdir -p "$RUNTIME_DIR/.next" "$RUNTIME_DIR/logs"
+mkdir -p "$RUNTIME_DIR/.next" "$RUNTIME_DIR/logs" \
+  "$RUNTIME_DIR/public/media" "$RUNTIME_DIR/public/projects" "$RUNTIME_DIR/public/blog"
 
-# rsync --delete убирает из runtime всё, чего нет в standalone (.env, data, галереи).
+# Не копируем media/projects/blog во /tmp — на маленьких VPS это заполняет диск.
+# Эти папки исключены из rsync --delete ниже, поэтому upload'ы сохраняются на месте.
 BACKUP_DIR="$(mktemp -d)"
-for item in .env data logs public/media public/projects public/blog public/chaveta public/zil; do
+for item in .env data logs; do
   if [ -e "$RUNTIME_DIR/$item" ]; then
     mkdir -p "$BACKUP_DIR/$(dirname "$item")"
     cp -a "$RUNTIME_DIR/$item" "$BACKUP_DIR/$item"
@@ -98,7 +100,10 @@ else
     --exclude 'public/projects' \
     --exclude 'public/blog' \
     --exclude 'public/chaveta' \
-    --exclude 'public/zil'
+    --exclude 'public/zil' \
+    --exclude '.env' \
+    --exclude 'data' \
+    --exclude 'logs'
   rsync -a .next/static/ "$RUNTIME_DIR/.next/static/"
 fi
 
@@ -114,18 +119,12 @@ if [ -d "$REPO_DIR/node_modules/sharp" ]; then
   fi
 fi
 
-rsync -a public/ "$RUNTIME_DIR/public/" \
+# Seed/static assets from repo — не затираем уже загруженные файлы (--ignore-existing).
+rsync -a --ignore-existing public/ "$RUNTIME_DIR/public/" \
   --exclude 'chaveta/' \
-  --exclude 'zil/' \
-  --exclude 'media/team*' \
-  --exclude 'media/home.*' \
-  --exclude 'media/about.*' \
-  --exclude 'media/services.*' \
-  --exclude 'media/contacts.*' \
-  --exclude 'blog/' \
-  --exclude 'projects/'
+  --exclude 'zil/'
 
-for item in .env data logs public/media public/projects public/blog public/chaveta public/zil; do
+for item in .env data logs; do
   if [ -e "$BACKUP_DIR/$item" ]; then
     mkdir -p "$RUNTIME_DIR/$(dirname "$item")"
     cp -a "$BACKUP_DIR/$item" "$RUNTIME_DIR/$item"
