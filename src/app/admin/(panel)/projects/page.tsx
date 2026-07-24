@@ -1,16 +1,17 @@
 import Link from "next/link";
 import { CreateProjectForm } from "@/components/create-project-form";
-import { AdminPanelShell } from "@/components/admin-panel-shell";
+import { AdminPageHeader } from "@/components/admin-panel-shell";
 import { prisma } from "@/lib/prisma";
 
 export default async function AdminProjectsPage() {
   const projects = await prisma.project.findMany({ orderBy: { createdAt: "desc" } });
 
   return (
-    <AdminPanelShell
-      title="Проекты"
-      description="Карточка проекта: основная информация, тексты страницы, помещения, материалы и команда."
-    >
+    <>
+      <AdminPageHeader
+        title="Проекты"
+        description="Карточка проекта: основная информация, тексты страницы, помещения, материалы и команда."
+      />
       <section className="space-y-4">
         <h2 className="font-serif text-2xl text-[#151210]">Добавить проект</h2>
         <CreateProjectForm />
@@ -43,6 +44,6 @@ export default async function AdminProjectsPage() {
           </div>
         )}
       </section>
-    </AdminPanelShell>
+    </>
   );
 }

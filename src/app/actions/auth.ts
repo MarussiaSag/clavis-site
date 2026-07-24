@@ -25,7 +25,9 @@ export async function adminLoginAction(
   cookieStore.set(ADMIN_SESSION_COOKIE, getSessionToken(), {
     httpOnly: true,
     sameSite: "lax",
-    secure: process.env.NODE_ENV === "production",
+    // Secure cookies are not sent over plain HTTP (e.g. http://IP/).
+    // Set ADMIN_COOKIE_SECURE=true in .env after enabling HTTPS.
+    secure: process.env.ADMIN_COOKIE_SECURE === "true",
     path: "/",
     maxAge: 60 * 60 * 24 * 7,
   });

@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { deleteProjectAction } from "@/app/actions";
-import { AdminPanelShell } from "@/components/admin-panel-shell";
+import { AdminPageHeader } from "@/components/admin-panel-shell";
 import { AdminProjectForm } from "@/components/admin-project-form";
 import { prisma } from "@/lib/prisma";
 
@@ -18,10 +18,8 @@ export default async function EditProjectPage({ params }: EditProjectPageProps) 
   if (!project) notFound();
 
   return (
-    <AdminPanelShell
-      title={project.title}
-      description={`Редактирование · ${project.slug}`}
-    >
+    <>
+      <AdminPageHeader title={project.title} description={`Редактирование · ${project.slug}`} />
       <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
         <Link
           href="/admin/projects"
@@ -40,6 +38,6 @@ export default async function EditProjectPage({ params }: EditProjectPageProps) 
         </form>
       </div>
       <AdminProjectForm mode="edit" project={project} />
-    </AdminPanelShell>
+    </>
   );
 }

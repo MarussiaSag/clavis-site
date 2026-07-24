@@ -2,7 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { DeleteBlogPostButton } from "@/components/delete-blog-post-button";
 import { EditBlogPostForm } from "@/components/edit-blog-post-form";
-import { AdminPanelShell } from "@/components/admin-panel-shell";
+import { AdminPageHeader } from "@/components/admin-panel-shell";
 import { listBlogGalleryImages } from "@/lib/blog-files";
 import { prisma } from "@/lib/prisma";
 
@@ -21,7 +21,8 @@ export default async function AdminEditBlogPostPage({ params }: AdminEditBlogPos
   const galleryImages = listBlogGalleryImages(post.slug, post.coverImage);
 
   return (
-    <AdminPanelShell title="Редактировать статью" description={post.title}>
+    <>
+      <AdminPageHeader title="Редактировать статью" description={post.title} />
       <div className="flex flex-wrap items-center justify-between gap-4">
         <Link
           href="/admin/blog"
@@ -33,6 +34,6 @@ export default async function AdminEditBlogPostPage({ params }: AdminEditBlogPos
       </div>
 
       <EditBlogPostForm post={post} galleryImages={galleryImages} />
-    </AdminPanelShell>
+    </>
   );
 }

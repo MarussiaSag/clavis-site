@@ -1,4 +1,4 @@
-import { AdminPanelShell } from "@/components/admin-panel-shell";
+import { AdminPageHeader } from "@/components/admin-panel-shell";
 import { prisma } from "@/lib/prisma";
 
 export default async function AdminInquiriesPage() {
@@ -8,10 +8,11 @@ export default async function AdminInquiriesPage() {
   });
 
   return (
-    <AdminPanelShell
-      title="Заявки"
-      description="Сообщения с формы на странице контактов."
-    >
+    <>
+      <AdminPageHeader
+        title="Заявки"
+        description="Сообщения с формы на странице контактов."
+      />
       <section className="space-y-4">
         {inquiries.length === 0 ? (
           <p className="text-[#4d131a]/80">Пока заявок нет.</p>
@@ -28,6 +29,6 @@ export default async function AdminInquiriesPage() {
           </div>
         )}
       </section>
-    </AdminPanelShell>
+    </>
   );
 }

@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { CreateBlogPostForm } from "@/components/create-blog-post-form";
 import { DeleteBlogPostButton } from "@/components/delete-blog-post-button";
-import { AdminPanelShell } from "@/components/admin-panel-shell";
+import { AdminPageHeader } from "@/components/admin-panel-shell";
 import { ensureBlogSeedData, formatBlogDate } from "@/lib/blog-posts";
 import { prisma } from "@/lib/prisma";
 
@@ -10,10 +10,11 @@ export default async function AdminBlogPage() {
   const blogPosts = await prisma.blogPost.findMany({ orderBy: { publishedAt: "desc" } });
 
   return (
-    <AdminPanelShell
-      title="Статьи"
-      description="Добавление и редактирование материалов блога."
-    >
+    <>
+      <AdminPageHeader
+        title="Статьи"
+        description="Добавление и редактирование материалов блога."
+      />
       <section className="space-y-4">
         <h2 className="font-serif text-2xl text-[#151210]">Добавить статью</h2>
         <CreateBlogPostForm />
@@ -48,6 +49,6 @@ export default async function AdminBlogPage() {
           </div>
         )}
       </section>
-    </AdminPanelShell>
+    </>
   );
 }

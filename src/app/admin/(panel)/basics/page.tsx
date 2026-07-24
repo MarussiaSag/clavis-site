@@ -1,4 +1,4 @@
-import { AdminPanelShell } from "@/components/admin-panel-shell";
+import { AdminPageHeader } from "@/components/admin-panel-shell";
 import { AdminSiteBasicsForm } from "@/components/admin-site-basics-form";
 import { getSiteContact } from "@/lib/site-contact";
 
@@ -6,10 +6,11 @@ export default async function AdminBasicsPage() {
   const contact = await getSiteContact();
 
   return (
-    <AdminPanelShell
-      title="Основные данные"
-      description="Телефон, почта, адрес и социальные сети — используются по всему сайту."
-    >
+    <>
+      <AdminPageHeader
+        title="Основные данные"
+        description="Телефон, почта, адрес и социальные сети — используются по всему сайту."
+      />
       <AdminSiteBasicsForm
         initial={{
           city: contact.city,
@@ -24,6 +25,6 @@ export default async function AdminBasicsPage() {
           socialLinks: contact.socialLinks,
         }}
       />
-    </AdminPanelShell>
+    </>
   );
 }
