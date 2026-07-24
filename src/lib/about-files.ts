@@ -7,7 +7,8 @@ import {
 } from "@/lib/project-files";
 
 const UPLOAD_FOLDER = "media";
-const MAX_BYTES = 15 * 1024 * 1024;
+const MAX_UPLOAD_BYTES = 40 * 1024 * 1024;
+const MAX_STORED_BYTES = 15 * 1024 * 1024;
 
 export type SaveStudioTeamPhotoResult =
   | { ok: true; teamPhotoUrl: string }
@@ -30,8 +31,8 @@ export async function saveUploadedStudioTeamPhoto(
   }
 
   if (file?.size) {
-    if (file.size > MAX_BYTES) {
-      return { ok: false, message: "Фото команды не больше 15 МБ." };
+    if (file.size > MAX_UPLOAD_BYTES) {
+      return { ok: false, message: "Фото команды не больше 40 МБ." };
     }
     const sourceExt = extensionForUploadedImage(file);
     if (!sourceExt) {
@@ -44,6 +45,9 @@ export async function saveUploadedStudioTeamPhoto(
         Buffer.from(await file.arrayBuffer()),
         sourceExt,
       );
+      if (optimized.buffer.length > MAX_STORED_BYTES) {
+        return { ok: false, message: "После сжатия фото всё ещё больше 15 МБ." };
+      }
       await writeFile(join(dir, `team.${optimized.extension}`), optimized.buffer);
       teamPhotoUrl = `/${UPLOAD_FOLDER}/team.${optimized.extension}`;
     } catch {

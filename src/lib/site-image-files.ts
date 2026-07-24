@@ -7,7 +7,9 @@ import {
 } from "@/lib/project-files";
 
 const UPLOAD_FOLDER = "media";
-const MAX_BYTES = 15 * 1024 * 1024;
+/** Raw upload ceiling (camera originals). Compression runs before storage. */
+const MAX_UPLOAD_BYTES = 40 * 1024 * 1024;
+const MAX_STORED_BYTES = 15 * 1024 * 1024;
 
 export type SaveSiteImageResult =
   | { ok: true; url: string }
@@ -28,8 +30,8 @@ export async function saveUploadedSiteImage(
     return { ok: false, message: "Загрузите изображение." };
   }
 
-  if (file.size > MAX_BYTES) {
-    return { ok: false, message: "Изображение не больше 15 МБ." };
+  if (file.size > MAX_UPLOAD_BYTES) {
+    return { ok: false, message: "Изображение не больше 40 МБ." };
   }
   const sourceExt = extensionForUploadedImage(file);
   if (!sourceExt) {
@@ -43,6 +45,9 @@ export async function saveUploadedSiteImage(
       Buffer.from(await file.arrayBuffer()),
       sourceExt,
     );
+    if (optimized.buffer.length > MAX_STORED_BYTES) {
+      return { ok: false, message: "После сжатия файл всё ещё больше 15 МБ. Уменьшите исходник." };
+    }
     const filename = `${safeSlot}.${optimized.extension}`;
     await writeFile(join(dir, filename), optimized.buffer);
     return { ok: true, url: `/${UPLOAD_FOLDER}/${filename}` };

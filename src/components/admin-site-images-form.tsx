@@ -2,11 +2,12 @@
 
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { useActionState, useEffect } from "react";
+import { useActionState, useEffect, useState, useTransition } from "react";
 import {
   saveSiteImagesAction,
   type SaveSiteImagesState,
 } from "@/app/actions";
+import { compressFormDataImages } from "@/lib/compress-image-client";
 import { SITE_IMAGE_SLOTS, type SiteImageMap } from "@/lib/site-images";
 
 type AdminSiteImagesFormProps = {
@@ -20,13 +21,32 @@ const groups = [...new Set(SITE_IMAGE_SLOTS.map((item) => item.group))];
 export function AdminSiteImagesForm({ initial }: AdminSiteImagesFormProps) {
   const router = useRouter();
   const [state, formAction, isPending] = useActionState(saveSiteImagesAction, initialState);
+  const [isCompressing, startCompress] = useTransition();
+  const [compressError, setCompressError] = useState<string | null>(null);
+  const busy = isPending || isCompressing;
 
   useEffect(() => {
     if (state?.ok) router.refresh();
   }, [state?.ok, router]);
 
+  function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    const form = event.currentTarget;
+    setCompressError(null);
+    startCompress(async () => {
+      try {
+        const compressed = await compressFormDataImages(new FormData(form));
+        formAction(compressed);
+      } catch {
+        setCompressError(
+          "Не удалось сжать изображения. Попробуйте ещё раз или уменьшите размер файлов.",
+        );
+      }
+    });
+  }
+
   return (
-    <form action={formAction} className="space-y-10">
+    <form onSubmit={handleSubmit} className="space-y-10">
       {groups.map((group) => (
         <section key={group} className="space-y-4 border border-[#a38d83] bg-white/40 p-6">
           <h2 className="font-serif text-2xl text-[#151210]">{group}</h2>
@@ -73,15 +93,17 @@ export function AdminSiteImagesForm({ initial }: AdminSiteImagesFormProps) {
         </section>
       ))}
 
-      {state?.error ? <p className="text-sm text-[#751f26]">{state.error}</p> : null}
+      {state?.error || compressError ? (
+        <p className="text-sm text-[#751f26]">{state?.error ?? compressError}</p>
+      ) : null}
       {state?.ok ? <p className="text-sm text-[#3d0d0a]/80">Сохранено.</p> : null}
 
       <button
         type="submit"
-        disabled={isPending}
+        disabled={busy}
         className="w-fit bg-[#751f26] px-5 py-3 text-sm uppercase tracking-[0.15em] text-[#e7d8d1] hover:bg-[#4d131a] disabled:opacity-50"
       >
-        {isPending ? "Сохранение…" : "Сохранить изображения"}
+        {isCompressing ? "Сжатие…" : isPending ? "Сохранение…" : "Сохранить изображения"}
       </button>
     </form>
   );
