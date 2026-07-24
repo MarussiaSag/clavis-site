@@ -1,6 +1,7 @@
 import { mkdir, readdir, unlink, writeFile } from "node:fs/promises";
 import { join } from "node:path";
 import { optimizeUploadedImage } from "@/lib/optimize-image";
+import { publicPath } from "@/lib/public-dir";
 import {
   extensionForUploadedImage,
   normalizePublicAssetPath,
@@ -59,15 +60,19 @@ export async function saveUploadedStudioTeamPhoto(
       if (optimized.buffer.length > MAX_STORED_BYTES) {
         return { ok: false, message: "После сжатия фото всё ещё больше 15 МБ." };
       }
-      const dir = join(process.cwd(), "public", UPLOAD_FOLDER);
+      const dir = publicPath(UPLOAD_FOLDER);
       await mkdir(dir, { recursive: true });
       await removeOldTeamPhotos(dir);
 
-      // Unique name so browsers / admin preview don't keep a cached broken image.
       const filename = `team-${Date.now()}.${optimized.extension}`;
-      await writeFile(join(dir, filename), optimized.buffer);
+      const absolutePath = join(dir, filename);
+      await writeFile(absolutePath, optimized.buffer);
+      console.info(
+        `[saveUploadedStudioTeamPhoto] wrote ${absolutePath} (${optimized.buffer.length} bytes)`,
+      );
       teamPhotoUrl = `/${UPLOAD_FOLDER}/${filename}`;
-    } catch {
+    } catch (error) {
+      console.error("[saveUploadedStudioTeamPhoto]", error);
       return { ok: false, message: "Не удалось обработать фото. Попробуйте другой файл." };
     }
   }

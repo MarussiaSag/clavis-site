@@ -1,6 +1,7 @@
 import { mkdir, writeFile } from "node:fs/promises";
 import { join } from "node:path";
 import { optimizeUploadedImage } from "@/lib/optimize-image";
+import { publicPath } from "@/lib/public-dir";
 import {
   extensionForUploadedImage,
   normalizePublicAssetPath,
@@ -38,7 +39,7 @@ export async function saveUploadedSiteImage(
     return { ok: false, message: "Допустимы JPEG, PNG, WebP или AVIF." };
   }
 
-  const dir = join(process.cwd(), "public", UPLOAD_FOLDER);
+  const dir = publicPath(UPLOAD_FOLDER);
   await mkdir(dir, { recursive: true });
   try {
     const optimized = await optimizeUploadedImage(
@@ -48,11 +49,13 @@ export async function saveUploadedSiteImage(
     if (optimized.buffer.length > MAX_STORED_BYTES) {
       return { ok: false, message: "После сжатия файл всё ещё больше 15 МБ. Уменьшите исходник." };
     }
-    // Timestamp avoids sticky browser cache when replacing the same slot.
     const filename = `${safeSlot}-${Date.now()}.${optimized.extension}`;
-    await writeFile(join(dir, filename), optimized.buffer);
+    const absolutePath = join(dir, filename);
+    await writeFile(absolutePath, optimized.buffer);
+    console.info(`[saveUploadedSiteImage] wrote ${absolutePath} (${optimized.buffer.length} bytes)`);
     return { ok: true, url: `/${UPLOAD_FOLDER}/${filename}` };
-  } catch {
+  } catch (error) {
+    console.error("[saveUploadedSiteImage]", error);
     return { ok: false, message: "Не удалось обработать изображение. Попробуйте другой файл." };
   }
 }

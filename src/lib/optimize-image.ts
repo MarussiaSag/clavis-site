@@ -9,15 +9,23 @@ export type OptimizedImage = {
 
 type SourceExt = OptimizedImage["extension"];
 
+function sharpOptimizeEnabled() {
+  // Opt-in: on many VPS sharp/libvips is broken and produces missing/corrupt files.
+  // Admin already compresses in the browser before upload.
+  return process.env.SHARP_OPTIMIZE === "true";
+}
+
 /**
- * Resize (without enlarging) and encode as WebP for admin uploads.
- * If WebP is not smaller than the source, keeps the original bytes/extension.
- * Falls back to the original file when sharp/native libs are unavailable on the host.
+ * Optionally resize/encode with sharp. By default keeps the (already client-compressed) bytes.
  */
 export async function optimizeUploadedImage(
   input: Buffer,
   sourceExtension: SourceExt,
 ): Promise<OptimizedImage> {
+  if (!sharpOptimizeEnabled()) {
+    return { buffer: input, extension: sourceExtension };
+  }
+
   try {
     const sharp = (await import("sharp")).default;
     const image = sharp(input, { failOn: "none" }).rotate();
@@ -46,7 +54,6 @@ export async function optimizeUploadedImage(
       return { buffer: webpBuffer, extension: "webp" };
     }
 
-    // Already compact (or tiny) source — don't grow the file.
     if (width <= MAX_EDGE && height <= MAX_EDGE) {
       return { buffer: input, extension: sourceExtension };
     }
