@@ -70,37 +70,32 @@ echo "→ копирование standalone в $RUNTIME_DIR"
 mkdir -p "$RUNTIME_DIR/.next" "$RUNTIME_DIR/logs" \
   "$RUNTIME_DIR/public/media" "$RUNTIME_DIR/public/projects" "$RUNTIME_DIR/public/blog"
 
-# Не копируем media/projects/blog во /tmp — на маленьких VPS это заполняет диск.
-# Эти папки исключены из rsync --delete ниже, поэтому upload'ы сохраняются на месте.
-BACKUP_DIR="$(mktemp -d)"
-for item in .env data logs; do
-  if [ -e "$RUNTIME_DIR/$item" ]; then
-    mkdir -p "$BACKUP_DIR/$(dirname "$item")"
-    cp -a "$RUNTIME_DIR/$item" "$BACKUP_DIR/$item"
-  fi
-done
+# Не трогаем .env / data / logs / uploads: они исключены из rsync --delete.
+# Бэкап во /tmp на маленьких VPS заполняет диск — не используем.
 
 if [ "$REPO_DIR" = "$RUNTIME_DIR" ]; then
   echo "  repo = runtime: обновляем только артефакты сборки"
-  # standalone/.next не содержит static; rsync --delete иначе сотрёт .next/static в том же каталоге.
-  STATIC_BACKUP="$(mktemp -d)"
+  STATIC_BACKUP=""
   if [ -d ".next/static" ]; then
-    cp -a .next/static "$STATIC_BACKUP/"
+    STATIC_BACKUP="$(mktemp -d)"
+    # Если /tmp переполнен — копируем рядом с проектом
+    if ! cp -a .next/static "$STATIC_BACKUP/" 2>/dev/null; then
+      STATIC_BACKUP="$RUNTIME_DIR/.static-backup-$$"
+      rm -rf "$STATIC_BACKUP"
+      mkdir -p "$STATIC_BACKUP"
+      cp -a .next/static "$STATIC_BACKUP/"
+    fi
   fi
   rsync -a .next/standalone/server.js "$RUNTIME_DIR/"
   rsync -a .next/standalone/node_modules/ "$RUNTIME_DIR/node_modules/"
   rsync -a --delete .next/standalone/.next/ "$RUNTIME_DIR/.next/"
-  if [ -d "$STATIC_BACKUP/static" ]; then
+  if [ -n "$STATIC_BACKUP" ] && [ -d "$STATIC_BACKUP/static" ]; then
     rsync -a "$STATIC_BACKUP/static/" "$RUNTIME_DIR/.next/static/"
   fi
   rm -rf "$STATIC_BACKUP"
 else
   rsync -a --delete .next/standalone/ "$RUNTIME_DIR/" \
-    --exclude 'public/media' \
-    --exclude 'public/projects' \
-    --exclude 'public/blog' \
-    --exclude 'public/chaveta' \
-    --exclude 'public/zil' \
+    --exclude 'public' \
     --exclude '.env' \
     --exclude 'data' \
     --exclude 'logs'
@@ -119,18 +114,11 @@ if [ -d "$REPO_DIR/node_modules/sharp" ]; then
   fi
 fi
 
-# Seed/static assets from repo — не затираем уже загруженные файлы (--ignore-existing).
+# Seed/static assets from repo — не затираем уже загруженные файлы.
 rsync -a --ignore-existing public/ "$RUNTIME_DIR/public/" \
   --exclude 'chaveta/' \
   --exclude 'zil/'
 
-for item in .env data logs; do
-  if [ -e "$BACKUP_DIR/$item" ]; then
-    mkdir -p "$RUNTIME_DIR/$(dirname "$item")"
-    cp -a "$BACKUP_DIR/$item" "$RUNTIME_DIR/$item"
-  fi
-done
-rm -rf "$BACKUP_DIR"
 
 mkdir -p "$RUNTIME_DIR/data"
 if [ ! -f "$RUNTIME_DIR/.env" ]; then
