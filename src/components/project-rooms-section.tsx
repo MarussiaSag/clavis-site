@@ -99,14 +99,15 @@ export function ProjectRoomsSection({ rooms: roomsProp, gallery, title }: Projec
         </div>
 
         <div className="mt-10 grid gap-6 md:mt-12 md:grid-cols-[minmax(0,1.55fr)_minmax(0,1fr)] md:items-start md:gap-8 lg:gap-10">
-          <div className="relative aspect-[4/3] w-full overflow-hidden bg-[#e8e2dc] lg:aspect-[16/11]">
+          <div className="relative w-full overflow-hidden bg-[#e8e2dc]">
             <Image
               key={active.mainImage}
               src={active.mainImage}
               alt={`${title} — ${active.label}`}
-              fill
+              width={1600}
+              height={1200}
               sizes="(max-width: 768px) 100vw, 60vw"
-              className="object-cover object-center"
+              className="h-auto w-full"
             />
           </div>
 
@@ -116,14 +117,15 @@ export function ProjectRoomsSection({ rooms: roomsProp, gallery, title }: Projec
             </p>
 
             {active.secondaryImage ? (
-              <div className="relative aspect-[4/5] w-full overflow-hidden bg-[#e8e2dc]">
+              <div className="relative w-full overflow-hidden bg-[#e8e2dc]">
                 <Image
                   key={active.secondaryImage}
                   src={active.secondaryImage}
                   alt={`${title} — ${active.label}, деталь`}
-                  fill
+                  width={1200}
+                  height={1500}
                   sizes="(max-width: 768px) 100vw, 38vw"
-                  className="object-cover object-center"
+                  className="h-auto w-full"
                 />
               </div>
             ) : null}

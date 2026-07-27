@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 type ProjectInteriorGalleryProps = {
   images: string[];
@@ -9,44 +9,156 @@ type ProjectInteriorGalleryProps = {
   id?: string;
 };
 
-function GalleryTile({
-  src,
-  alt,
-  index,
-  total,
-  onOpen,
-  className,
-  sizes,
-}: {
-  src: string;
-  alt: string;
+type PlacedTile = {
   index: number;
-  total: number;
-  onOpen: (index: number) => void;
-  className: string;
-  sizes: string;
-}) {
-  return (
-    <button
-      type="button"
-      onClick={() => onOpen(index)}
-      aria-label={`Открыть фото ${index + 1} из ${total}`}
-      className={`group relative overflow-hidden bg-[#e8e2dc] text-left ${className}`}
-    >
-      <Image
-        src={src}
-        alt={alt}
-        fill
-        sizes={sizes}
-        className="object-cover object-center transition-transform duration-500 group-hover:scale-[1.02]"
-      />
-      <span className="pointer-events-none absolute inset-0 bg-[#151210]/0 transition-colors duration-300 group-hover:bg-[#151210]/8" />
-    </button>
-  );
+  left: number;
+  top: number;
+  width: number;
+  height: number;
+};
+
+const GAP = 3;
+const TARGET_ROW_HEIGHT = 280;
+const TARGET_ROW_HEIGHT_MOBILE = 220;
+
+function useImageAspects(srcs: string[]) {
+  const [aspects, setAspects] = useState<number[]>(() => srcs.map(() => 1));
+  const [ready, setReady] = useState(false);
+  const srcKey = srcs.join("\0");
+
+  useEffect(() => {
+    const list = srcKey ? srcKey.split("\0") : [];
+    let cancelled = false;
+    const next = list.map(() => 1);
+    let pending = list.length;
+    setReady(false);
+
+    if (list.length === 0) {
+      setAspects([]);
+      setReady(true);
+      return;
+    }
+
+    const finish = () => {
+      if (cancelled) return;
+      setAspects([...next]);
+      setReady(true);
+    };
+
+    list.forEach((src, index) => {
+      const img = new window.Image();
+      img.onload = () => {
+        if (cancelled) return;
+        if (img.naturalWidth > 0 && img.naturalHeight > 0) {
+          next[index] = img.naturalWidth / img.naturalHeight;
+        }
+        pending -= 1;
+        if (pending <= 0) finish();
+      };
+      img.onerror = () => {
+        if (cancelled) return;
+        pending -= 1;
+        if (pending <= 0) finish();
+      };
+      img.src = src;
+    });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [srcKey]);
+
+  return { aspects, ready };
+}
+
+/** Flickr-style justified rows — same idea as Yandex Disk «Умная плитка»: mixed ratios, flush edges, no crop. */
+function layoutJustified(
+  aspects: number[],
+  containerWidth: number,
+  targetRowHeight: number,
+  gap: number,
+): { tiles: PlacedTile[]; height: number } {
+  if (containerWidth <= 0 || aspects.length === 0) {
+    return { tiles: [], height: 0 };
+  }
+
+  const tiles: PlacedTile[] = [];
+  let top = 0;
+  let i = 0;
+
+  while (i < aspects.length) {
+    const rowStart = i;
+    let aspectSum = 0;
+
+    while (i < aspects.length) {
+      aspectSum += aspects[i];
+      const rowWidthAtTarget = aspectSum * targetRowHeight + gap * (i - rowStart);
+      i += 1;
+      if (rowWidthAtTarget >= containerWidth && i - rowStart >= 1) break;
+      if (i - rowStart >= 5) break;
+    }
+
+    const count = i - rowStart;
+    const gapsWidth = gap * Math.max(count - 1, 0);
+    const isLastRow = i >= aspects.length;
+    let rowAspectSum = 0;
+    for (let j = rowStart; j < i; j += 1) rowAspectSum += aspects[j];
+
+    let rowHeight = (containerWidth - gapsWidth) / rowAspectSum;
+    if (isLastRow && count < 3) {
+      rowHeight = Math.min(rowHeight, targetRowHeight * 1.15);
+    }
+
+    let left = 0;
+    for (let j = rowStart; j < i; j += 1) {
+      const width =
+        j === i - 1 && !(isLastRow && count < 3)
+          ? containerWidth - left
+          : aspects[j] * rowHeight;
+      tiles.push({
+        index: j,
+        left,
+        top,
+        width,
+        height: rowHeight,
+      });
+      left += width + gap;
+    }
+
+    top += rowHeight + gap;
+  }
+
+  return { tiles, height: Math.max(top - gap, 0) };
 }
 
 export function ProjectInteriorGallery({ images, title, id }: ProjectInteriorGalleryProps) {
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [containerWidth, setContainerWidth] = useState(0);
+  const { aspects, ready } = useImageAspects(images);
+
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el) return;
+
+    const update = () => setContainerWidth(el.clientWidth);
+    update();
+
+    const observer = new ResizeObserver(update);
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
+
+  const targetRowHeight =
+    containerWidth > 0 && containerWidth < 640 ? TARGET_ROW_HEIGHT_MOBILE : TARGET_ROW_HEIGHT;
+
+  const layout = useMemo(
+    () =>
+      ready
+        ? layoutJustified(aspects, containerWidth, targetRowHeight, GAP)
+        : { tiles: [] as PlacedTile[], height: 0 },
+    [aspects, containerWidth, targetRowHeight, ready],
+  );
 
   useEffect(() => {
     if (lightboxIndex === null) return;
@@ -82,7 +194,6 @@ export function ProjectInteriorGallery({ images, title, id }: ProjectInteriorGal
 
   const total = images.length;
   const totalLabel = String(total).padStart(2, "0");
-
   const openLightbox = (index: number) => setLightboxIndex(index);
   const goToPrevious = () =>
     setLightboxIndex((current) =>
@@ -106,47 +217,43 @@ export function ProjectInteriorGallery({ images, title, id }: ProjectInteriorGal
             Фотографии проекта
           </p>
 
-          <div className="mt-8 space-y-2.5 md:mt-10 md:space-y-3">
-            {Array.from({ length: Math.ceil(images.length / 2) }, (_, rowIndex) => {
-              const leftIndex = rowIndex * 2;
-              const rightIndex = leftIndex + 1;
-              const leftSrc = images[leftIndex];
-              const rightSrc = images[rightIndex];
-              const wideOnLeft = rowIndex % 2 === 0;
-
-              return (
-                <div
-                  key={`row-${rowIndex}`}
-                  className={`grid grid-cols-1 gap-2.5 md:items-stretch md:gap-3 ${
-                    wideOnLeft
-                      ? "md:grid-cols-[minmax(0,1.65fr)_minmax(0,1fr)]"
-                      : "md:grid-cols-[minmax(0,1fr)_minmax(0,1.65fr)]"
-                  }`}
+          <div
+            ref={containerRef}
+            className="relative mt-8 w-full md:mt-10"
+            style={{ height: layout.height > 0 ? layout.height : undefined }}
+          >
+            {layout.height === 0 ? (
+              <div className="grid grid-cols-2 gap-[3px] md:grid-cols-3">
+                {images.slice(0, 6).map((src) => (
+                  <div key={src} className="aspect-[4/3] animate-pulse bg-[#e8e2dc]" aria-hidden />
+                ))}
+              </div>
+            ) : (
+              layout.tiles.map((tile) => (
+                <button
+                  key={`${images[tile.index]}-${tile.index}`}
+                  type="button"
+                  onClick={() => openLightbox(tile.index)}
+                  aria-label={`Открыть фото ${tile.index + 1} из ${total}`}
+                  className="group absolute overflow-hidden bg-[#e8e2dc] text-left"
+                  style={{
+                    left: tile.left,
+                    top: tile.top,
+                    width: tile.width,
+                    height: tile.height,
+                  }}
                 >
-                  <GalleryTile
-                    src={leftSrc}
-                    alt={`${title} — фото ${leftIndex + 1}`}
-                    index={leftIndex}
-                    total={total}
-                    onOpen={openLightbox}
-                    sizes="(max-width: 768px) 100vw, 60vw"
-                    className="aspect-[16/11] w-full md:aspect-auto md:min-h-[300px] lg:min-h-[360px]"
+                  <Image
+                    src={images[tile.index]}
+                    alt={`${title} — фото ${tile.index + 1}`}
+                    fill
+                    sizes="(max-width: 768px) 50vw, 33vw"
+                    className="object-cover object-center transition-transform duration-500 group-hover:scale-[1.02]"
                   />
-
-                  {rightSrc ? (
-                    <GalleryTile
-                      src={rightSrc}
-                      alt={`${title} — фото ${rightIndex + 1}`}
-                      index={rightIndex}
-                      total={total}
-                      onOpen={openLightbox}
-                      sizes="(max-width: 768px) 100vw, 40vw"
-                      className="aspect-[3/4] w-full md:aspect-auto md:h-full md:min-h-[300px] lg:min-h-[360px]"
-                    />
-                  ) : null}
-                </div>
-              );
-            })}
+                  <span className="pointer-events-none absolute inset-0 bg-[#151210]/0 transition-colors duration-300 group-hover:bg-[#151210]/8" />
+                </button>
+              ))
+            )}
           </div>
         </div>
       </section>

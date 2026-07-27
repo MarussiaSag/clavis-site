@@ -228,13 +228,14 @@ export async function ProjectDetailPage({ project, gallery, nextProject }: Proje
 
               <div className="flex h-full flex-col">
                 <div className="space-y-6 md:space-y-7">
-                  <div className="relative aspect-[4/3] w-full overflow-hidden md:aspect-[5/4]">
+                  <div className="relative w-full overflow-hidden bg-[#e8e2dc]">
                     <Image
                       src={aboutImage}
                       alt={`${project.title} — обзор пространства`}
-                      fill
+                      width={1600}
+                      height={2000}
                       sizes="(max-width: 768px) 100vw, 45vw"
-                      className="object-cover object-center"
+                      className="h-auto w-full"
                     />
                   </div>
 
