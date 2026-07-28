@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState, useState, useTransition } from "react";
+import { useActionState, useRef, useState, useTransition } from "react";
 import type { Project } from "@prisma/client";
 import {
   createProjectAction,
@@ -60,6 +60,18 @@ function RoomPhotoPicker({
   onSelect: (url: string) => void;
   onClear: () => void;
 }) {
+  const fileRef = useRef<HTMLInputElement>(null);
+
+  function selectFromGallery(url: string) {
+    if (fileRef.current) fileRef.current.value = "";
+    onSelect(url);
+  }
+
+  function clearSelection() {
+    if (fileRef.current) fileRef.current.value = "";
+    onClear();
+  }
+
   return (
     <div className="grid gap-2">
       <div className="flex items-center justify-between gap-2">
@@ -67,7 +79,7 @@ function RoomPhotoPicker({
         {value ? (
           <button
             type="button"
-            onClick={onClear}
+            onClick={clearSelection}
             className="text-[10px] uppercase tracking-[0.14em] text-[#751f26]"
           >
             Сбросить
@@ -90,7 +102,7 @@ function RoomPhotoPicker({
               <button
                 key={src}
                 type="button"
-                onClick={() => onSelect(src)}
+                onClick={() => selectFromGallery(src)}
                 title={src}
                 className={`relative aspect-square overflow-hidden border bg-[#eae6e0] ${
                   selected ? "border-[#751f26] ring-2 ring-[#751f26]/35" : "border-[#d4cdc4]"
@@ -113,6 +125,7 @@ function RoomPhotoPicker({
           Или загрузить новый файл
         </span>
         <input
+          ref={fileRef}
           name={fileInputName}
           type="file"
           accept="image/jpeg,image/png,image/webp,image/avif"
@@ -181,6 +194,14 @@ export function AdminProjectForm(props: AdminProjectFormProps) {
     startCompress(async () => {
       try {
         const compressed = await compressFormDataImages(new FormData(form));
+        // React state is the source of truth for gallery picks — ensure URLs reach the server.
+        compressed.set("roomCount", String(rooms.length));
+        rooms.forEach((room, index) => {
+          compressed.set(`room_label_${index}`, room.label);
+          compressed.set(`room_description_${index}`, room.description);
+          compressed.set(`room_mainUrl_${index}`, room.mainImage);
+          compressed.set(`room_secondaryUrl_${index}`, room.secondaryImage);
+        });
         formAction(compressed);
       } catch {
         setCompressError("Не удалось подготовить изображения. Попробуйте ещё раз или уменьшите размер файлов.");
@@ -528,8 +549,13 @@ export function AdminProjectForm(props: AdminProjectFormProps) {
                     Удалить
                   </button>
                 </div>
-                <input type="hidden" name={`room_mainUrl_${index}`} value={room.mainImage} />
-                <input type="hidden" name={`room_secondaryUrl_${index}`} value={room.secondaryImage} />
+                <input type="hidden" name={`room_mainUrl_${index}`} value={room.mainImage} readOnly />
+                <input
+                  type="hidden"
+                  name={`room_secondaryUrl_${index}`}
+                  value={room.secondaryImage}
+                  readOnly
+                />
                 <label className="grid gap-2">
                   <span className={labelClass}>Название</span>
                   <input
