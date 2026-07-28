@@ -1,4 +1,4 @@
-import { mkdir, writeFile } from "node:fs/promises";
+import { mkdir, unlink, writeFile } from "node:fs/promises";
 import { basename, join } from "node:path";
 import { readdirSync } from "node:fs";
 import { optimizeUploadedImage } from "@/lib/optimize-image";
@@ -227,5 +227,37 @@ export async function saveNamedProjectImage(
     return { ok: true, url: `/${UPLOAD_FOLDER}/${safeSlug}/${filename}` };
   } catch {
     return { ok: false, message: `Не удалось обработать фото «${basename(file.name)}».` };
+  }
+}
+
+/** Deletes one image under `public/projects/<slug>/`. Cover file is protected. */
+export async function deleteProjectGalleryImage(
+  slug: string,
+  imageUrl: string,
+  coverImage?: string | null,
+): Promise<{ ok: true } | { ok: false; message: string }> {
+  const safeSlug = sanitizeProjectSlug(slug);
+  if (!safeSlug) return { ok: false, message: "Некорректный slug." };
+
+  const normalized = normalizePublicAssetPath(imageUrl);
+  const expectedPrefix = `/${UPLOAD_FOLDER}/${safeSlug}/`;
+  if (!normalized.startsWith(expectedPrefix)) {
+    return { ok: false, message: "Нельзя удалить этот файл." };
+  }
+
+  if (coverImage && normalizePublicAssetPath(coverImage) === normalized) {
+    return { ok: false, message: "Нельзя удалить обложку проекта. Сначала замените главное фото." };
+  }
+
+  const name = basename(normalized);
+  if (!IMAGE_EXT.test(name) || /^cover/i.test(name)) {
+    return { ok: false, message: "Можно удалять только фото галереи." };
+  }
+
+  try {
+    await unlink(join(publicPath(UPLOAD_FOLDER, safeSlug), name));
+    return { ok: true };
+  } catch {
+    return { ok: false, message: "Не удалось удалить файл." };
   }
 }

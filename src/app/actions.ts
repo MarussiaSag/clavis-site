@@ -6,8 +6,13 @@ import { requireAdmin } from "@/lib/admin-auth";
 import { prisma } from "@/lib/prisma";
 import { saveUploadedBlogCover } from "@/lib/blog-files";
 import { parseBlogContent, serializeBlogContent } from "@/lib/blog-posts";
-import { sanitizeProjectSlug, saveUploadedProjectPhotos } from "@/lib/project-files";
+import {
+  normalizePublicAssetPath,
+  sanitizeProjectSlug,
+  saveUploadedProjectPhotos,
+} from "@/lib/project-files";
 import { parseProjectFormData, type ParsedProjectForm } from "@/lib/parse-project-form";
+import { parseRooms, serializeRooms } from "@/lib/project-content";
 
 export async function createInquiry(formData: FormData) {
   const name = String(formData.get("name") ?? "").trim();
@@ -130,6 +135,42 @@ export async function updateProjectAction(
   if (!parsed.ok) return { error: parsed.error };
 
   const { data } = parsed;
+
+  const { deleteProjectGalleryImage } = await import("@/lib/project-files");
+  const removeUrls = formData
+    .getAll("removeGallery")
+    .map((item) => String(item).trim())
+    .filter(Boolean)
+    .map((url) => normalizePublicAssetPath(url));
+  const removeSet = new Set(removeUrls);
+
+  for (const url of removeUrls) {
+    const removed = await deleteProjectGalleryImage(existing.slug, url, existing.coverImage);
+    if (!removed.ok) {
+      return { error: removed.message };
+    }
+  }
+
+  if (removeSet.size > 0) {
+    if (data.aboutImage && removeSet.has(normalizePublicAssetPath(data.aboutImage))) {
+      data.aboutImage = null;
+    }
+    if (data.roomsJson) {
+      const rooms = parseRooms(data.roomsJson).map((room) => ({
+        ...room,
+        mainImage:
+          room.mainImage && removeSet.has(normalizePublicAssetPath(room.mainImage))
+            ? ""
+            : room.mainImage,
+        secondaryImage:
+          room.secondaryImage && removeSet.has(normalizePublicAssetPath(room.secondaryImage))
+            ? ""
+            : room.secondaryImage,
+      }));
+      data.roomsJson = rooms.length ? serializeRooms(rooms) : null;
+    }
+  }
+
   const saved = await saveUploadedProjectPhotos(
     data.slug,
     data.mainFile,

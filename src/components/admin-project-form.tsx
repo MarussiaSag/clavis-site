@@ -34,8 +34,8 @@ type TeamDraft = {
 };
 
 type AdminProjectFormProps =
-  | { mode: "create" }
-  | { mode: "edit"; project: Project };
+  | { mode: "create"; galleryImages?: string[] }
+  | { mode: "edit"; project: Project; galleryImages?: string[] };
 
 const fieldClass = "border border-[#a38d83] bg-[#e7d8d1] px-4 py-3";
 const labelClass = "text-[11px] uppercase tracking-[0.2em] text-[#6a6a6a]";
@@ -45,9 +45,95 @@ function newKey(prefix: string) {
   return `${prefix}-${Math.random().toString(36).slice(2, 9)}`;
 }
 
+function RoomPhotoPicker({
+  label,
+  value,
+  images,
+  fileInputName,
+  onSelect,
+  onClear,
+}: {
+  label: string;
+  value: string;
+  images: string[];
+  fileInputName: string;
+  onSelect: (url: string) => void;
+  onClear: () => void;
+}) {
+  return (
+    <div className="grid gap-2">
+      <div className="flex items-center justify-between gap-2">
+        <span className={labelClass}>{label}</span>
+        {value ? (
+          <button
+            type="button"
+            onClick={onClear}
+            className="text-[10px] uppercase tracking-[0.14em] text-[#751f26]"
+          >
+            Сбросить
+          </button>
+        ) : null}
+      </div>
+
+      {value ? (
+        <div className="relative aspect-[4/3] w-full overflow-hidden border border-[#d4cdc4] bg-[#eae6e0]">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src={value} alt="" className="absolute inset-0 h-full w-full object-cover" />
+        </div>
+      ) : null}
+
+      {images.length > 0 ? (
+        <div className="grid grid-cols-3 gap-1.5 sm:grid-cols-4">
+          {images.map((src) => {
+            const selected = value === src;
+            return (
+              <button
+                key={src}
+                type="button"
+                onClick={() => onSelect(src)}
+                title={src}
+                className={`relative aspect-square overflow-hidden border bg-[#eae6e0] ${
+                  selected ? "border-[#751f26] ring-2 ring-[#751f26]/35" : "border-[#d4cdc4]"
+                }`}
+              >
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={src} alt="" className="absolute inset-0 h-full w-full object-cover" />
+              </button>
+            );
+          })}
+        </div>
+      ) : (
+        <p className="text-xs text-[#6a6a6a]">
+          Нет загруженных фото — загрузите галерею выше или новый файл ниже.
+        </p>
+      )}
+
+      <label className="grid gap-1">
+        <span className="text-[10px] uppercase tracking-[0.14em] text-[#6a6a6a]">
+          Или загрузить новый файл
+        </span>
+        <input
+          name={fileInputName}
+          type="file"
+          accept="image/jpeg,image/png,image/webp,image/avif"
+          className="text-sm file:mr-3 file:border file:border-[#a38d83] file:bg-[#f4f1ed] file:px-3 file:py-2"
+        />
+      </label>
+    </div>
+  );
+}
+
 export function AdminProjectForm(props: AdminProjectFormProps) {
   const isEdit = props.mode === "edit";
   const project = isEdit ? props.project : null;
+  const galleryImages = props.galleryImages ?? [];
+  const coverImage = project?.coverImage ?? "";
+  const removableGallery = galleryImages.filter((src) => {
+    if (!src.startsWith("/projects/")) return false;
+    if (coverImage && src === coverImage) return false;
+    const name = src.split("/").pop() ?? "";
+    return !/^cover/i.test(name);
+  });
 
   const [rooms, setRooms] = useState<RoomDraft[]>(() => {
     const parsed = parseRooms(project?.roomsJson);
@@ -272,6 +358,51 @@ export function AdminProjectForm(props: AdminProjectFormProps) {
             className="w-full max-w-md text-sm file:mr-3 file:border file:border-[#a38d83] file:bg-[#f4f1ed] file:px-3 file:py-2"
           />
         </label>
+
+        {galleryImages.length > 0 ? (
+          <div className="space-y-3">
+            <div>
+              <p className={labelClass}>Фотографии проекта</p>
+              <p className="mt-1 text-sm text-[#6a6a6a]">
+                Отметьте дубли или лишние кадры — они удалятся при сохранении. Обложку удалить нельзя.
+              </p>
+            </div>
+            <ul className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+              {galleryImages.map((src) => {
+                const canRemove = removableGallery.includes(src);
+                const isCover = coverImage === src || /^cover/i.test(src.split("/").pop() ?? "");
+                return (
+                  <li key={src} className="space-y-2 border border-[#d4cdc4] bg-white/50 p-2">
+                    <div className="relative aspect-[4/3] overflow-hidden bg-[#eae6e0]">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img src={src} alt="" className="absolute inset-0 h-full w-full object-cover" />
+                    </div>
+                    <p className="truncate text-[10px] text-[#6a6a6a]" title={src}>
+                      {src.split("/").pop()}
+                      {isCover ? " · обложка" : ""}
+                    </p>
+                    {canRemove ? (
+                      <label className="flex items-center gap-2 text-[11px] uppercase tracking-[0.14em] text-[#751f26]">
+                        <input
+                          type="checkbox"
+                          name="removeGallery"
+                          value={src}
+                          className="accent-[#751f26]"
+                        />
+                        Удалить
+                      </label>
+                    ) : (
+                      <p className="text-[11px] uppercase tracking-[0.14em] text-[#6a6a6a]">
+                        Не удаляется
+                      </p>
+                    )}
+                  </li>
+                );
+              })}
+            </ul>
+          </div>
+        ) : null}
+
         <label className="grid gap-2">
           <span className={labelClass}>Дополнительные фото галереи</span>
           <input
@@ -431,26 +562,42 @@ export function AdminProjectForm(props: AdminProjectFormProps) {
                   />
                 </label>
                 <div className="grid gap-4 md:grid-cols-2">
-                  <label className="grid gap-2">
-                    <span className={labelClass}>Фото 1{room.mainImage ? ` (${room.mainImage})` : ""}</span>
-                    <input
-                      name={`room_main_${index}`}
-                      type="file"
-                      accept="image/jpeg,image/png,image/webp,image/avif"
-                      className="text-sm file:mr-3 file:border file:border-[#a38d83] file:bg-[#f4f1ed] file:px-3 file:py-2"
-                    />
-                  </label>
-                  <label className="grid gap-2">
-                    <span className={labelClass}>
-                      Фото 2{room.secondaryImage ? ` (${room.secondaryImage})` : ""}
-                    </span>
-                    <input
-                      name={`room_secondary_${index}`}
-                      type="file"
-                      accept="image/jpeg,image/png,image/webp,image/avif"
-                      className="text-sm file:mr-3 file:border file:border-[#a38d83] file:bg-[#f4f1ed] file:px-3 file:py-2"
-                    />
-                  </label>
+                  <RoomPhotoPicker
+                    label="Фото 1"
+                    value={room.mainImage}
+                    images={galleryImages}
+                    fileInputName={`room_main_${index}`}
+                    onSelect={(url) =>
+                      setRooms((prev) =>
+                        prev.map((row) => (row.key === room.key ? { ...row, mainImage: url } : row)),
+                      )
+                    }
+                    onClear={() =>
+                      setRooms((prev) =>
+                        prev.map((row) => (row.key === room.key ? { ...row, mainImage: "" } : row)),
+                      )
+                    }
+                  />
+                  <RoomPhotoPicker
+                    label="Фото 2"
+                    value={room.secondaryImage}
+                    images={galleryImages}
+                    fileInputName={`room_secondary_${index}`}
+                    onSelect={(url) =>
+                      setRooms((prev) =>
+                        prev.map((row) =>
+                          row.key === room.key ? { ...row, secondaryImage: url } : row,
+                        ),
+                      )
+                    }
+                    onClear={() =>
+                      setRooms((prev) =>
+                        prev.map((row) =>
+                          row.key === room.key ? { ...row, secondaryImage: "" } : row,
+                        ),
+                      )
+                    }
+                  />
                 </div>
               </div>
             ))}

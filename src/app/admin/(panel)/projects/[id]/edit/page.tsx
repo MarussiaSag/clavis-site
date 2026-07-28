@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { deleteProjectAction } from "@/app/actions";
 import { AdminPageHeader } from "@/components/admin-panel-shell";
 import { AdminProjectForm } from "@/components/admin-project-form";
+import { orderedProjectGallery } from "@/lib/project-files";
 import { prisma } from "@/lib/prisma";
 
 type EditProjectPageProps = {
@@ -16,6 +17,8 @@ export default async function EditProjectPage({ params }: EditProjectPageProps) 
 
   const project = await prisma.project.findUnique({ where: { id } });
   if (!project) notFound();
+
+  const galleryImages = orderedProjectGallery(project.slug, project.coverImage);
 
   return (
     <>
@@ -37,7 +40,7 @@ export default async function EditProjectPage({ params }: EditProjectPageProps) 
           </button>
         </form>
       </div>
-      <AdminProjectForm mode="edit" project={project} />
+      <AdminProjectForm mode="edit" project={project} galleryImages={galleryImages} />
     </>
   );
 }
