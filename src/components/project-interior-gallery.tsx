@@ -209,13 +209,14 @@ export function ProjectInteriorGallery({ images, title, id }: ProjectInteriorGal
         className="bg-[#f5f2ea] pb-14 pt-8 md:pb-20 md:pt-10"
         aria-labelledby="project-photos-heading"
       >
-        <div className="mx-auto max-w-[1440px] px-6 md:px-10 lg:px-12">
+        <div className="px-6 md:px-10 lg:px-12">
           <p
             id="project-photos-heading"
             className="text-[11px] font-medium uppercase tracking-[0.32em] text-[#a38d83] md:text-xs"
           >
             Фотографии проекта
           </p>
+        </div>
 
           <div
             ref={containerRef}
@@ -255,7 +256,6 @@ export function ProjectInteriorGallery({ images, title, id }: ProjectInteriorGal
               ))
             )}
           </div>
-        </div>
       </section>
 
       {lightboxIndex !== null ? (
