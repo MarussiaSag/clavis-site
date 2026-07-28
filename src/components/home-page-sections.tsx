@@ -9,6 +9,7 @@ import { HomeFounderMagazineSection } from "@/components/home-founder-magazine-s
 import { HomeStudioHighlightsSection } from "@/components/home-studio-highlights-section";
 import { HomeProcessSection } from "@/components/home-process-section";
 import { HomeServicesSection } from "@/components/home-services-section";
+import { HomeTrustPressSection } from "@/components/home-trust-press-section";
 import { RevealOnScroll } from "@/components/reveal-on-scroll";
 import type { HomeFeaturedProject } from "@/lib/home-featured-project";
 import { fullWidthSectionHeader, fullWidthSectionX, sectionContainer, sectionContentGap } from "@/lib/home-layout";
@@ -101,6 +102,8 @@ export function HomePageSections({
           </div>
         </section>
       </RevealOnScroll>
+
+      <HomeTrustPressSection />
 
       <HomeBlogSection />
 
