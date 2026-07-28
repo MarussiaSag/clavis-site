@@ -24,19 +24,13 @@ const ABOUT_FALLBACK = [
   "В отделке использован высококачественный микроцемент. Покрытие сделано в «облачной» технике с плавными размытыми переходами: так пространство получилось более сложным и глубоким. Цветовая палитра была тщательно подобрана: заказчики хотели интерьер в приглушенных природных тонах — в итоге оттенки выбирали по кругу Иттена с опорой на зеленый, синий и оранжевый цвета.",
 ];
 
-const ABOUT_SIDE_FALLBACK = [
-  "Акцентными стали зелёный и бордовый: это журнальный столик с диваном и яркое кресло, расположенные в гостиной. Вся корпусная мебель изготовлена на заказ в студии Duomo Project, а предметы мягкой мебели — в Julium Space. Кухонный гарнитур заказывали в Lithium. Текстиль и декор подбирала Анна Бабенко.",
-  "Зональное освещение с диммерами сформировало теневые акценты, добавляя глубину и визуально расширяя помещения. Техническое задание от заказчиков подчеркивало важность правильного света для создания уюта, и с этой задачей дизайн-студия отлично справилась.",
-];
-
 function aboutParagraphs(project: Project): string[] {
   const fromDb = parseParagraphs(project.aboutBody);
   return fromDb.length > 0 ? fromDb : ABOUT_FALLBACK;
 }
 
 function aboutImageCaptionParagraphs(project: Project): string[] {
-  const fromDb = parseParagraphs(project.aboutSideBody);
-  return fromDb.length > 0 ? fromDb : ABOUT_SIDE_FALLBACK;
+  return parseParagraphs(project.aboutSideBody);
 }
 
 function projectTagline(project: Project): string {
