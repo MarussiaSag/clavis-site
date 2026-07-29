@@ -57,16 +57,16 @@ export function PortfolioShowcaseStack({ projects }: PortfolioShowcaseStackProps
               {projectNumber} — {categoryLabel}
             </p>
 
-            <div className="relative z-10 mt-8 md:mt-10 lg:mt-12">
+            <div className="relative z-10 mt-8 flex min-h-[5.25rem] items-center overflow-hidden md:mt-10 md:min-h-0 md:overflow-visible lg:mt-12">
               <span
                 aria-hidden="true"
-                className={`pointer-events-none absolute top-[-0.5em] select-none font-serif text-[25rem] leading-none tracking-[-0.06em] text-[#e4dfd6] ${
-                  imageLeft ? "right-[-0.15em]" : "left-[-0.19em]"
+                className={`pointer-events-none absolute top-1/2 z-0 -translate-y-1/2 select-none font-serif text-[5.25rem] leading-none tracking-[-0.06em] text-[#e4dfd6] sm:text-[6rem] md:text-[22rem] lg:text-[25rem] ${
+                  imageLeft ? "right-0 md:right-[-0.12em]" : "left-0 md:left-[-0.16em]"
                 }`}
               >
                 {projectNumber}
               </span>
-              <h2 className="relative max-w-[12ch] font-serif text-[2.5rem] font-normal leading-[1.05] tracking-[-0.03em] text-[#151210] md:text-[3.15rem] lg:text-[3.5rem]">
+              <h2 className="relative z-10 max-w-[12ch] font-serif text-[2.5rem] font-normal leading-[1.05] tracking-[-0.03em] text-[#151210] md:text-[3.15rem] lg:text-[3.5rem]">
                 {project.title}
               </h2>
             </div>

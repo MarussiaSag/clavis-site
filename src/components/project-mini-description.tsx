@@ -24,7 +24,11 @@ export function ProjectMiniDescription({ project }: ProjectMiniDescriptionProps)
   const { summary, quote, attribution } = getProjectMiniDescription(project);
 
   return (
-    <section className="border-t border-[#e0dbd5] bg-[#f5f2ea]" aria-label="О проекте">
+    <section
+      id="project-overview"
+      className="scroll-mt-14 border-t border-[#e0dbd5] bg-[#f5f2ea] md:scroll-mt-16"
+      aria-label="О проекте"
+    >
       <div className="mx-auto max-w-[1240px] px-6 py-12 md:px-10 md:pb-8 md:pt-14 lg:px-12 lg:pb-8 lg:pt-14">
         <div className="grid gap-10 md:grid-cols-[minmax(0,1fr)_1px_minmax(0,1fr)] md:items-center md:gap-12 lg:gap-16">
           <div className="max-w-xl">

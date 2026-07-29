@@ -62,7 +62,11 @@ export function ProjectRoomsSection({ rooms: roomsProp, gallery, title }: Projec
   if (!active) return null;
 
   return (
-    <section className="bg-[#f5f2ea] pb-8 pt-6 md:pb-10 md:pt-8" aria-label="По помещениям">
+    <section
+      id="project-rooms"
+      className="scroll-mt-14 bg-[#f5f2ea] pb-8 pt-6 md:scroll-mt-16 md:pb-10 md:pt-8"
+      aria-label="По помещениям"
+    >
       <div className="mx-auto max-w-[1440px] px-6 md:px-10 lg:px-12">
         <p className="text-[11px] font-medium uppercase tracking-[0.32em] text-[#a38d83] md:text-xs">
           По помещениям

@@ -12,7 +12,7 @@ export function ProjectVirtualTour({ tourUrl, image, id }: ProjectVirtualTourPro
   return (
     <section
       id={id}
-      className="relative isolate min-h-[70vh] overflow-hidden md:min-h-[78vh]"
+      className="relative isolate min-h-[70vh] scroll-mt-14 overflow-hidden md:min-h-[78vh] md:scroll-mt-16"
       aria-labelledby="project-tour-heading"
     >
       <Image

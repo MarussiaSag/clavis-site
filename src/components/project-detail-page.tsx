@@ -5,6 +5,7 @@ import { ProjectInteriorGallery } from "@/components/project-interior-gallery";
 import { ProjectMiniDescription } from "@/components/project-mini-description";
 import { ProjectMaterialsTeamSection } from "@/components/project-materials-team-section";
 import { ProjectRoomsSection } from "@/components/project-rooms-section";
+import { ProjectSectionNav } from "@/components/project-section-nav";
 import { ProjectVirtualTour } from "@/components/project-virtual-tour";
 import { RevealOnScroll } from "@/components/reveal-on-scroll";
 import { SiteHeader } from "@/components/site-header";
@@ -98,6 +99,15 @@ export async function ProjectDetailPage({ project, gallery, nextProject }: Proje
   const team = parseTeam(project.teamJson);
   const tourUrl = project.virtualTourUrl?.trim() || DEFAULT_VIRTUAL_TOUR_URL;
 
+  const navItems = [
+    { id: "project-overview", label: "О проекте" },
+    { id: "project-about", label: "Описание" },
+    { id: "project-rooms", label: "По помещениям" },
+    { id: "project-materials", label: "Материалы" },
+    ...(tourUrl ? [{ id: "project-tour", label: "Тур" }] : []),
+    { id: "project-gallery", label: "Фотографии" },
+  ];
+
   const heroSpecs = [
     { label: "Площадь", value: project.areaLabel ?? "—" },
     { label: "Стиль", value: project.styleLabel?.trim() || "Современный" },
@@ -108,8 +118,12 @@ export async function ProjectDetailPage({ project, gallery, nextProject }: Proje
   return (
     <div className="min-h-screen bg-[#f5f3f0]">
       <section className="relative grid min-h-[100svh] lg:grid-cols-2">
+        <div className="absolute inset-x-0 top-0 z-30 lg:hidden">
+          <SiteHeader variant="project" />
+        </div>
+
         <div className="relative z-20 flex min-h-[100svh] flex-col bg-[#151210] text-[#f4f1ed]">
-          <div className="px-6 pt-7 md:px-10 md:pt-8 lg:px-12 lg:pt-10">
+          <div className="px-6 pt-20 md:px-10 md:pt-8 lg:px-12 lg:pt-10">
             <Link
               href="/portfolio"
               className="inline-flex items-center gap-2 text-[11px] font-medium uppercase tracking-[0.26em] text-white/55 transition-colors duration-300 hover:text-white md:text-xs"
@@ -164,10 +178,6 @@ export async function ProjectDetailPage({ project, gallery, nextProject }: Proje
         </div>
 
         <div className="relative min-h-[60vh] lg:min-h-[100svh]">
-          <div className="absolute inset-x-0 top-0 z-30 lg:hidden">
-            <SiteHeader variant="project" />
-          </div>
-
           <Image
             src={heroImage}
             alt={project.title}
@@ -194,9 +204,15 @@ export async function ProjectDetailPage({ project, gallery, nextProject }: Proje
         </div>
       </section>
 
+      <ProjectSectionNav items={navItems} />
+
       <ProjectMiniDescription project={project} />
 
-      <section id="project-about" className="bg-[#f5f2ea]" aria-label="Описание проекта">
+      <section
+        id="project-about"
+        className="scroll-mt-14 bg-[#f5f2ea] md:scroll-mt-16"
+        aria-label="Описание проекта"
+      >
         <div className="mx-auto max-w-[1440px] px-6 pb-6 pt-4 md:px-10 md:pb-8 md:pt-6 lg:px-12 lg:pb-8 lg:pt-6">
           <RevealOnScroll once>
             <div className="grid items-stretch gap-10 md:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)] md:gap-12 lg:gap-16 xl:gap-20">

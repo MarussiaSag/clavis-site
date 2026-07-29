@@ -1,3 +1,4 @@
+import type { Viewport } from "next";
 import { Manrope, Playfair_Display } from "next/font/google";
 import { SiteFooter } from "@/components/site-footer";
 import { siteMetadata } from "@/lib/site-metadata";
@@ -16,6 +17,11 @@ const playfair = Playfair_Display({
 });
 
 export const metadata = siteMetadata;
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  viewportFit: "cover",
+};
 
 export default function RootLayout({
   children,

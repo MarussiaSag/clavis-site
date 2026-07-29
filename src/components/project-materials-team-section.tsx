@@ -67,7 +67,11 @@ export async function ProjectMaterialsTeamSection({
   const team = teamProp.length > 0 ? teamProp : TEAM_FALLBACK;
 
   return (
-    <section className="bg-[#f5f2ea] pb-12 pt-6 md:pb-16 md:pt-8" aria-label="Материалы и команда">
+    <section
+      id="project-materials"
+      className="scroll-mt-14 bg-[#f5f2ea] pb-12 pt-6 md:scroll-mt-16 md:pb-16 md:pt-8"
+      aria-label="Материалы и команда"
+    >
       <div className="mx-auto grid max-w-[1440px] gap-12 px-6 md:grid-cols-2 md:gap-14 md:px-10 lg:gap-20 lg:px-12">
         <div>
           <p className="text-[11px] font-medium uppercase tracking-[0.32em] text-[#a38d83] md:text-xs">
@@ -148,7 +152,7 @@ export async function ProjectMaterialsTeamSection({
                   </div>
 
                   <span className="mt-6 inline-flex w-fit items-center gap-3 border-b border-[#2c2826] pb-1.5 text-[9px] font-medium uppercase tracking-[0.2em] text-[#2c2826] transition-opacity duration-300 group-hover:opacity-70 md:mt-8 md:gap-4 md:text-[10px] md:tracking-[0.22em]">
-                    Смотреть в Instagram
+                    Смотреть в Instagram*
                     <svg
                       aria-hidden
                       viewBox="0 0 48 10"

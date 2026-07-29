@@ -206,7 +206,7 @@ export function ProjectInteriorGallery({ images, title, id }: ProjectInteriorGal
     <>
       <section
         id={id}
-        className="bg-[#f5f2ea] pb-14 pt-8 md:pb-20 md:pt-10"
+        className="scroll-mt-14 bg-[#f5f2ea] pb-14 pt-8 md:scroll-mt-16 md:pb-20 md:pt-10"
         aria-labelledby="project-photos-heading"
       >
         <div className="px-6 md:px-10 lg:px-12">
