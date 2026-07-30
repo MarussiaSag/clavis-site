@@ -58,14 +58,14 @@ export function HomePageSections({
               <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap">
               <Link
                 href="/portfolio#portfolio-archive"
-                className="inline-flex w-full items-center justify-center gap-2 bg-[#141414] px-6 py-3 text-[11px] font-medium uppercase tracking-[0.2em] text-white transition-colors duration-300 hover:bg-[#4d131a] sm:w-auto md:text-xs"
+                className="inline-flex w-full items-center justify-center gap-2 bg-[#3d0d0a] px-6 py-3 text-[11px] font-medium uppercase tracking-[0.2em] text-white transition-colors duration-300 hover:bg-[#4d131a] sm:w-auto md:text-xs"
               >
                 Наши проекты
                 <span aria-hidden>→</span>
               </Link>
               <Link
                 href="/services"
-                className="inline-flex w-full items-center justify-center gap-2 border border-[#141414] px-6 py-3 text-[11px] font-medium uppercase tracking-[0.2em] text-[#141414] transition-colors duration-300 hover:bg-[#141414] hover:text-white sm:w-auto md:text-xs"
+                className="inline-flex w-full items-center justify-center gap-2 border border-[#3d0d0a] px-6 py-3 text-[11px] font-medium uppercase tracking-[0.2em] text-[#141414] transition-colors duration-300 hover:bg-[#3d0d0a] hover:text-white sm:w-auto md:text-xs"
               >
                 Наши услуги
                 <span aria-hidden>→</span>
@@ -82,7 +82,7 @@ export function HomePageSections({
       {featuredProject ? <HomeFeaturedProjectSection project={featuredProject} /> : null}
 
       <RevealOnScroll>
-        <section className="border-b border-[#2a2a2a] bg-[#141414]">
+        <section className="border-b border-[#5c2a2e] bg-[#3d0d0a]">
           <div className={fullWidthSectionHeader}>
             <div className="ui-header">
               <div className="flex flex-wrap items-baseline justify-between gap-x-6 gap-y-2">
@@ -111,7 +111,7 @@ export function HomePageSections({
 
       <section
         aria-labelledby="home-cta-heading"
-        className="relative isolate overflow-hidden bg-[#141414]"
+        className="relative isolate overflow-hidden bg-[#3d0d0a]"
       >
         <div className="relative min-h-[58vh] w-full md:min-h-[68vh] lg:min-h-[72vh]">
           <Image

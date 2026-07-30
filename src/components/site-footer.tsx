@@ -8,7 +8,7 @@ export async function SiteFooter() {
   const year = new Date().getFullYear();
 
   return (
-    <footer className="border-t border-[#2a2a2a] bg-[#141414] text-[#d9cec6]">
+    <footer className="border-t border-[#5c2a2e] bg-[#3d0d0a] text-[#d9cec6]">
       <div className="mx-auto w-full max-w-[1180px] px-6 py-10 md:px-10 md:py-12">
         <div className="grid gap-10 md:grid-cols-[minmax(0,1fr)_auto] md:gap-16 lg:gap-20">
           <div className="space-y-4">
@@ -91,7 +91,7 @@ export async function SiteFooter() {
         </div>
       </div>
 
-      <div className="border-t border-[#2a2a2a]">
+      <div className="border-t border-[#5c2a2e]">
         <div className="mx-auto w-full max-w-[1180px] px-6 py-6 md:px-10">
           <p className="text-[11px] leading-relaxed text-[#8a7f76] md:text-[12px]">
             * — {contact.instagramFootnote}

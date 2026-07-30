@@ -13,7 +13,7 @@ export function HomeProcessSection() {
   const activeStep = HOME_PROCESS_STEPS[activeIndex];
 
   return (
-    <section className="border-b border-[#2a2a2a] bg-[#141414]" aria-labelledby="home-process-heading">
+    <section className="border-b border-[#5c2a2e] bg-[#3d0d0a]" aria-labelledby="home-process-heading">
       <div className={splitSectionContainer}>
         <RevealOnScroll once>
           <div>
@@ -54,7 +54,9 @@ export function HomeProcessSection() {
                     ].join(" ")}
                   >
                     <span className="font-mono text-xs tabular-nums">{String(index + 1).padStart(2, "0")}</span>
-                    <span className="text-sm font-medium leading-snug sm:text-[0.9375rem]">{step.title}</span>
+                    <span className="font-serif text-[1.45rem] font-semibold leading-tight tracking-[-0.02em] sm:text-[1.55rem] md:text-[1.65rem]">
+                      {step.title}
+                    </span>
                     <span
                       className={[
                         "absolute right-4 bottom-0 left-4 h-[3px] transition-opacity duration-300 sm:right-5 sm:left-5 lg:right-6 lg:left-6",

@@ -9,7 +9,7 @@ export function AboutCtaSection({ imageSrc }: AboutCtaSectionProps) {
   return (
     <section
       aria-labelledby="about-cta-heading"
-      className="relative isolate overflow-hidden bg-[#141414]"
+      className="relative isolate overflow-hidden bg-[#3d0d0a]"
     >
       <div className="relative min-h-[58vh] w-full md:min-h-[68vh] lg:min-h-[72vh]">
         <Image

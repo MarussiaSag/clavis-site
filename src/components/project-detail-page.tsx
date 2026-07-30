@@ -122,7 +122,7 @@ export async function ProjectDetailPage({ project, gallery, nextProject }: Proje
           <SiteHeader variant="project" />
         </div>
 
-        <div className="relative z-20 flex min-h-[100svh] flex-col bg-[#151210] text-[#f4f1ed]">
+        <div className="relative z-20 flex min-h-[100svh] flex-col bg-[#3d0d0a] text-[#f4f1ed]">
           <div className="px-6 pt-20 md:px-10 md:pt-8 lg:px-12 lg:pt-10">
             <Link
               href="/portfolio"

@@ -71,7 +71,7 @@ export function SiteHeader({ variant = "default" }: SiteHeaderProps) {
         type="button"
         aria-label="Закрыть меню"
         onClick={() => setIsMenuOpen(false)}
-        className="absolute inset-0 bg-black/35"
+        className="absolute inset-0 bg-[#3d0d0a]/35"
       />
       <aside
         className={`absolute left-0 top-0 flex h-[100dvh] w-full max-w-none flex-col bg-[#f4f1ed] p-6 shadow-2xl transition-transform duration-300 sm:w-[82vw] sm:max-w-sm md:p-8 ${

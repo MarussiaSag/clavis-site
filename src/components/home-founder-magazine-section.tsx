@@ -55,7 +55,7 @@ export function HomeFounderMagazineSection({ imageSrc }: HomeFounderMagazineSect
 
           <Link
             href="/about"
-            className="mt-10 inline-flex w-auto items-center gap-2 border border-[#141414] px-5 py-2.5 text-[10px] font-medium uppercase tracking-[0.2em] text-[#141414] transition-colors duration-300 hover:bg-[#141414] hover:text-[#f4f1ed] md:text-[11px]"
+            className="mt-10 inline-flex w-auto items-center gap-2 border border-[#3d0d0a] px-5 py-2.5 text-[10px] font-medium uppercase tracking-[0.2em] text-[#141414] transition-colors duration-300 hover:bg-[#3d0d0a] hover:text-[#f4f1ed] md:text-[11px]"
           >
             О студии
             <span aria-hidden>→</span>

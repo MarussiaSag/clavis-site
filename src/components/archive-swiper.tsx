@@ -249,10 +249,10 @@ export function ArchiveSwiper({ projects, centered = false }: ArchiveSwiperProps
                 className={`flex h-full flex-col overflow-hidden rounded-md border transition-colors duration-300 ${
                   isActive
                     ? "border-[#f1ece7]/60"
-                    : "border-[#3a3a3a] group-hover:border-[#f1ece7]/50"
+                    : "border-[#5c2a2e] group-hover:border-[#f1ece7]/50"
                 }`}
               >
-                <div className="relative aspect-[4/3] shrink-0 overflow-hidden bg-[#2a2a2a]">
+                <div className="relative aspect-[4/3] shrink-0 overflow-hidden bg-[#5a2528]">
                   <div
                     className={`premium-photo h-full w-full bg-cover bg-center transition-all duration-500 ${
                       isActive ? "scale-100 brightness-100" : "scale-[1.02] brightness-[0.82] group-hover:brightness-100"
@@ -265,7 +265,7 @@ export function ArchiveSwiper({ projects, centered = false }: ArchiveSwiperProps
                   className={`flex min-h-[7.25rem] flex-1 flex-col justify-between px-5 py-5 transition-colors duration-300 md:min-h-[7.75rem] md:px-6 md:py-6 ${
                     isActive
                       ? "bg-white text-[#141414]"
-                      : "bg-[#1a1a1a] text-white group-hover:bg-white group-hover:text-[#141414]"
+                      : "bg-[#4d131a] text-white group-hover:bg-white group-hover:text-[#141414]"
                   }`}
                 >
                   <h3

@@ -63,7 +63,7 @@ export function PortfolioPageHeader({
                 onClick={() => onFilterChange(filter.id)}
                 className={`inline-flex min-w-[7.5rem] items-center justify-center gap-2 border px-5 py-3 text-[11px] font-medium uppercase tracking-[0.2em] transition-colors duration-300 md:min-w-[9rem] md:px-7 md:py-3.5 md:text-xs ${
                   isActive
-                    ? "border-[#151210] bg-[#151210] text-[#f5f2ea]"
+                    ? "border-[#3d0d0a] bg-[#3d0d0a] text-[#f5f2ea]"
                     : "border-[#cfc7be] bg-transparent text-[#6a6a6a] hover:border-[#a38d83] hover:text-[#151210]"
                 }`}
               >

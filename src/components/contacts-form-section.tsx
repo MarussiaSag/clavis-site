@@ -118,7 +118,7 @@ export async function ContactsFormSection({ consultationImageSrc }: ContactsForm
             <div className="space-y-4 pt-2">
               <button
                 type="submit"
-                className="w-full bg-[#2b1b17] px-6 py-4 text-[11px] font-medium uppercase tracking-[0.24em] text-[#f5f1eb] transition-colors duration-300 hover:bg-[#3d0d0a] md:text-xs"
+                className="w-full bg-[#4d131a] px-6 py-4 text-[11px] font-medium uppercase tracking-[0.24em] text-[#f5f1eb] transition-colors duration-300 hover:bg-[#3d0d0a] md:text-xs"
               >
                 Отправить сообщение
               </button>

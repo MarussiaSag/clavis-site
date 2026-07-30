@@ -227,7 +227,7 @@ export default async function ServicesPage() {
           </div>
         </section>
 
-        <section aria-label="Обсудить проект" className="relative isolate overflow-hidden bg-[#1a1614]">
+        <section aria-label="Обсудить проект" className="relative isolate overflow-hidden bg-[#3d0d0a]">
           <div className="relative min-h-[58vh] w-full md:min-h-[68vh]">
             <Image
               src={images["services.cta"]}
@@ -255,7 +255,7 @@ export default async function ServicesPage() {
                     </p>
                     <Link
                       href="/contacts"
-                      className="inline-flex w-fit items-center justify-center border border-[#e7d8d1]/70 px-6 py-3 text-[12px] font-medium uppercase tracking-[0.2em] text-[#f4f1ed] transition-colors duration-300 hover:border-[#f4f1ed] hover:bg-[#f4f1ed] hover:text-[#1a1614] md:text-[13px]"
+                      className="inline-flex w-fit items-center justify-center border border-[#e7d8d1]/70 px-6 py-3 text-[12px] font-medium uppercase tracking-[0.2em] text-[#f4f1ed] transition-colors duration-300 hover:border-[#f4f1ed] hover:bg-[#f4f1ed] hover:text-[#3d0d0a] md:text-[13px]"
                     >
                       Связаться с нами →
                     </Link>

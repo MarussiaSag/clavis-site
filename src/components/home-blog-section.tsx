@@ -10,7 +10,7 @@ export async function HomeBlogSection() {
   const posts = await getBlogPosts(HOME_BLOG_LIMIT);
 
   return (
-    <section className="border-b border-[#2a2a2a] bg-[#141414]" aria-labelledby="home-blog-heading">
+    <section className="border-b border-[#5c2a2e] bg-[#3d0d0a]" aria-labelledby="home-blog-heading">
       <div className={fullWidthSectionHeader}>
         <RevealOnScroll once>
           <div className="ui-header">

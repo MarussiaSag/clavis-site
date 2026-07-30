@@ -91,7 +91,13 @@ export function HomeHeroSlider({ slides }: HomeHeroSliderProps) {
             />
           );
         })}
-        <div className="hero-text-overlay absolute inset-0 z-10" />
+        <div
+          className="absolute inset-0 z-10"
+          style={{
+            background:
+              "linear-gradient(90deg, rgba(0, 0, 0, 0.62) 0%, rgba(0, 0, 0, 0.3) 34%, rgba(0, 0, 0, 0.08) 58%, rgba(0, 0, 0, 0) 100%), linear-gradient(180deg, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0.14) 52%, rgba(0, 0, 0, 0.5) 100%)",
+          }}
+        />
 
         {safeSlides.map((slide, index) =>
           slide.portfolioHref ? (

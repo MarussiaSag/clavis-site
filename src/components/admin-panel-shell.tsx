@@ -50,7 +50,7 @@ export function AdminPanelShell({ children }: AdminPanelShellProps) {
                 prefetch
                 className={`shrink-0 border px-4 py-2.5 text-[11px] font-medium uppercase tracking-[0.2em] transition-colors md:text-xs ${
                   isActive
-                    ? "border-[#151210] bg-[#151210] text-[#f4f1ed]"
+                    ? "border-[#3d0d0a] bg-[#3d0d0a] text-[#f4f1ed]"
                     : "border-[#cfc7be] text-[#6a6a6a] hover:border-[#a38d83] hover:text-[#151210]"
                 }`}
               >

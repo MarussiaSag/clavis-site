@@ -23,7 +23,7 @@ const steps = [
 
 export function AboutWorkflowSection() {
   return (
-    <section className="bg-[#141210] text-[#f4f1ed]">
+    <section className="bg-[#3d0d0a] text-[#f4f1ed]">
       <div className="mx-auto w-full max-w-[1240px] px-6 py-14 md:px-10 md:py-18 lg:py-22">
         <header className="grid items-start gap-8 pb-12 md:grid-cols-[minmax(0,0.85fr)_minmax(0,1.35fr)] md:gap-10 md:pb-14 lg:gap-14">
           <div className="space-y-3 md:space-y-4">
@@ -46,7 +46,7 @@ export function AboutWorkflowSection() {
           {steps.map((step, index) => (
             <li
               key={step.n}
-              className={`flex flex-col lg:px-8 ${index === 0 ? "lg:pl-0" : "lg:border-l lg:border-[#2e2a27]"} ${
+              className={`flex flex-col lg:px-8 ${index === 0 ? "lg:pl-0" : "lg:border-l lg:border-[#5c2a2e]"} ${
                 index === steps.length - 1 ? "lg:pr-0" : ""
               }`}
             >
