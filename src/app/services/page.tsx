@@ -40,7 +40,7 @@ const services: Service[] = [
   {
     n: "04",
     title: "Комплектация",
-    price: "Осмечивается индивидуально",
+    price: "Рассчитывается индивидуально",
     description:
       "Подбор мебели, света, текстиля и декора. Заказы у проверенных поставщиков и контроль доставки на объект.",
   },
@@ -55,28 +55,28 @@ const services: Service[] = [
   {
     n: "06",
     title: "Авторский надзор",
-    price: "Осмечивается индивидуально",
+    price: "Рассчитывается индивидуально",
     description:
       "Сопровождение стройки на объекте: контроль качества, узлов и материалов — чтобы проект совпал с эскизом.",
   },
   {
     n: "07",
     title: "Умный дом",
-    price: "Осмечивается индивидуально",
+    price: "Рассчитывается индивидуально",
     description:
       "Сценарии света, климата, штор и мультимедиа. Подбор системы под архитектуру пространства и привычки.",
   },
   {
     n: "08",
     title: "Архитектура",
-    price: "Осмечивается индивидуально",
+    price: "Рассчитывается индивидуально",
     description:
       "Объёмно-планировочные решения, фасады и связь с участком — работаем с архитектором проекта.",
   },
   {
     n: "09",
     title: "Инженерные проекты",
-    price: "Осмечиваются индивидуально",
+    price: "Рассчитываются индивидуально",
     description:
       "Электрика, вода, отопление, вентиляция и слаботочка — увязка с планировкой и сценариями жизни.",
   },
@@ -163,7 +163,7 @@ export default async function ServicesPage() {
         </section>
 
         <section className="bg-[#f5f2ea]">
-          <div className="mx-auto w-full max-w-[1440px] px-4 py-12 md:px-6 md:py-16 lg:px-8 lg:py-20">
+          <div className="mx-auto w-full max-w-[1440px] px-6 py-12 md:px-6 md:py-16 lg:px-8 lg:py-20">
             <RevealOnScroll>
               <ol className="grid list-none p-0 md:grid-cols-2 lg:grid-cols-3">
                 {services.map((service, index) => {
@@ -182,13 +182,13 @@ export default async function ServicesPage() {
                   return (
                     <li
                       key={service.n}
-                      className={`group relative flex min-h-[200px] flex-col border-[#cfc7be] px-0 py-6 transition-colors duration-300 hover:bg-[#ebe6de] sm:min-h-[210px] sm:px-6 md:min-h-[220px] md:px-8 md:py-7 lg:px-10 ${borderClass}`}
+                      className={`group relative flex min-h-0 flex-col border-[#cfc7be] px-0 py-8 transition-colors duration-300 hover:bg-[#ebe6de] sm:min-h-[210px] sm:px-6 md:min-h-[220px] md:px-8 md:py-7 lg:px-10 ${borderClass}`}
                     >
                       <span className="font-mono text-xs tabular-nums text-[#9a9289]">
                         {service.n}
                       </span>
 
-                      <h2 className="mt-5 font-serif text-[1.65rem] font-semibold leading-[1.15] tracking-[-0.02em] text-[#141414] transition-colors duration-300 group-hover:text-[#8c6b5a] md:mt-6 md:text-[1.75rem]">
+                      <h2 className="mt-4 font-serif text-[1.45rem] font-semibold leading-[1.15] tracking-[-0.02em] text-[#141414] transition-colors duration-300 group-hover:text-[#8c6b5a] md:mt-6 md:text-[1.75rem]">
                         {service.title}
                       </h2>
 
@@ -196,7 +196,7 @@ export default async function ServicesPage() {
                         {service.description}
                       </p>
 
-                      <div className="mt-auto pt-6">
+                      <div className="mt-auto pt-5 md:pt-6">
                         {hasFixedPrice ? (
                           <p className="flex flex-wrap items-baseline gap-x-2 gap-y-1">
                             <span className="font-serif text-xl font-medium text-[#141414] md:text-[1.35rem]">

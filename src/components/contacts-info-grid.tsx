@@ -18,7 +18,8 @@ export async function ContactsInfoGrid() {
   return (
     <section className="border-b border-[#d4cdc4] bg-[#f5f1eb]" aria-label="Контактная информация">
       <div className="mx-auto w-full max-w-[1240px] px-6 py-14 md:px-10 md:py-16 lg:py-20">
-        <div className="flex flex-col gap-10 md:grid md:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)_auto_minmax(0,1fr)] md:items-center md:gap-0">
+        <div className="flex flex-col gap-10 md:grid md:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] md:items-center md:gap-0">
+          {/* Офис временно скрыт
           <div className="space-y-4 md:pr-10 lg:pr-14">
             <p className="text-[11px] font-medium uppercase tracking-[0.28em] text-[#2a2420]/55 md:text-xs">
               Офис
@@ -35,11 +36,11 @@ export async function ContactsInfoGrid() {
               Смотреть на карте →
             </a>
           </div>
-
           <ColumnDivider />
           <MobileDivider />
+          */}
 
-          <div className="space-y-6 md:px-10 lg:px-14">
+          <div className="space-y-6 md:pr-10 lg:pr-14">
             <div className="space-y-2">
               <p className="text-[11px] font-medium uppercase tracking-[0.28em] text-[#2a2420]/55 md:text-xs">
                 Телефон

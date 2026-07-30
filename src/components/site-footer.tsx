@@ -97,7 +97,7 @@ export async function SiteFooter() {
             * — {contact.instagramFootnote}
           </p>
           <div className="mt-4 flex flex-wrap gap-5 text-[12px] text-[#a38d83] md:mt-5 md:gap-8 md:text-[13px]">
-            <Link href="#" className="transition-colors duration-300 hover:text-[#f8f5f1]">
+            <Link href="/privacy" className="transition-colors duration-300 hover:text-[#f8f5f1]">
               Политика конфиденциальности
             </Link>
             <Link href="#" className="transition-colors duration-300 hover:text-[#f8f5f1]">

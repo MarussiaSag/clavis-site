@@ -124,7 +124,7 @@ export async function ContactsFormSection({ consultationImageSrc }: ContactsForm
               </button>
               <p className="text-[12px] leading-relaxed text-[#2a2420]/55">
                 Нажимая кнопку, вы соглашаетесь с{" "}
-                <Link href="#" className="underline underline-offset-2 transition-colors hover:text-[#2a2420]/75">
+                <Link href="/privacy" className="underline underline-offset-2 transition-colors hover:text-[#2a2420]/75">
                   политикой конфиденциальности
                 </Link>
               </p>

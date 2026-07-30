@@ -16,9 +16,9 @@ export async function HomeStudioHighlightsSection() {
           {highlights.map((item) => (
             <li
               key={`${item.id ?? item.title}-${item.title}`}
-              className="flex min-w-0 flex-col gap-4 px-6 py-12 sm:gap-5 sm:px-8 sm:py-14 md:px-10 lg:px-12 lg:py-16 xl:px-16"
+              className="flex min-w-0 flex-col gap-3 px-6 py-8 sm:gap-5 sm:px-8 sm:py-14 md:px-10 lg:px-12 lg:py-16 xl:px-16"
             >
-              <h3 className="font-serif text-[1.65rem] font-semibold leading-[1.15] tracking-[-0.02em] text-[#141414] md:text-[1.85rem] lg:text-[1.95rem] xl:text-[2.125rem]">
+              <h3 className="font-serif text-[1.45rem] font-semibold leading-[1.15] tracking-[-0.02em] text-[#141414] md:text-[1.85rem] lg:text-[1.95rem] xl:text-[2.125rem]">
                 {item.title}
               </h3>
               <p className="ui-body-sm mt-auto text-[#6a6a6a]">{item.description}</p>

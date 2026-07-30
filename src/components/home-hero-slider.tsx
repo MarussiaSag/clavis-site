@@ -9,7 +9,7 @@ type HomeHeroSliderProps = {
   slides: HeroSlidePayload[];
 };
 
-const SLIDE_INTERVAL_MS = 10000;
+const SLIDE_INTERVAL_MS = 5000;
 const PARALLAX_MAX_PX = 28;
 
 export function HomeHeroSlider({ slides }: HomeHeroSliderProps) {

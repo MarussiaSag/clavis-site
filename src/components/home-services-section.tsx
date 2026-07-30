@@ -35,15 +35,15 @@ export function HomeServicesSection() {
               <li key={service.title} className={serviceCellBorderClass(index)}>
                 <Link
                   href={service.href}
-                  className={`group flex h-full min-h-[240px] flex-col py-10 transition-colors duration-300 hover:bg-[#ebe6de] md:min-h-[280px] md:py-12 lg:py-14 ${cellX}`}
+                  className={`group flex h-full min-h-0 flex-col py-8 transition-colors duration-300 hover:bg-[#ebe6de] md:min-h-[280px] md:py-12 lg:py-14 ${cellX}`}
                 >
                   <span className="font-mono text-xs tabular-nums text-[#9a9289]">
                     {String(index + 1).padStart(2, "0")}
                   </span>
-                  <h3 className="mt-8 font-serif text-[1.65rem] font-semibold leading-[1.15] tracking-[-0.02em] text-[#141414] transition-colors duration-300 group-hover:text-[#4d131a] md:mt-10 md:text-[1.85rem]">
+                  <h3 className="mt-5 font-serif text-[1.45rem] font-semibold leading-[1.15] tracking-[-0.02em] text-[#141414] transition-colors duration-300 group-hover:text-[#4d131a] md:mt-10 md:text-[1.85rem]">
                     {service.title}
                   </h3>
-                  <p className="ui-body-sm mt-5 max-w-md text-[#5c5c5c] md:mt-6">{service.description}</p>
+                  <p className="ui-body-sm mt-3 max-w-md text-[#5c5c5c] md:mt-6">{service.description}</p>
                 </Link>
               </li>
             ))}
