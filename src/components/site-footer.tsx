@@ -100,7 +100,7 @@ export async function SiteFooter() {
             <Link href="/privacy" className="transition-colors duration-300 hover:text-[#f8f5f1]">
               Политика конфиденциальности
             </Link>
-            <Link href="#" className="transition-colors duration-300 hover:text-[#f8f5f1]">
+            <Link href="/terms" className="transition-colors duration-300 hover:text-[#f8f5f1]">
               Пользовательское соглашение
             </Link>
           </div>
