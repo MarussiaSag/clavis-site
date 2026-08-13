@@ -26,7 +26,7 @@ export default async function PortfolioPage() {
 
   return (
     <div className="min-h-screen">
-      <SiteHeader />
+      <SiteHeader variant="portfolio" />
       <main className="w-full">
         <PortfolioArchiveSection projects={archiveProjects} />
       </main>

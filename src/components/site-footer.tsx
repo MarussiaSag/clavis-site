@@ -21,7 +21,7 @@ export async function SiteFooter() {
               <img
                 src="/logos/svg/header-logo.svg"
                 alt="Clavis"
-                className="h-[5.25rem] w-auto md:h-24"
+                className="h-[2.625rem] w-auto md:h-24"
               />
             </Link>
             <p className="max-w-xs text-sm leading-relaxed text-[#c8bcb2]">{contact.tagline}</p>

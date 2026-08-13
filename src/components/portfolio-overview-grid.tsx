@@ -32,16 +32,16 @@ export function PortfolioOverviewGrid({ projects }: PortfolioOverviewGridProps) 
 
   return (
     <section aria-label="Все проекты — обзор" className="bg-[#ebe4da]">
-      <div className="flex items-center justify-between gap-6 px-6 py-5 md:px-10 md:py-6">
-        <p className="text-[11px] font-medium uppercase tracking-[0.28em] text-[#5c534c] md:text-xs">
+      <div className="flex items-center justify-between gap-6 bg-[#3d0d0a] px-6 py-5 md:px-10 md:py-6">
+        <p className="text-[11px] font-medium uppercase tracking-[0.28em] text-[#f4f1ed] md:text-xs">
           Все проекты — обзор
         </p>
-        <p className="shrink-0 text-[11px] font-medium uppercase tracking-[0.2em] text-[#5c534c] md:text-xs">
+        <p className="shrink-0 text-[11px] font-medium uppercase tracking-[0.2em] text-[#e7d8d1] md:text-xs">
           {objectsLabel(projects.length)}
         </p>
       </div>
 
-      <ul className="grid list-none grid-cols-1 gap-0 p-12 sm:grid-cols-2 sm:p-16 lg:grid-cols-3 lg:p-20 xl:p-24">
+      <ul className="grid list-none grid-cols-1 gap-0 p-0 sm:grid-cols-2 md:p-16 lg:grid-cols-3 lg:p-20 xl:p-24">
         {projects.map((project, index) => (
           <li key={project.id} className="relative">
             <Link

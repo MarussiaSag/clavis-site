@@ -5,7 +5,7 @@ import { useState } from "react";
 import { PUBLIC_NAV_LINKS } from "@/lib/nav-links";
 
 type SiteHeaderProps = {
-  variant?: "default" | "hero" | "project" | "contacts" | "about";
+  variant?: "default" | "hero" | "project" | "contacts" | "about" | "portfolio";
 };
 
 const HEADER_LOGO = "/logos/svg/header-logo.svg";
@@ -13,7 +13,7 @@ const HEADER_LOGO = "/logos/svg/header-logo.svg";
 export function SiteHeader({ variant = "default" }: SiteHeaderProps) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const burgerLineColor =
-    variant === "project" || variant === "about"
+    variant === "project" || variant === "about" || variant === "portfolio"
       ? "bg-white/90"
       : variant === "hero"
         ? "bg-[#a38d83]"
@@ -174,9 +174,15 @@ export function SiteHeader({ variant = "default" }: SiteHeaderProps) {
     );
   }
 
+  const isWineBar = variant === "portfolio";
+
   return (
     <>
-      <header className="fixed inset-x-0 top-0 z-40 border-b border-[#a38d83] bg-[#f4f1ed]">
+      <header
+        className={`fixed inset-x-0 top-0 z-40 border-b ${
+          isWineBar ? "border-[#5c2a2e] bg-[#3d0d0a]" : "border-[#a38d83] bg-[#f4f1ed]"
+        }`}
+      >
         <div className="relative flex w-full items-center justify-between px-6 py-5 md:px-10">
           {leftControls}
           <div className="h-10 w-10" />
