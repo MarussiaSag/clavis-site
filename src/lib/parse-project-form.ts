@@ -73,7 +73,7 @@ export async function parseProjectFormData(
     return { ok: false, error: "Заполните основные поля: название, slug, тип, локация, год, описание." };
   }
   if (!isProjectCategory(category)) {
-    return { ok: false, error: "Тип проекта: выберите Жилые, Гостеприимство или Коммерческие." };
+    return { ok: false, error: "Тип проекта: выберите Жилые или Коммерческие." };
   }
   if (!slug) {
     return {

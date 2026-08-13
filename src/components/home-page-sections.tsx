@@ -2,11 +2,9 @@ import Image from "next/image";
 import Link from "next/link";
 import type { Project } from "@prisma/client";
 import { ArchiveSwiper } from "@/components/archive-swiper";
-import { HomeBlogSection } from "@/components/home-blog-section";
 import { HomeFaqSection } from "@/components/home-faq-section";
 import { HomeFeaturedProjectSection } from "@/components/home-featured-project-section";
 import { HomeFounderMagazineSection } from "@/components/home-founder-magazine-section";
-import { HomeStudioHighlightsSection } from "@/components/home-studio-highlights-section";
 import { HomeProcessSection } from "@/components/home-process-section";
 import { HomeServicesSection } from "@/components/home-services-section";
 import { HomeTrustPressSection } from "@/components/home-trust-press-section";
@@ -31,7 +29,6 @@ export function HomePageSections({
 }: HomePageSectionsProps) {
   return (
     <>
-      <HomeStudioHighlightsSection />
       <HomeFounderMagazineSection imageSrc={founderImage} />
       <section className="grid border-b border-[#a38d83] md:grid-cols-2">
         <div className="relative min-h-[460px] overflow-hidden md:min-h-[700px]">
@@ -104,8 +101,6 @@ export function HomePageSections({
       </RevealOnScroll>
 
       <HomeTrustPressSection />
-
-      <HomeBlogSection />
 
       <HomeFaqSection />
 

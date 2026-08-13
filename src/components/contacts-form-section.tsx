@@ -1,4 +1,5 @@
 import { createInquiry } from "@/app/actions";
+import { ContactsPhoneInput } from "@/components/contacts-phone-input";
 import { getSiteContact, socialLinksFromContact } from "@/lib/site-contact";
 import Image from "next/image";
 import Link from "next/link";
@@ -107,7 +108,7 @@ export async function ContactsFormSection({ consultationImageSrc }: ContactsForm
           <form action={createInquiry} className="space-y-6">
             <input name="name" placeholder="Имя" required className={fieldClassName} />
             <input name="email" type="email" placeholder="Email" required className={fieldClassName} />
-            <input name="phone" placeholder="Телефон" className={fieldClassName} />
+            <ContactsPhoneInput className={fieldClassName} />
             <textarea
               name="message"
               placeholder="Сообщение"

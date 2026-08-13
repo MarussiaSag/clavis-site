@@ -16,11 +16,11 @@ export const homeSectionPadding = sectionContainer;
 /** Отступ между заголовком секции и контентом */
 export const sectionContentGap = "ui-header-gap";
 
-/** Сетка карточек на главной (блог, портфолио). */
+/** Сетка карточек на главной (портфолио). */
 export const homeCardGridGap = "gap-6 lg:gap-8";
 
 /**
- * Ширина карточки в home-секциях — совпадает с колонкой сетки блога
+ * Ширина карточки в home-секциях.
  * внутри fullWidthSectionX и homeCardGridGap.
  */
 export const homeCardWidthClass =

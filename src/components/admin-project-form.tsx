@@ -244,7 +244,10 @@ export function AdminProjectForm(props: AdminProjectFormProps) {
               defaultValue={
                 PROJECT_CATEGORY_OPTIONS.some((option) => option.value === project?.category)
                   ? project?.category
-                  : ""
+                  : project?.category &&
+                      /гостеприимство|ресторан|отель|бар|кафе|офис|бутик/i.test(project.category)
+                    ? "Коммерческие"
+                    : ""
               }
               required
               className={fieldClass}

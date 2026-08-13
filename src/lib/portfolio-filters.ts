@@ -1,4 +1,4 @@
-export type PortfolioFilterId = "all" | "residential" | "hospitality" | "commercial";
+export type PortfolioFilterId = "all" | "residential" | "commercial";
 
 export type PortfolioFilterOption = {
   id: PortfolioFilterId;
@@ -8,14 +8,12 @@ export type PortfolioFilterOption = {
 export const PORTFOLIO_FILTERS: PortfolioFilterOption[] = [
   { id: "all", label: "Все" },
   { id: "residential", label: "Жилые" },
-  { id: "hospitality", label: "Гостеприимство" },
   { id: "commercial", label: "Коммерческие" },
 ];
 
 /** Fixed project types for admin — must match portfolio filter groups. */
 export const PROJECT_CATEGORY_OPTIONS = [
   { value: "Жилые", filterId: "residential" as const },
-  { value: "Гостеприимство", filterId: "hospitality" as const },
   { value: "Коммерческие", filterId: "commercial" as const },
 ] as const;
 
@@ -35,8 +33,15 @@ const RESIDENTIAL = new Set([
   "резиденция",
 ]);
 
-const HOSPITALITY = new Set([
+const COMMERCIAL = new Set([
+  "коммерческие",
   "гостеприимство",
+  "офис",
+  "шоурум",
+  "бутик",
+  "магазин",
+  "клиника",
+  "салон",
   "кафе",
   "ресторан",
   "отель",
@@ -44,16 +49,6 @@ const HOSPITALITY = new Set([
   "лаундж",
   "сигарный лаундж",
   "гостиница",
-]);
-
-const COMMERCIAL = new Set([
-  "коммерческие",
-  "офис",
-  "шоурум",
-  "бутик",
-  "магазин",
-  "клиника",
-  "салон",
 ]);
 
 export function resolvePortfolioGroup(category: string): Exclude<PortfolioFilterId, "all"> | null {
@@ -64,9 +59,6 @@ export function resolvePortfolioGroup(category: string): Exclude<PortfolioFilter
   if (!value) return null;
   if (RESIDENTIAL.has(value) || [...RESIDENTIAL].some((key) => value.includes(key))) {
     return "residential";
-  }
-  if (HOSPITALITY.has(value) || [...HOSPITALITY].some((key) => value.includes(key))) {
-    return "hospitality";
   }
   if (COMMERCIAL.has(value) || [...COMMERCIAL].some((key) => value.includes(key))) {
     return "commercial";
@@ -83,7 +75,6 @@ export function countPortfolioFilters<T extends { category: string }>(projects: 
   const counts: Record<PortfolioFilterId, number> = {
     all: projects.length,
     residential: 0,
-    hospitality: 0,
     commercial: 0,
   };
 
@@ -97,7 +88,6 @@ export function countPortfolioFilters<T extends { category: string }>(projects: 
 
 const PORTFOLIO_GROUP_LABELS: Record<Exclude<PortfolioFilterId, "all">, string> = {
   residential: "ЖИЛЫЕ",
-  hospitality: "ГОСТЕПРИИМСТВО",
   commercial: "КОММЕРЧЕСКИЕ",
 };
 

@@ -9,7 +9,6 @@ import { ProjectSectionNav } from "@/components/project-section-nav";
 import { ProjectVirtualTour } from "@/components/project-virtual-tour";
 import { RevealOnScroll } from "@/components/reveal-on-scroll";
 import { SiteHeader } from "@/components/site-header";
-import { DEFAULT_VIRTUAL_TOUR_URL } from "@/lib/kuula-embed";
 import { parseMaterials, parseParagraphs, parseRooms, parseTeam } from "@/lib/project-content";
 import { getInstagramHref, getSiteContact } from "@/lib/site-contact";
 
@@ -97,7 +96,7 @@ export async function ProjectDetailPage({ project, gallery, nextProject }: Proje
   const rooms = parseRooms(project.roomsJson);
   const materials = parseMaterials(project.materialsJson);
   const team = parseTeam(project.teamJson);
-  const tourUrl = project.virtualTourUrl?.trim() || DEFAULT_VIRTUAL_TOUR_URL;
+  const tourUrl = project.virtualTourUrl?.trim() || "";
 
   const navItems = [
     { id: "project-overview", label: "О проекте" },
@@ -187,20 +186,22 @@ export async function ProjectDetailPage({ project, gallery, nextProject }: Proje
             className="object-cover object-center"
           />
 
-          <Link
-            href="#project-tour"
-            className="absolute bottom-6 right-6 z-20 inline-flex items-center gap-3 bg-[#f5f2ea] px-4 py-3 text-[11px] font-medium uppercase tracking-[0.2em] text-[#151210] transition-opacity duration-300 hover:opacity-85 md:bottom-8 md:right-8 md:px-5 md:text-xs"
-          >
-            <span
-              aria-hidden
-              className="inline-flex h-6 w-6 items-center justify-center rounded-full border border-[#151210]/35"
+          {tourUrl ? (
+            <Link
+              href="#project-tour"
+              className="absolute bottom-6 right-6 z-20 inline-flex items-center gap-3 bg-[#f5f2ea] px-4 py-3 text-[11px] font-medium uppercase tracking-[0.2em] text-[#151210] transition-opacity duration-300 hover:opacity-85 md:bottom-8 md:right-8 md:px-5 md:text-xs"
             >
-              <svg viewBox="0 0 12 12" className="h-2.5 w-2.5 fill-current" aria-hidden>
-                <path d="M3.2 1.6v8.8L10.4 6 3.2 1.6Z" />
-              </svg>
-            </span>
-            Виртуальный тур
-          </Link>
+              <span
+                aria-hidden
+                className="inline-flex h-6 w-6 items-center justify-center rounded-full border border-[#151210]/35"
+              >
+                <svg viewBox="0 0 12 12" className="h-2.5 w-2.5 fill-current" aria-hidden>
+                  <path d="M3.2 1.6v8.8L10.4 6 3.2 1.6Z" />
+                </svg>
+              </span>
+              Виртуальный тур
+            </Link>
+          ) : null}
         </div>
       </section>
 
@@ -275,7 +276,7 @@ export async function ProjectDetailPage({ project, gallery, nextProject }: Proje
 
       <ProjectMaterialsTeamSection materials={materials} team={team} />
 
-      <ProjectVirtualTour id="project-tour" tourUrl={tourUrl} image={aboutImage} />
+      {tourUrl ? <ProjectVirtualTour id="project-tour" tourUrl={tourUrl} image={aboutImage} /> : null}
 
       <ProjectInteriorGallery
         id="project-gallery"

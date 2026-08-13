@@ -8,12 +8,10 @@ const globalForPrisma = globalThis as unknown as {
 const EXPECTED_MODELS = [
   "siteSettings",
   "socialLink",
-  "studioHighlight",
   "aboutStudio",
   "aboutStudioPerson",
   "project",
   "inquiry",
-  "blogPost",
   "siteImage",
 ] as const;
 

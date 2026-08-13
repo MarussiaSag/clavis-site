@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { SiteHeader } from "@/components/site-header";
 import type { HeroSlidePayload } from "@/lib/hero-slides";
 
@@ -11,6 +11,12 @@ type HomeHeroSliderProps = {
 
 const SLIDE_INTERVAL_MS = 5000;
 const PARALLAX_MAX_PX = 28;
+const SWIPE_THRESHOLD_PX = 48;
+const TOUCH_SWIPE_MAX_WIDTH_PX = 1023;
+
+function isTouchSwipeViewport() {
+  return typeof window !== "undefined" && window.innerWidth <= TOUCH_SWIPE_MAX_WIDTH_PX;
+}
 
 export function HomeHeroSlider({ slides }: HomeHeroSliderProps) {
   const safeSlides = useMemo(
@@ -24,20 +30,85 @@ export function HomeHeroSlider({ slides }: HomeHeroSliderProps) {
   const [captionKey, setCaptionKey] = useState(0);
   const [parallaxY, setParallaxY] = useState(0);
   const sectionRef = useRef<HTMLElement>(null);
+  const autoplayRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const touchStartRef = useRef<{ x: number; y: number } | null>(null);
+  const suppressClickRef = useRef(false);
 
   const activeSlide = safeSlides[activeIndex];
+  const slideCount = safeSlides.length;
+
+  const goToSlide = useCallback(
+    (index: number) => {
+      if (slideCount <= 1) return;
+      setActiveIndex(((index % slideCount) + slideCount) % slideCount);
+    },
+    [slideCount],
+  );
+
+  const shiftSlide = useCallback(
+    (direction: 1 | -1) => {
+      if (slideCount <= 1) return;
+      setActiveIndex((current) => (current + direction + slideCount) % slideCount);
+    },
+    [slideCount],
+  );
+
+  const resetAutoplay = useCallback(() => {
+    if (autoplayRef.current) clearInterval(autoplayRef.current);
+    if (slideCount <= 1) return;
+
+    autoplayRef.current = setInterval(() => {
+      setActiveIndex((current) => (current + 1) % slideCount);
+    }, SLIDE_INTERVAL_MS);
+  }, [slideCount]);
 
   useEffect(() => {
-    const timer = setInterval(() => {
-      setActiveIndex((current) => (current + 1) % safeSlides.length);
-    }, SLIDE_INTERVAL_MS);
-
-    return () => clearInterval(timer);
-  }, [safeSlides.length]);
+    resetAutoplay();
+    return () => {
+      if (autoplayRef.current) clearInterval(autoplayRef.current);
+    };
+  }, [resetAutoplay]);
 
   useEffect(() => {
     setCaptionKey((key) => key + 1);
   }, [activeIndex]);
+
+  const handleTouchStart = (event: React.TouchEvent<HTMLDivElement>) => {
+    if (!isTouchSwipeViewport() || slideCount <= 1) return;
+
+    const touch = event.touches[0];
+    touchStartRef.current = { x: touch.clientX, y: touch.clientY };
+  };
+
+  const handleTouchEnd = (event: React.TouchEvent<HTMLDivElement>) => {
+    if (!isTouchSwipeViewport() || slideCount <= 1) return;
+
+    const start = touchStartRef.current;
+    touchStartRef.current = null;
+    if (!start) return;
+
+    const touch = event.changedTouches[0];
+    const deltaX = touch.clientX - start.x;
+    const deltaY = touch.clientY - start.y;
+
+    if (Math.abs(deltaX) < SWIPE_THRESHOLD_PX || Math.abs(deltaX) <= Math.abs(deltaY)) return;
+
+    suppressClickRef.current = true;
+    window.setTimeout(() => {
+      suppressClickRef.current = false;
+    }, 400);
+
+    if (deltaX < 0) shiftSlide(1);
+    else shiftSlide(-1);
+
+    resetAutoplay();
+  };
+
+  const handleOverlayClick = (event: React.MouseEvent<HTMLAnchorElement>) => {
+    if (suppressClickRef.current) {
+      event.preventDefault();
+    }
+  };
 
   useEffect(() => {
     const prefersReduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -73,7 +144,11 @@ export function HomeHeroSlider({ slides }: HomeHeroSliderProps) {
 
   return (
     <section ref={sectionRef} className="relative border-b border-[#a38d83]">
-      <div className="relative min-h-[70vh] overflow-hidden bg-[#d0b5a5] md:min-h-[84vh]">
+      <div
+        className="relative min-h-[70vh] touch-pan-y overflow-hidden bg-[#d0b5a5] md:min-h-[84vh]"
+        onTouchStart={handleTouchStart}
+        onTouchEnd={handleTouchEnd}
+      >
         {safeSlides.map((slide, index) => {
           const isActive = activeIndex === index;
           const translateY = isActive ? parallaxY * 0.45 : 0;
@@ -112,6 +187,7 @@ export function HomeHeroSlider({ slides }: HomeHeroSliderProps) {
               className={`absolute inset-0 z-[11] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#f4f1ed] ${
                 activeIndex === index ? "pointer-events-auto" : "pointer-events-none"
               }`}
+              onClick={handleOverlayClick}
             />
           ) : null,
         )}
@@ -179,7 +255,10 @@ export function HomeHeroSlider({ slides }: HomeHeroSliderProps) {
               key={`hero-indicator-${index}`}
               type="button"
               aria-label={`Показать слайд ${index + 1}`}
-              onClick={() => setActiveIndex(index)}
+              onClick={() => {
+                goToSlide(index);
+                resetAutoplay();
+              }}
               className={`h-2.5 w-2.5 rounded-full border transition-colors duration-300 ${
                 activeIndex === index
                   ? "border-[#f4f1ed] bg-[#f4f1ed]"

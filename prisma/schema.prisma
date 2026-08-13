@@ -36,15 +36,6 @@ model SocialLink {
   updatedAt DateTime @updatedAt
 }
 
-model StudioHighlight {
-  id          Int      @id @default(autoincrement())
-  title       String
-  description String
-  sortOrder   Int      @default(0)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-}
-
 model AboutStudio {
   id        Int                 @id @default(1)
   teamPhoto String
@@ -102,19 +93,6 @@ model Inquiry {
   phone     String?
   message   String
   createdAt DateTime @default(now())
-}
-
-model BlogPost {
-  id              Int      @id @default(autoincrement())
-  slug            String   @unique
-  title           String
-  excerpt         String
-  content         String
-  coverImage      String
-  publishedAt     DateTime
-  readingMinutes  Int      @default(5)
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
 }
 
 model SiteImage {

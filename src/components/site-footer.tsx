@@ -21,7 +21,7 @@ export async function SiteFooter() {
               <img
                 src="/logos/svg/header-logo.svg"
                 alt="Clavis"
-                className="h-7 w-auto md:h-8"
+                className="h-[5.25rem] w-auto md:h-24"
               />
             </Link>
             <p className="max-w-xs text-sm leading-relaxed text-[#c8bcb2]">{contact.tagline}</p>
@@ -32,9 +32,6 @@ export async function SiteFooter() {
 
           <div className="grid gap-10 sm:grid-cols-2 sm:gap-6 md:gap-8 lg:gap-10">
             <div className="space-y-4">
-              <p className="text-[11px] font-medium uppercase tracking-[0.28em] text-[#a38d83]">
-                Контакты
-              </p>
               <ul className="space-y-2 text-sm">
                 <li>
                   <a
@@ -56,15 +53,12 @@ export async function SiteFooter() {
             </div>
 
             <div className="space-y-4">
-              <p className="text-[11px] font-medium uppercase tracking-[0.28em] text-[#a38d83]">
-                Навигация
-              </p>
-              <nav className="flex flex-col gap-2 text-sm uppercase tracking-[0.14em]">
+              <nav className="flex flex-col gap-2 text-sm">
                 {PUBLIC_NAV_LINKS.map((link) => (
                   <Link
                     key={link.href}
                     href={link.href}
-                    className="text-[#c8bcb2] transition-colors duration-300 hover:text-[#f8f5f1]"
+                    className="text-[#e7d8d1] transition-colors duration-300 hover:text-[#faf6f2]"
                   >
                     {link.label}
                   </Link>

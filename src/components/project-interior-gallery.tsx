@@ -20,6 +20,7 @@ type PlacedTile = {
 const GAP = 3;
 const TARGET_ROW_HEIGHT = 280;
 const TARGET_ROW_HEIGHT_MOBILE = 220;
+const SWIPE_THRESHOLD_PX = 48;
 
 function useImageAspects(srcs: string[]) {
   const [aspects, setAspects] = useState<number[]>(() => srcs.map(() => 1));
@@ -134,6 +135,7 @@ function layoutJustified(
 export function ProjectInteriorGallery({ images, title, id }: ProjectInteriorGalleryProps) {
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
+  const touchStartRef = useRef<{ x: number; y: number } | null>(null);
   const [containerWidth, setContainerWidth] = useState(0);
   const { aspects, ready } = useImageAspects(images);
 
@@ -201,6 +203,31 @@ export function ProjectInteriorGallery({ images, title, id }: ProjectInteriorGal
     );
   const goToNext = () =>
     setLightboxIndex((current) => (current === null ? null : (current + 1) % images.length));
+
+  const handleLightboxTouchStart = (event: React.TouchEvent<HTMLDivElement>) => {
+    if (images.length <= 1) return;
+
+    const touch = event.touches[0];
+    touchStartRef.current = { x: touch.clientX, y: touch.clientY };
+  };
+
+  const handleLightboxTouchEnd = (event: React.TouchEvent<HTMLDivElement>) => {
+    if (images.length <= 1) return;
+
+    const start = touchStartRef.current;
+    touchStartRef.current = null;
+    if (!start) return;
+
+    const touch = event.changedTouches[0];
+    const deltaX = touch.clientX - start.x;
+    const deltaY = touch.clientY - start.y;
+
+    if (Math.abs(deltaX) < SWIPE_THRESHOLD_PX || Math.abs(deltaX) <= Math.abs(deltaY)) return;
+
+    event.stopPropagation();
+    if (deltaX < 0) goToNext();
+    else goToPrevious();
+  };
 
   return (
     <>
@@ -283,7 +310,7 @@ export function ProjectInteriorGallery({ images, title, id }: ProjectInteriorGal
                   event.stopPropagation();
                   goToPrevious();
                 }}
-                className="absolute left-2 top-1/2 z-10 hidden h-12 w-12 -translate-y-1/2 items-center justify-center text-3xl text-white/75 transition-colors hover:text-white md:left-6 md:flex"
+                className="absolute left-3 top-1/2 z-10 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full border border-white/25 bg-black/25 text-2xl text-white/85 backdrop-blur-sm transition-colors hover:bg-black/40 hover:text-white md:left-6 md:h-12 md:w-12 md:text-3xl"
                 aria-label="Предыдущее фото"
               >
                 ‹
@@ -294,7 +321,7 @@ export function ProjectInteriorGallery({ images, title, id }: ProjectInteriorGal
                   event.stopPropagation();
                   goToNext();
                 }}
-                className="absolute right-2 top-1/2 z-10 hidden h-12 w-12 -translate-y-1/2 items-center justify-center text-3xl text-white/75 transition-colors hover:text-white md:right-6 md:flex"
+                className="absolute right-3 top-1/2 z-10 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full border border-white/25 bg-black/25 text-2xl text-white/85 backdrop-blur-sm transition-colors hover:bg-black/40 hover:text-white md:right-6 md:h-12 md:w-12 md:text-3xl"
                 aria-label="Следующее фото"
               >
                 ›
@@ -303,8 +330,10 @@ export function ProjectInteriorGallery({ images, title, id }: ProjectInteriorGal
           ) : null}
 
           <div
-            className="relative h-[min(82vh,900px)] w-full max-w-[1200px]"
+            className="relative h-[min(82vh,900px)] w-full max-w-[1200px] touch-pan-y"
             onClick={(event) => event.stopPropagation()}
+            onTouchStart={handleLightboxTouchStart}
+            onTouchEnd={handleLightboxTouchEnd}
           >
             <Image
               key={images[lightboxIndex]}
