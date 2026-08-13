@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState, useRef, useState, useTransition } from "react";
+import { startTransition, useActionState, useRef, useState, useTransition } from "react";
 import type { Project } from "@prisma/client";
 import {
   createProjectAction,
@@ -10,11 +10,10 @@ import {
 } from "@/app/actions";
 import { compressFormDataImages } from "@/lib/compress-image-client";
 import { PROJECT_CATEGORY_OPTIONS } from "@/lib/portfolio-filters";
-import { parseParagraphs, parseMaterials, parseRooms, parseTeam } from "@/lib/project-content";
+import { parseMaterialsBlock, parseRooms, parseTeam } from "@/lib/project-content";
 
 type RoomDraft = {
   key: string;
-  label: string;
   description: string;
   mainImage: string;
   secondaryImage: string;
@@ -153,22 +152,23 @@ export function AdminProjectForm(props: AdminProjectFormProps) {
     if (parsed.length === 0) return [];
     return parsed.map((room) => ({
       key: newKey("room"),
-      label: room.label,
       description: room.description,
       mainImage: room.mainImage,
       secondaryImage: room.secondaryImage,
     }));
   });
 
-  const [materials, setMaterials] = useState<MaterialDraft[]>(() => {
-    const parsed = parseMaterials(project?.materialsJson);
-    return parsed.map((item) => ({
+  const materialsBlock = parseMaterialsBlock(project?.materialsJson);
+  const [materialsIntro, setMaterialsIntro] = useState(materialsBlock.intro);
+  const [materialsImage, setMaterialsImage] = useState(materialsBlock.image);
+  const [materials, setMaterials] = useState<MaterialDraft[]>(() =>
+    materialsBlock.items.map((item) => ({
       key: newKey("mat"),
       category: item.category,
       supplier: item.supplier,
       detail: item.detail,
-    }));
-  });
+    })),
+  );
 
   const [team, setTeam] = useState<TeamDraft[]>(() => {
     const parsed = parseTeam(project?.teamJson);
@@ -197,12 +197,21 @@ export function AdminProjectForm(props: AdminProjectFormProps) {
         // React state is the source of truth for gallery picks — ensure URLs reach the server.
         compressed.set("roomCount", String(rooms.length));
         rooms.forEach((room, index) => {
-          compressed.set(`room_label_${index}`, room.label);
           compressed.set(`room_description_${index}`, room.description);
           compressed.set(`room_mainUrl_${index}`, room.mainImage);
           compressed.set(`room_secondaryUrl_${index}`, room.secondaryImage);
         });
-        formAction(compressed);
+        compressed.set("materialsIntro", materialsIntro);
+        compressed.set("materialsImageUrl", materialsImage);
+        compressed.set("materialCount", String(materials.length));
+        materials.forEach((item, index) => {
+          compressed.set(`material_category_${index}`, item.category);
+          compressed.set(`material_supplier_${index}`, item.supplier);
+          compressed.set(`material_detail_${index}`, item.detail);
+        });
+        startTransition(() => {
+          formAction(compressed);
+        });
       } catch {
         setCompressError("Не удалось подготовить изображения. Попробуйте ещё раз или уменьшите размер файлов.");
       }
@@ -457,7 +466,7 @@ export function AdminProjectForm(props: AdminProjectFormProps) {
       </section>
 
       <section className={sectionClass}>
-        <h3 className="font-serif text-xl text-[#151210]">О проекте и цитата</h3>
+        <h3 className="font-serif text-xl text-[#151210]">О проекте</h3>
         <label className="grid gap-2">
           <span className={labelClass}>Текст «О проекте»</span>
           <textarea
@@ -467,48 +476,13 @@ export function AdminProjectForm(props: AdminProjectFormProps) {
             className={fieldClass}
           />
         </label>
-        <label className="grid gap-2">
-          <span className={labelClass}>Цитата Clavis</span>
-          <textarea name="quote" defaultValue={project?.quote ?? ""} rows={3} className={fieldClass} />
-        </label>
-        <label className="grid gap-2">
-          <span className={labelClass}>Подпись к цитате</span>
-          <input
-            name="quoteAttribution"
-            defaultValue={project?.quoteAttribution ?? "Студия Clavis"}
-            className={fieldClass}
-          />
-        </label>
-      </section>
-
-      <section className={sectionClass}>
-        <h3 className="font-serif text-xl text-[#151210]">Основной текст 01 / 02</h3>
-        <p className="text-sm text-[#6a6a6a]">Абзацы разделяйте пустой строкой.</p>
-        <label className="grid gap-2">
-          <span className={labelClass}>Текст колонки 01</span>
-          <textarea
-            name="aboutBody"
-            defaultValue={parseParagraphs(project?.aboutBody).join("\n\n")}
-            rows={8}
-            className={fieldClass}
-          />
-        </label>
-        <label className="grid gap-2">
-          <span className={labelClass}>Текст колонки 02 (под картинкой)</span>
-          <textarea
-            name="aboutSideBody"
-            defaultValue={parseParagraphs(project?.aboutSideBody).join("\n\n")}
-            rows={6}
-            className={fieldClass}
-          />
-        </label>
         {project?.aboutImage ? (
           <p className="text-sm text-[#4d131a]/85">
             Текущая картинка: <code className="rounded bg-[#e7d8d1] px-1">{project.aboutImage}</code>
           </p>
         ) : null}
         <label className="grid gap-2">
-          <span className={labelClass}>Картинка блока 01/02</span>
+          <span className={labelClass}>Фото блока «О проекте»</span>
           <input
             name="aboutImageFile"
             type="file"
@@ -521,29 +495,29 @@ export function AdminProjectForm(props: AdminProjectFormProps) {
 
       <section className={sectionClass}>
         <div className="flex items-center justify-between gap-4">
-          <h3 className="font-serif text-xl text-[#151210]">По помещениям</h3>
+          <h3 className="font-serif text-xl text-[#151210]">Описание</h3>
           <button
             type="button"
             onClick={() =>
               setRooms((prev) => [
                 ...prev,
-                { key: newKey("room"), label: "", description: "", mainImage: "", secondaryImage: "" },
+                { key: newKey("room"), description: "", mainImage: "", secondaryImage: "" },
               ])
             }
             className="text-[11px] uppercase tracking-[0.16em] text-[#751f26] hover:text-[#3d0d0a]"
           >
-            Добавить помещение
+            Добавить блок
           </button>
         </div>
         <input type="hidden" name="roomCount" value={rooms.length} />
         {rooms.length === 0 ? (
-          <p className="text-sm text-[#6a6a6a]">Пока нет помещений.</p>
+          <p className="text-sm text-[#6a6a6a]">Пока нет блоков. Добавьте текст и два фото.</p>
         ) : (
           <div className="space-y-6">
             {rooms.map((room, index) => (
               <div key={room.key} className="grid gap-3 border border-[#d4cdc4] bg-[#f4f1ed]/60 p-4">
                 <div className="flex items-center justify-between">
-                  <p className={labelClass}>Помещение {index + 1}</p>
+                  <p className={labelClass}>Блок {index + 1}</p>
                   <button
                     type="button"
                     onClick={() => setRooms((prev) => prev.filter((row) => row.key !== room.key))}
@@ -559,20 +533,6 @@ export function AdminProjectForm(props: AdminProjectFormProps) {
                   value={room.secondaryImage}
                   readOnly
                 />
-                <label className="grid gap-2">
-                  <span className={labelClass}>Название</span>
-                  <input
-                    name={`room_label_${index}`}
-                    value={room.label}
-                    onChange={(e) => {
-                      const value = e.target.value;
-                      setRooms((prev) =>
-                        prev.map((row) => (row.key === room.key ? { ...row, label: value } : row)),
-                      );
-                    }}
-                    className={fieldClass}
-                  />
-                </label>
                 <label className="grid gap-2">
                   <span className={labelClass}>Текст</span>
                   <textarea
@@ -650,6 +610,25 @@ export function AdminProjectForm(props: AdminProjectFormProps) {
             Добавить
           </button>
         </div>
+        <label className="grid gap-2">
+          <span className={labelClass}>Текст сверху</span>
+          <textarea
+            name="materialsIntro"
+            value={materialsIntro}
+            onChange={(e) => setMaterialsIntro(e.target.value)}
+            rows={4}
+            className={fieldClass}
+          />
+        </label>
+        <input type="hidden" name="materialsImageUrl" value={materialsImage} readOnly />
+        <RoomPhotoPicker
+          label="Фото справа"
+          value={materialsImage}
+          images={galleryImages}
+          fileInputName="materialsImageFile"
+          onSelect={setMaterialsImage}
+          onClear={() => setMaterialsImage("")}
+        />
         <input type="hidden" name="materialCount" value={materials.length} />
         {materials.length === 0 ? (
           <p className="text-sm text-[#6a6a6a]">Пока нет материалов.</p>

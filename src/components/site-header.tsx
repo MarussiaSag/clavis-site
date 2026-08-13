@@ -37,7 +37,7 @@ export function SiteHeader({ variant = "default" }: SiteHeaderProps) {
     </button>
   );
 
-  const logoOnDark = variant === "project" || variant === "about";
+  const logoOnDark = variant === "about";
 
   const homeLogoLink = showHomeLogo ? (
     <Link

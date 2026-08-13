@@ -12,6 +12,26 @@ export type ProjectMaterialContent = {
   detail: string;
 };
 
+export type ProjectMaterialsBlock = {
+  intro: string;
+  image: string;
+  items: ProjectMaterialContent[];
+};
+
+function mapMaterialItems(parsed: unknown[]): ProjectMaterialContent[] {
+  return parsed
+    .map((item) => {
+      if (!item || typeof item !== "object") return null;
+      const row = item as Record<string, unknown>;
+      const category = String(row.category ?? "").trim();
+      const supplier = String(row.supplier ?? "").trim();
+      const detail = String(row.detail ?? "").trim();
+      if (!category && !supplier && !detail) return null;
+      return { category, supplier, detail };
+    })
+    .filter((item): item is ProjectMaterialContent => item != null);
+}
+
 export type ProjectTeamMemberContent = {
   role: string;
   name: string;
@@ -60,29 +80,36 @@ export function parseRooms(raw: string | null | undefined): ProjectRoomContent[]
   }
 }
 
-export function serializeMaterials(items: ProjectMaterialContent[]): string {
-  return JSON.stringify(items);
+export function serializeMaterials(block: ProjectMaterialsBlock): string {
+  return JSON.stringify({
+    intro: block.intro.trim(),
+    image: block.image.trim(),
+    items: block.items,
+  });
+}
+
+export function parseMaterialsBlock(raw: string | null | undefined): ProjectMaterialsBlock {
+  if (!raw?.trim()) return { intro: "", image: "", items: [] };
+  try {
+    const parsed = JSON.parse(raw) as unknown;
+    if (Array.isArray(parsed)) {
+      return { intro: "", image: "", items: mapMaterialItems(parsed) };
+    }
+    if (!parsed || typeof parsed !== "object") return { intro: "", image: "", items: [] };
+    const row = parsed as Record<string, unknown>;
+    const items = Array.isArray(row.items) ? mapMaterialItems(row.items) : [];
+    return {
+      intro: String(row.intro ?? "").trim(),
+      image: String(row.image ?? "").trim(),
+      items,
+    };
+  } catch {
+    return { intro: "", image: "", items: [] };
+  }
 }
 
 export function parseMaterials(raw: string | null | undefined): ProjectMaterialContent[] {
-  if (!raw?.trim()) return [];
-  try {
-    const parsed = JSON.parse(raw) as unknown;
-    if (!Array.isArray(parsed)) return [];
-    return parsed
-      .map((item) => {
-        if (!item || typeof item !== "object") return null;
-        const row = item as Record<string, unknown>;
-        const category = String(row.category ?? "").trim();
-        const supplier = String(row.supplier ?? "").trim();
-        const detail = String(row.detail ?? "").trim();
-        if (!category && !supplier && !detail) return null;
-        return { category, supplier, detail };
-      })
-      .filter((item): item is ProjectMaterialContent => item != null);
-  } catch {
-    return [];
-  }
+  return parseMaterialsBlock(raw).items;
 }
 
 export function serializeTeam(items: ProjectTeamMemberContent[]): string {

@@ -233,13 +233,13 @@ export function ProjectInteriorGallery({ images, title, id }: ProjectInteriorGal
     <>
       <section
         id={id}
-        className="scroll-mt-14 bg-[#f5f2ea] pb-14 pt-8 md:scroll-mt-16 md:pb-20 md:pt-10"
+        className="scroll-mt-14 bg-[#f5f2ea] md:scroll-mt-16"
         aria-labelledby="project-photos-heading"
       >
-        <div className="px-6 md:px-10 lg:px-12">
+        <div className="w-full bg-[#3d0d0a] px-6 py-5 md:px-10 md:py-6 lg:px-12">
           <p
             id="project-photos-heading"
-            className="text-[11px] font-medium uppercase tracking-[0.32em] text-[#a38d83] md:text-xs"
+            className="text-[11px] font-medium uppercase tracking-[0.32em] text-[#f4f1ed] md:text-xs"
           >
             Фотографии проекта
           </p>
@@ -247,7 +247,7 @@ export function ProjectInteriorGallery({ images, title, id }: ProjectInteriorGal
 
           <div
             ref={containerRef}
-            className="relative mt-8 w-full md:mt-10"
+            className="relative w-full"
             style={{ height: layout.height > 0 ? layout.height : undefined }}
           >
             {layout.height === 0 ? (

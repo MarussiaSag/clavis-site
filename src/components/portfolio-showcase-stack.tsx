@@ -61,7 +61,9 @@ export function PortfolioShowcaseStack({ projects }: PortfolioShowcaseStackProps
               <span
                 aria-hidden="true"
                 className={`pointer-events-none absolute top-1/2 z-0 -translate-y-1/2 select-none font-serif text-[5.25rem] leading-none tracking-[-0.06em] text-[#e4dfd6] sm:text-[6rem] md:text-[22rem] lg:text-[25rem] ${
-                  imageLeft ? "right-0 md:right-[-0.12em]" : "left-0 md:left-[-0.16em]"
+                  imageLeft
+                    ? "right-0 lg:right-[-0.12em]"
+                    : "right-0 lg:left-[-0.16em] lg:right-auto"
                 }`}
               >
                 {projectNumber}
@@ -132,21 +134,12 @@ export function PortfolioShowcaseStack({ projects }: PortfolioShowcaseStackProps
             key={project.id}
             className={
               imageLeft
-                ? "grid md:grid-cols-[minmax(0,1.28fr)_minmax(0,1fr)]"
-                : "grid md:grid-cols-[minmax(0,1fr)_minmax(0,1.28fr)]"
+                ? "grid lg:grid-cols-[minmax(0,1.28fr)_minmax(0,1fr)]"
+                : "grid lg:grid-cols-[minmax(0,1fr)_minmax(0,1.28fr)]"
             }
           >
-            {imageLeft ? (
-              <>
-                <div className="relative z-10">{imageSide}</div>
-                <div className="relative z-20">{textSide}</div>
-              </>
-            ) : (
-              <>
-                <div className="relative z-20">{textSide}</div>
-                <div className="relative z-10">{imageSide}</div>
-              </>
-            )}
+            <div className={`relative z-10 ${imageLeft ? "" : "lg:order-2"}`}>{imageSide}</div>
+            <div className={`relative z-20 ${imageLeft ? "" : "lg:order-1"}`}>{textSide}</div>
           </section>
         );
       })}

@@ -7,31 +7,16 @@ import { ProjectMaterialsTeamSection } from "@/components/project-materials-team
 import { ProjectRoomsSection } from "@/components/project-rooms-section";
 import { ProjectSectionNav } from "@/components/project-section-nav";
 import { ProjectVirtualTour } from "@/components/project-virtual-tour";
-import { RevealOnScroll } from "@/components/reveal-on-scroll";
 import { SiteHeader } from "@/components/site-header";
-import { parseMaterials, parseParagraphs, parseRooms, parseTeam } from "@/lib/project-content";
+import { parseMaterialsBlock, parseRooms, parseTeam } from "@/lib/project-content";
 import { getInstagramHref, getSiteContact } from "@/lib/site-contact";
+import { getSiteImage } from "@/lib/site-images";
 
 type ProjectDetailPageProps = {
   project: Project;
   gallery: string[];
   nextProject: Project | null;
 };
-
-const ABOUT_FALLBACK = [
-  "Дизайн-студии Clavis достался проект мечты — в том смысле, что над ним можно было работать без спешки. Семья с двумя детьми, купившая эту квартиру, жила в доме по соседству, и срочности в переезде не было. Получился уютный интерьер, который сочетает в себе функциональность и эстетику в духе контемпорари модернизма. Дизайнер учла все пожелания заказчиков и гибко подстраивалась под возникавшие по ходу работы изменения.",
-  "Базовый старт был такой: три изолированные спальни, общая кухня-гостиная—прихожая, два санузла — всё это на площади 101,7 кв. м. Квартира спроектирована с учётом хоккейных увлечений отца и сына: в спальне предусмотрен специальный шкаф для сушки и хранения формы. Ещё одна интересная деталь хозяйской спальни — зонирование перегородкой, отделяющей кровать от системы хранения и небольшого уголка с письменным столом. Для дочери спроектирована изолированная комната, обеспечивающая спокойствие и приватность.",
-  "В отделке использован высококачественный микроцемент. Покрытие сделано в «облачной» технике с плавными размытыми переходами: так пространство получилось более сложным и глубоким. Цветовая палитра была тщательно подобрана: заказчики хотели интерьер в приглушенных природных тонах — в итоге оттенки выбирали по кругу Иттена с опорой на зеленый, синий и оранжевый цвета.",
-];
-
-function aboutParagraphs(project: Project): string[] {
-  const fromDb = parseParagraphs(project.aboutBody);
-  return fromDb.length > 0 ? fromDb : ABOUT_FALLBACK;
-}
-
-function aboutImageCaptionParagraphs(project: Project): string[] {
-  return parseParagraphs(project.aboutSideBody);
-}
 
 function projectTagline(project: Project): string {
   if (project.taskBrief) {
@@ -87,22 +72,19 @@ function NextProjectHero({ project }: { project: Project }) {
 export async function ProjectDetailPage({ project, gallery, nextProject }: ProjectDetailPageProps) {
   const contact = await getSiteContact();
   const instagramHref = getInstagramHref(contact);
+  const consultationImageSrc = await getSiteImage("contacts.form");
   const heroImage = gallery[0] ?? project.coverImage;
   const aboutImage = project.aboutImage?.trim() || gallery[1] || gallery[0] || project.coverImage;
   const galleryImages = gallery;
-  const paragraphs = aboutParagraphs(project);
-  const imageCaptionParagraphs = aboutImageCaptionParagraphs(project);
   const tagline = projectTagline(project);
   const rooms = parseRooms(project.roomsJson);
-  const materials = parseMaterials(project.materialsJson);
+  const materialsBlock = parseMaterialsBlock(project.materialsJson);
   const team = parseTeam(project.teamJson);
   const tourUrl = project.virtualTourUrl?.trim() || "";
 
   const navItems = [
     { id: "project-overview", label: "О проекте" },
-    { id: "project-about", label: "Описание" },
-    { id: "project-rooms", label: "По помещениям" },
-    { id: "project-materials", label: "Материалы" },
+    { id: "project-rooms", label: "Описание" },
     ...(tourUrl ? [{ id: "project-tour", label: "Тур" }] : []),
     { id: "project-gallery", label: "Фотографии" },
   ];
@@ -116,13 +98,13 @@ export async function ProjectDetailPage({ project, gallery, nextProject }: Proje
 
   return (
     <div className="min-h-screen bg-[#f5f3f0]">
-      <section className="relative grid min-h-[100svh] lg:grid-cols-2">
+      <section className="relative grid lg:min-h-[100svh] lg:grid-cols-2">
         <div className="absolute inset-x-0 top-0 z-30 lg:hidden">
           <SiteHeader variant="project" />
         </div>
 
-        <div className="relative z-20 flex min-h-[100svh] flex-col bg-[#3d0d0a] text-[#f4f1ed]">
-          <div className="px-6 pt-20 md:px-10 md:pt-8 lg:px-12 lg:pt-10">
+        <div className="relative z-20 flex flex-col bg-[#3d0d0a] text-[#f4f1ed] lg:min-h-[100svh]">
+          <div className="px-6 pt-24 md:px-10 md:pt-28 lg:px-12 lg:pt-10">
             <Link
               href="/portfolio"
               className="inline-flex items-center gap-2 text-[11px] font-medium uppercase tracking-[0.26em] text-white/55 transition-colors duration-300 hover:text-white md:text-xs"
@@ -132,7 +114,7 @@ export async function ProjectDetailPage({ project, gallery, nextProject }: Proje
             </Link>
           </div>
 
-          <div className="flex flex-1 flex-col justify-center px-6 py-12 md:px-10 md:py-16 lg:px-12 lg:py-20">
+          <div className="flex flex-col px-6 py-8 md:px-10 md:py-10 lg:flex-1 lg:justify-center lg:px-12 lg:py-20">
             <p className="text-[11px] font-medium uppercase tracking-[0.3em] text-white/45 md:text-xs">
               Clavis · {project.year}
             </p>
@@ -207,74 +189,22 @@ export async function ProjectDetailPage({ project, gallery, nextProject }: Proje
 
       <ProjectSectionNav items={navItems} />
 
-      <ProjectMiniDescription project={project} />
-
-      <section
-        id="project-about"
-        className="scroll-mt-14 bg-[#f5f2ea] md:scroll-mt-16"
-        aria-label="Описание проекта"
-      >
-        <div className="mx-auto max-w-[1440px] px-6 pb-6 pt-4 md:px-10 md:pb-8 md:pt-6 lg:px-12 lg:pb-8 lg:pt-6">
-          <RevealOnScroll once>
-            <div className="grid items-stretch gap-10 md:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)] md:gap-12 lg:gap-16 xl:gap-20">
-              <div className="flex h-full flex-col">
-                <div className="space-y-6 md:space-y-7">
-                  {paragraphs.map((text, index) => (
-                    <p
-                      key={index}
-                      className="text-[15px] leading-[1.8] text-[#3a3530] md:text-[16px] md:leading-[1.85]"
-                    >
-                      {text}
-                    </p>
-                  ))}
-                </div>
-
-                <p
-                  aria-hidden
-                  className="mt-8 text-center text-[13px] font-medium tracking-[0.08em] text-[#b07d55] md:mt-auto md:pt-8"
-                >
-                  01
-                </p>
-              </div>
-
-              <div className="flex h-full flex-col">
-                <div className="space-y-6 md:space-y-7">
-                  <div className="relative w-full overflow-hidden bg-[#e8e2dc]">
-                    <Image
-                      src={aboutImage}
-                      alt={`${project.title} — обзор пространства`}
-                      width={1600}
-                      height={2000}
-                      sizes="(max-width: 768px) 100vw, 45vw"
-                      className="h-auto w-full"
-                    />
-                  </div>
-
-                  {imageCaptionParagraphs.map((text, index) => (
-                    <p
-                      key={index}
-                      className="text-[15px] leading-[1.8] text-[#3a3530] md:text-[16px] md:leading-[1.85]"
-                    >
-                      {text}
-                    </p>
-                  ))}
-                </div>
-
-                <p
-                  aria-hidden
-                  className="mt-8 text-center text-[13px] font-medium tracking-[0.08em] text-[#b07d55] md:mt-auto md:pt-8"
-                >
-                  02
-                </p>
-              </div>
-            </div>
-          </RevealOnScroll>
-        </div>
-      </section>
+      <ProjectMiniDescription
+        project={project}
+        imageSrc={aboutImage}
+        team={team}
+        instagramHref={instagramHref}
+      />
 
       <ProjectRoomsSection rooms={rooms} gallery={gallery} title={project.title} />
 
-      <ProjectMaterialsTeamSection materials={materials} team={team} />
+      <ProjectMaterialsTeamSection
+        materials={materialsBlock.items}
+        intro={materialsBlock.intro}
+        image={materialsBlock.image}
+        title={project.title}
+        consultationImageSrc={consultationImageSrc}
+      />
 
       {tourUrl ? <ProjectVirtualTour id="project-tour" tourUrl={tourUrl} image={aboutImage} /> : null}
 

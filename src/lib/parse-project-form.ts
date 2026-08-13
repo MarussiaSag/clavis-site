@@ -28,8 +28,6 @@ export type ParsedProjectForm = {
   styleLabel: string | null;
   layoutLabel: string | null;
   aboutSummary: string | null;
-  quote: string | null;
-  quoteAttribution: string | null;
   aboutBody: string | null;
   aboutSideBody: string | null;
   aboutImage: string | null;
@@ -85,14 +83,13 @@ export async function parseProjectFormData(
   const roomCount = Math.max(0, Math.min(20, Number(formData.get("roomCount") ?? 0) || 0));
   const rooms: ProjectRoomContent[] = [];
   for (let index = 0; index < roomCount; index += 1) {
-    const label = String(formData.get(`room_label_${index}`) ?? "").trim();
     const descriptionText = String(formData.get(`room_description_${index}`) ?? "").trim();
     const existingMain = String(formData.get(`room_mainUrl_${index}`) ?? "").trim();
     const existingSecondary = String(formData.get(`room_secondaryUrl_${index}`) ?? "").trim();
     const mainFile = fileFromForm(formData, `room_main_${index}`);
     const secondaryFile = fileFromForm(formData, `room_secondary_${index}`);
 
-    if (!label && !descriptionText && !mainFile && !secondaryFile && !existingMain && !existingSecondary) {
+    if (!descriptionText && !mainFile && !secondaryFile && !existingMain && !existingSecondary) {
       continue;
     }
 
@@ -111,8 +108,8 @@ export async function parseProjectFormData(
     }
 
     rooms.push({
-      id: slugifyRoomId(label, index),
-      label,
+      id: slugifyRoomId("", index),
+      label: "",
       description: descriptionText,
       mainImage,
       secondaryImage,
@@ -127,6 +124,16 @@ export async function parseProjectFormData(
     const detail = String(formData.get(`material_detail_${index}`) ?? "").trim();
     if (!categoryLabel && !supplier && !detail) continue;
     materials.push({ category: categoryLabel, supplier, detail });
+  }
+
+  const materialsIntro = String(formData.get("materialsIntro") ?? "").trim();
+  let materialsImage = String(formData.get("materialsImageUrl") ?? "").trim();
+  if (materialsImage) materialsImage = normalizePublicAssetPath(materialsImage);
+  const materialsImageFile = fileFromForm(formData, "materialsImageFile");
+  if (materialsImageFile) {
+    const saved = await saveNamedProjectImage(slug, materialsImageFile, "materials");
+    if (!saved.ok) return { ok: false, error: saved.message };
+    materialsImage = saved.url;
   }
 
   const teamCount = Math.max(0, Math.min(20, Number(formData.get("teamCount") ?? 0) || 0));
@@ -168,8 +175,6 @@ export async function parseProjectFormData(
       styleLabel: optionalText(formData, "styleLabel"),
       layoutLabel: optionalText(formData, "layoutLabel"),
       aboutSummary: optionalText(formData, "aboutSummary"),
-      quote: optionalText(formData, "quote"),
-      quoteAttribution: optionalText(formData, "quoteAttribution") ?? "Студия Clavis",
       aboutBody: (() => {
         const text = String(formData.get("aboutBody") ?? "").trim();
         return text ? serializeParagraphs(text) : null;
@@ -180,7 +185,10 @@ export async function parseProjectFormData(
       })(),
       aboutImage,
       roomsJson: rooms.length ? serializeRooms(rooms) : null,
-      materialsJson: materials.length ? serializeMaterials(materials) : null,
+      materialsJson:
+        materials.length || materialsIntro || materialsImage
+          ? serializeMaterials({ intro: materialsIntro, image: materialsImage, items: materials })
+          : null,
       teamJson: team.length ? serializeTeam(team) : null,
       virtualTourUrl: optionalText(formData, "virtualTourUrl"),
       showOnHero: formData.get("showOnHero") === "on",

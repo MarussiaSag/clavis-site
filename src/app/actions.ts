@@ -56,8 +56,6 @@ function projectContentData(data: ParsedProjectForm) {
     styleLabel: data.styleLabel,
     layoutLabel: data.layoutLabel,
     aboutSummary: data.aboutSummary,
-    quote: data.quote,
-    quoteAttribution: data.quoteAttribution,
     aboutBody: data.aboutBody,
     aboutSideBody: data.aboutSideBody,
     aboutImage: data.aboutImage,

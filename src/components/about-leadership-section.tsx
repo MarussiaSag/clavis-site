@@ -16,14 +16,14 @@ export async function AboutLeadershipSection() {
           </p>
         </header>
 
-        <div className="grid items-start gap-10 md:grid-cols-2 md:gap-12 lg:gap-16">
-          <figure className="relative aspect-[3/4] w-full overflow-hidden bg-[#eae6e0] md:sticky md:top-24 md:aspect-[4/5]">
+        <div className="grid items-start gap-10 lg:grid-cols-2 lg:gap-16">
+          <figure className="relative aspect-[3/4] w-full overflow-hidden bg-[#eae6e0] lg:sticky lg:top-24 lg:aspect-[4/5]">
             <Image
               src={teamPhoto}
               alt="Команда студии CLAVIS"
               fill
               className="object-cover object-center"
-              sizes="(max-width: 768px) 100vw, 50vw"
+              sizes="(max-width: 1024px) 100vw, 50vw"
               quality={92}
             />
           </figure>

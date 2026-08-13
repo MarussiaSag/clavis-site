@@ -10,7 +10,7 @@ export async function SiteFooter() {
   return (
     <footer className="border-t border-[#5c2a2e] bg-[#3d0d0a] text-[#d9cec6]">
       <div className="mx-auto w-full max-w-[1180px] px-6 py-10 md:px-10 md:py-12">
-        <div className="grid gap-10 md:grid-cols-[minmax(0,1fr)_auto] md:gap-16 lg:gap-20">
+        <div className="grid gap-10 md:grid-cols-[auto_max-content_auto] md:justify-between md:gap-10 lg:grid-cols-[minmax(0,1fr)_auto] lg:justify-stretch lg:gap-20">
           <div className="space-y-4">
             <Link
               href="/"
@@ -30,8 +30,8 @@ export async function SiteFooter() {
             </p>
           </div>
 
-          <div className="grid gap-10 sm:grid-cols-2 sm:gap-6 md:gap-8 lg:gap-10">
-            <div className="space-y-4">
+          <div className="grid gap-10 sm:grid-cols-2 sm:gap-6 md:contents lg:grid lg:grid-cols-2 lg:gap-10">
+            <div className="w-max space-y-4">
               <ul className="space-y-2 text-sm">
                 <li>
                   <a
