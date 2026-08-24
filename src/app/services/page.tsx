@@ -1,8 +1,18 @@
+import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { SiteHeader } from "@/components/site-header";
 import { RevealOnScroll } from "@/components/reveal-on-scroll";
 import { getSiteImages } from "@/lib/site-images";
+import { pageMetadata } from "@/lib/site-metadata";
+
+export const metadata: Metadata = pageMetadata({
+  title: "Услуги",
+  description:
+    "Услуги студии Clavis: дизайн-проект, 3D-визуализация, концепт, комплектация, декор, авторский надзор, умный дом и инженерия.",
+  path: "/services",
+  image: "/media/services-cta.jpg",
+});
 
 type Service = {
   n: string;

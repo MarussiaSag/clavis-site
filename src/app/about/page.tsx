@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { SiteHeader } from "@/components/site-header";
 import { AboutCtaSection } from "@/components/about-cta-section";
 import { AboutLeadershipSection } from "@/components/about-leadership-section";
@@ -8,6 +9,15 @@ import { AboutWorkflowSection } from "@/components/about-workflow-section";
 import { AboutParallaxHero } from "@/components/about-parallax-hero";
 import { getSiteData } from "@/lib/site-data";
 import { getSiteImages } from "@/lib/site-images";
+import { pageMetadata } from "@/lib/site-metadata";
+
+export const metadata: Metadata = pageMetadata({
+  title: "О студии",
+  description:
+    "Студия дизайна интерьера Clavis: философия, процесс работы и команда. Создаём продуманные жилые и коммерческие пространства в Москве.",
+  path: "/about",
+  image: "/media/about-hero.png",
+});
 
 export default async function AboutPage() {
   await getSiteData();

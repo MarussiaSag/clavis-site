@@ -1,7 +1,17 @@
+import type { Metadata } from "next";
 import { PortfolioArchiveSection } from "@/components/portfolio-archive-section";
 import { SiteHeader } from "@/components/site-header";
 import { buildProjectInteriorGallery } from "@/lib/project-files";
 import { getSiteData } from "@/lib/site-data";
+import { pageMetadata } from "@/lib/site-metadata";
+
+export const metadata: Metadata = pageMetadata({
+  title: "Портфолио",
+  description:
+    "Реализованные проекты студии дизайна интерьера Clavis: жилые и коммерческие пространства в Москве и за её пределами.",
+  path: "/portfolio",
+  image: "/media/showcase-hero.jpg",
+});
 
 export default async function PortfolioPage() {
   const { projects } = await getSiteData();

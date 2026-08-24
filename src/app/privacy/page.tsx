@@ -2,12 +2,14 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { SiteHeader } from "@/components/site-header";
 import { getSiteContact } from "@/lib/site-contact";
+import { pageMetadata } from "@/lib/site-metadata";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMetadata({
   title: "Политика конфиденциальности",
   description:
     "Политика обработки персональных данных студии дизайна интерьера Clavis.",
-};
+  path: "/privacy",
+});
 
 export default async function PrivacyPage() {
   const contact = await getSiteContact();
