@@ -79,7 +79,6 @@ model Project {
   materialsJson  String?
   teamJson       String?
   virtualTourUrl String?
-  isFeaturedHome Boolean  @default(false)
   showOnHero  Boolean  @default(true)
   heroOrder   Int      @default(0)
   createdAt   DateTime @default(now())

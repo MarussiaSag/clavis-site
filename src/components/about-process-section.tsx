@@ -27,9 +27,6 @@ export function AboutProcessSection() {
       <div className="mx-auto w-full max-w-[1240px] px-6 py-10 md:px-10 md:py-14 lg:py-18">
         <header className="grid items-start gap-8 pb-10 md:grid-cols-[minmax(0,0.85fr)_minmax(0,1.35fr)] md:gap-10 md:pb-12 lg:gap-14">
           <div className="space-y-3 md:space-y-4">
-            <p className="text-[11px] font-medium uppercase tracking-[0.36em] text-[#8a8a8a] md:text-xs">
-              Принципы работы
-            </p>
             <h2 className="font-serif text-[1.85rem] font-normal leading-[1.15] tracking-[-0.03em] text-[#151210] md:text-[2.15rem] lg:text-[2.4rem] lg:leading-[1.12]">
               То, что нас
               <br />

@@ -25,10 +25,6 @@ export function AboutCtaSection({ imageSrc }: AboutCtaSectionProps) {
 
         <div className="relative z-10 mx-auto flex min-h-[58vh] w-full max-w-[1240px] flex-col items-center justify-center px-6 py-20 text-center md:min-h-[68vh] md:px-10 md:py-28 lg:min-h-[72vh] lg:py-32">
           <div className="mx-auto flex max-w-3xl flex-col items-center gap-6 md:gap-7">
-            <p className="text-[11px] font-medium uppercase tracking-[0.36em] text-white/55 md:text-xs">
-              Начнём разговор
-            </p>
-
             <h2
               id="about-cta-heading"
               className="font-serif text-[2.5rem] font-normal leading-[1.12] tracking-[-0.03em] text-[#f1ece7] md:text-[3.25rem] lg:text-[3.75rem] lg:leading-[1.08]"

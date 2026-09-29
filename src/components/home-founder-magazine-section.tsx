@@ -18,10 +18,9 @@ export function HomeFounderMagazineSection({ imageSrc }: HomeFounderMagazineSect
         once
       >
         <div className="max-w-xl">
-          <p className="ui-eyebrow text-[#8a8a8a]">О студии</p>
           <h2
             id="home-about-heading"
-            className="mt-4 font-serif text-[2.25rem] font-normal leading-[1.12] tracking-[-0.03em] text-[#141414] md:text-[2.75rem] lg:text-[3.1rem] lg:leading-[1.1]"
+            className="font-serif text-[2.25rem] font-normal leading-[1.12] tracking-[-0.03em] text-[#141414] md:text-[2.75rem] lg:text-[3.1rem] lg:leading-[1.1]"
           >
             Дизайн, который
             <br />
@@ -72,9 +71,6 @@ export function HomeFounderMagazineSection({ imageSrc }: HomeFounderMagazineSect
             sizes="(max-width: 768px) 100vw, 50vw"
             className="object-cover object-center"
           />
-          <figcaption className="absolute inset-x-0 bottom-0 bg-[#f4f1ed]/95 px-6 py-4 text-sm text-[#141414] md:px-8 md:py-5">
-            Татьяна Кожевникова — основатель студии
-          </figcaption>
         </figure>
       </RevealOnScroll>
     </section>

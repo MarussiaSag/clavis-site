@@ -33,9 +33,9 @@ export function PortfolioOverviewGrid({ projects }: PortfolioOverviewGridProps) 
   return (
     <section aria-label="Все проекты — обзор" className="bg-[#ebe4da]">
       <div className="flex items-center justify-between gap-6 bg-[#3d0d0a] px-6 py-5 md:px-10 md:py-6">
-        <p className="text-[11px] font-medium uppercase tracking-[0.28em] text-[#f4f1ed] md:text-xs">
+        <h2 className="font-serif text-xl font-semibold tracking-[-0.02em] text-[#f4f1ed] md:text-[1.5rem]">
           Все проекты — обзор
-        </p>
+        </h2>
         <p className="shrink-0 text-[11px] font-medium uppercase tracking-[0.2em] text-[#e7d8d1] md:text-xs">
           {objectsLabel(projects.length)}
         </p>

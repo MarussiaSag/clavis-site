@@ -353,16 +353,6 @@ export function AdminProjectForm(props: AdminProjectFormProps) {
             />
             В слайдере на главной
           </label>
-          <label className="flex items-center gap-3 text-sm">
-            <input
-              name="isFeaturedHome"
-              type="checkbox"
-              value="on"
-              defaultChecked={project?.isFeaturedHome ?? false}
-              className="h-4 w-4"
-            />
-            Проект месяца на главной
-          </label>
           <label className="grid gap-2">
             <span className={labelClass}>Порядок в hero</span>
             <input

@@ -13,9 +13,6 @@ export function HomeTrustPressSection() {
         <RevealOnScroll once>
           <div className="grid gap-8 md:grid-cols-[minmax(0,1fr)_minmax(0,1.15fr)] md:items-center md:gap-12 lg:gap-16">
             <header className="space-y-3 md:max-w-sm">
-              <p className="text-[11px] font-medium uppercase tracking-[0.38em] text-[#b07d55] md:text-xs md:tracking-[0.42em]">
-                Публикации
-              </p>
               <h2
                 id="home-trust-heading"
                 className="font-serif text-3xl leading-[1.06] tracking-[-0.02em] text-[#151210] md:text-4xl"

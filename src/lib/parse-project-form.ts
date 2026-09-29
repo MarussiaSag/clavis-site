@@ -36,7 +36,6 @@ export type ParsedProjectForm = {
   teamJson: string | null;
   virtualTourUrl: string | null;
   showOnHero: boolean;
-  isFeaturedHome: boolean;
   heroOrder: number;
   mainFile: File | null;
   galleryFiles: File[];
@@ -192,7 +191,6 @@ export async function parseProjectFormData(
       teamJson: team.length ? serializeTeam(team) : null,
       virtualTourUrl: optionalText(formData, "virtualTourUrl"),
       showOnHero: formData.get("showOnHero") === "on",
-      isFeaturedHome: formData.get("isFeaturedHome") === "on",
       heroOrder: Number.isFinite(heroOrderRaw) ? Math.trunc(heroOrderRaw) : 0,
       mainFile: fileFromForm(formData, "mainImage"),
       galleryFiles,

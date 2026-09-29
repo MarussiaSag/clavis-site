@@ -27,9 +27,6 @@ export function AboutWorkflowSection() {
       <div className="mx-auto w-full max-w-[1240px] px-6 py-14 md:px-10 md:py-18 lg:py-22">
         <header className="grid items-start gap-8 pb-12 md:grid-cols-[minmax(0,0.85fr)_minmax(0,1.35fr)] md:gap-10 md:pb-14 lg:gap-14">
           <div className="space-y-3 md:space-y-4">
-            <p className="text-[11px] font-medium uppercase tracking-[0.36em] text-[#9a9088] md:text-xs">
-              Процесс
-            </p>
             <h2 className="font-serif text-[1.85rem] font-normal leading-[1.15] tracking-[-0.03em] text-[#f4f1ed] md:text-[2.15rem] lg:text-[2.4rem] lg:leading-[1.12]">
               Как мы
               <br />

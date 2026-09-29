@@ -120,10 +120,7 @@ export default async function PrivacyPage() {
       <main>
         <section className="border-b border-[#d4cdc4] bg-[#f5f1eb]">
           <div className="mx-auto w-full max-w-[860px] px-6 pb-12 pt-6 md:px-10 md:pb-16 md:pt-8">
-            <p className="text-[11px] font-medium uppercase tracking-[0.36em] text-[#8a8a8a] md:text-xs">
-              Документы
-            </p>
-            <h1 className="mt-6 font-serif text-[2rem] font-semibold leading-[1.12] tracking-[-0.03em] text-[#151210] md:mt-8 md:text-[2.75rem]">
+            <h1 className="font-serif text-[2rem] font-semibold leading-[1.12] tracking-[-0.03em] text-[#151210] md:text-[2.75rem]">
               Политика конфиденциальности
             </h1>
             <p className="mt-5 max-w-2xl text-[15px] leading-relaxed text-[#5c5c5c] md:mt-6 md:text-base">

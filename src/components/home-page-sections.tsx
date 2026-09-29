@@ -3,19 +3,16 @@ import Link from "next/link";
 import type { Project } from "@prisma/client";
 import { ArchiveSwiper } from "@/components/archive-swiper";
 import { HomeFaqSection } from "@/components/home-faq-section";
-import { HomeFeaturedProjectSection } from "@/components/home-featured-project-section";
 import { HomeFounderMagazineSection } from "@/components/home-founder-magazine-section";
 import { HomeProcessSection } from "@/components/home-process-section";
 import { HomeServicesSection } from "@/components/home-services-section";
 import { HomeTrustPressSection } from "@/components/home-trust-press-section";
 import { RevealOnScroll } from "@/components/reveal-on-scroll";
-import type { HomeFeaturedProject } from "@/lib/home-featured-project";
-import { fullWidthSectionHeader, fullWidthSectionX, sectionContainer, sectionContentGap } from "@/lib/home-layout";
+import { fullWidthSectionHeader, fullWidthSectionX, sectionContentGap } from "@/lib/home-layout";
 
 export type HomePageSectionsProps = {
   quoteProjectImage: string;
   archiveProjects: Project[];
-  featuredProject: HomeFeaturedProject | null;
   founderImage: string;
   ctaImage: string;
 };
@@ -23,7 +20,6 @@ export type HomePageSectionsProps = {
 export function HomePageSections({
   quoteProjectImage,
   archiveProjects,
-  featuredProject,
   founderImage,
   ctaImage,
 }: HomePageSectionsProps) {
@@ -31,18 +27,17 @@ export function HomePageSections({
     <>
       <HomeFounderMagazineSection imageSrc={founderImage} />
       <section className="grid border-b border-[#a38d83] md:grid-cols-2">
-        <div className="relative min-h-[460px] overflow-hidden md:min-h-[700px]">
+        <div className="relative order-2 min-h-[460px] overflow-hidden md:order-1 md:min-h-[700px]">
           <div
             className="premium-photo absolute inset-0 bg-cover bg-center"
             style={{ backgroundImage: `url(${quoteProjectImage})` }}
           />
         </div>
         <RevealOnScroll
-          className="flex min-h-[460px] items-center bg-[#f4f1ed] px-6 py-16 md:min-h-[700px] md:px-12 lg:px-16 xl:px-20"
+          className="order-1 flex min-h-[460px] items-center bg-[#f4f1ed] px-6 py-16 md:order-2 md:min-h-[700px] md:px-12 lg:px-16 xl:px-20"
           delayMs={40}
         >
           <div className="max-w-xl">
-            <p className="ui-eyebrow mb-8 text-[#8a8a8a]">Наше кредо</p>
             <div className="flex flex-col gap-8">
               <blockquote className="m-0 flex flex-col gap-8 border-0 p-0">
                 <p className="font-serif text-2xl italic leading-relaxed tracking-[-0.02em] text-[#141414] md:text-3xl lg:text-[2.15rem] lg:leading-[1.38]">
@@ -76,14 +71,12 @@ export function HomePageSections({
       <HomeServicesSection />
       <HomeProcessSection />
 
-      {featuredProject ? <HomeFeaturedProjectSection project={featuredProject} /> : null}
-
       <RevealOnScroll>
         <section className="border-b border-[#5c2a2e] bg-[#3d0d0a]">
           <div className={fullWidthSectionHeader}>
             <div className="ui-header">
               <div className="flex flex-wrap items-baseline justify-between gap-x-6 gap-y-2">
-                <p className="ui-eyebrow text-white/45">Портфолио</p>
+                <h2 className="ui-title text-[#f1ece7]">Портфолио</h2>
                 <Link
                   href="/portfolio#portfolio-archive"
                   className="ui-link text-white/70 hover:text-white"
@@ -91,7 +84,6 @@ export function HomePageSections({
                   Посмотреть все
                 </Link>
               </div>
-              <h2 className="ui-title text-[#f1ece7]">Избранные проекты</h2>
             </div>
           </div>
           <div className={`${sectionContentGap} ${fullWidthSectionX} pb-12 md:pb-16`}>
@@ -124,9 +116,6 @@ export function HomePageSections({
             className={`${fullWidthSectionX} relative z-10 flex min-h-[58vh] flex-col items-center justify-center py-20 text-center md:min-h-[68vh] md:py-28 lg:min-h-[72vh]`}
           >
             <div className="mx-auto flex max-w-3xl flex-col items-center gap-6 md:gap-7">
-              <p className="text-[11px] font-medium uppercase tracking-[0.36em] text-white/55 md:text-xs">
-                Начнём
-              </p>
               <h2
                 id="home-cta-heading"
                 className="font-serif text-[2.5rem] font-normal leading-[1.12] tracking-[-0.03em] text-[#f1ece7] md:text-[3.25rem] lg:text-[3.75rem] lg:leading-[1.08]"

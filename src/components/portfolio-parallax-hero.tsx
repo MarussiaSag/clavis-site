@@ -63,7 +63,6 @@ export function PortfolioParallaxHero({ imageSrc }: PortfolioParallaxHeroProps) 
 
       <div className="relative z-20 mx-auto flex min-h-[72vh] w-full max-w-[1280px] flex-col justify-end px-6 pb-7 pt-[84px] md:min-h-[84vh] md:px-10 md:pb-9 md:pt-[92px]">
         <div className="max-w-[720px] space-y-5 text-[#e7d8d1]">
-          <p className="text-xs uppercase tracking-[0.34em] text-[#e7d8d1]/85 md:text-sm">Портфолио</p>
           <h1 className="text-4xl leading-[0.96] md:text-6xl lg:text-[4.6rem]">
             РЕАЛИЗОВАННЫЕ
             <br />

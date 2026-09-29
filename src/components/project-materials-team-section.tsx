@@ -75,13 +75,13 @@ export function ProjectMaterialsTeamSection({
               </p>
             ) : null}
 
-            <p
-              className={`text-[11px] font-medium uppercase tracking-[0.32em] text-[#a38d83] md:text-xs ${
+            <h2
+              className={`font-serif text-xl font-semibold tracking-[-0.02em] text-[#151210] md:text-[1.35rem] ${
                 introText ? "mt-6 md:mt-8 lg:mt-10" : ""
               }`}
             >
               Материалы и поставщики
-            </p>
+            </h2>
 
             <ul className="mt-4 border-t border-[#d0b5a5]/70">
               {materials.map((item) => (

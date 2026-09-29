@@ -23,10 +23,7 @@ export function PortfolioPageHeader({
       <div className="mx-auto w-full max-w-[1440px] px-4 pb-8 pt-6 md:px-6 md:pb-10 md:pt-8 lg:px-8 lg:pb-16 lg:pt-10">
         <div className="hidden grid-cols-[minmax(0,1.2fr)_minmax(0,0.8fr)] items-start gap-24 lg:grid">
           <div>
-            <p className="text-xs font-medium uppercase tracking-[0.36em] text-[#8a8a8a]">
-              Портфолио
-            </p>
-            <h1 className="mt-8 font-serif text-[4.25rem] font-semibold leading-[1.05] tracking-[-0.03em] text-[#151210]">
+            <h1 className="font-serif text-[4.25rem] font-semibold leading-[1.05] tracking-[-0.03em] text-[#151210]">
               Реализованные{" "}
               <em className="font-normal italic">проекты</em>
             </h1>

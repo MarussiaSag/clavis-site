@@ -64,7 +64,6 @@ function projectContentData(data: ParsedProjectForm) {
     teamJson: data.teamJson,
     virtualTourUrl: data.virtualTourUrl,
     showOnHero: data.showOnHero,
-    isFeaturedHome: data.isFeaturedHome,
     heroOrder: data.heroOrder,
   };
 }

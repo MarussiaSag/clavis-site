@@ -237,12 +237,12 @@ export function ProjectInteriorGallery({ images, title, id }: ProjectInteriorGal
         aria-labelledby="project-photos-heading"
       >
         <div className="w-full bg-[#3d0d0a] px-6 py-5 md:px-10 md:py-6 lg:px-12">
-          <p
+          <h2
             id="project-photos-heading"
-            className="text-[11px] font-medium uppercase tracking-[0.32em] text-[#f4f1ed] md:text-xs"
+            className="font-serif text-xl font-semibold tracking-[-0.02em] text-[#f4f1ed] md:text-[1.5rem]"
           >
             Фотографии проекта
-          </p>
+          </h2>
         </div>
 
           <div

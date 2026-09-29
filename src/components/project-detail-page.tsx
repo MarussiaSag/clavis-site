@@ -49,10 +49,7 @@ function NextProjectHero({ project }: { project: Project }) {
 
         <div className="relative z-10 flex min-h-[280px] items-center justify-between gap-8 px-6 py-12 text-white md:min-h-[360px] md:px-10 lg:px-12">
           <div>
-            <p className="text-[11px] font-medium uppercase tracking-[0.32em] text-white/65 md:text-xs">
-              Следующий проект
-            </p>
-            <h2 className="mt-4 font-serif text-[2rem] font-semibold leading-[1.08] tracking-[-0.03em] text-white md:text-[3rem] lg:text-[3.4rem]">
+            <h2 className="font-serif text-[2rem] font-semibold leading-[1.08] tracking-[-0.03em] text-white md:text-[3rem] lg:text-[3.4rem]">
               {project.title}
             </h2>
           </div>
@@ -115,11 +112,7 @@ export async function ProjectDetailPage({ project, gallery, nextProject }: Proje
           </div>
 
           <div className="flex flex-col px-6 py-8 md:px-10 md:py-10 lg:flex-1 lg:justify-center lg:px-12 lg:py-20">
-            <p className="text-[11px] font-medium uppercase tracking-[0.3em] text-white/45 md:text-xs">
-              Clavis · {project.year}
-            </p>
-
-            <h1 className="mt-5 max-w-[12ch] font-serif text-[2.6rem] font-semibold leading-[1.05] tracking-[-0.03em] text-white md:mt-6 md:text-[3.4rem] lg:text-[3.9rem]">
+            <h1 className="max-w-[12ch] font-serif text-[2.6rem] font-semibold leading-[1.05] tracking-[-0.03em] text-white md:text-[3.4rem] lg:text-[3.9rem]">
               {project.title}
             </h1>
 

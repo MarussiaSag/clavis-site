@@ -87,10 +87,6 @@ export function AboutParallaxHero({ imageSrc }: AboutParallaxHeroProps) {
             visible ? "translate-y-0 opacity-100" : "translate-y-4 opacity-0"
           }`}
         >
-          <p className="text-[11px] font-medium uppercase tracking-[0.36em] text-[#8a7a6e] md:text-xs">
-            О студии
-          </p>
-
           <h1
             id="about-hero-heading"
             className="font-serif text-[2.35rem] font-normal leading-[1.12] tracking-[-0.03em] text-[#1a1512] md:text-[2.85rem] lg:text-[3.35rem] lg:leading-[1.1]"

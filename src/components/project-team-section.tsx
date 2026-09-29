@@ -28,9 +28,9 @@ export function ProjectTeamSection({ team: teamProp, instagramHref }: ProjectTea
 
   return (
     <div id="project-team" className="mt-6 md:mt-8 lg:mt-10">
-      <p className="text-[11px] font-medium uppercase tracking-[0.32em] text-[#a38d83] md:text-xs">
+      <h3 className="font-serif text-xl font-semibold tracking-[-0.02em] text-[#151210] md:text-[1.35rem]">
         Команда проекта
-      </p>
+      </h3>
       <ul className="mt-4 border-t border-[#d0b5a5]/70">
         {team.map((member) => (
           <li

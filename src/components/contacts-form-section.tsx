@@ -46,9 +46,9 @@ export async function ContactsFormSection({ consultationImageSrc }: ContactsForm
       <div className="mx-auto grid w-full max-w-[1240px] gap-12 px-6 py-12 md:grid-cols-[minmax(0,0.95fr)_minmax(0,1.05fr)] md:gap-16 md:px-10 md:py-16 lg:gap-20">
         <div className="space-y-10">
           <div>
-            <p className="mb-8 text-[11px] font-medium uppercase tracking-[0.32em] text-[#2a2420]/55 md:text-xs">
+            <h2 className="mb-8 font-serif text-xl font-semibold tracking-[-0.02em] text-[#151210] md:text-[1.35rem]">
               Мы в социальных сетях
-            </p>
+            </h2>
             <ul className="divide-y divide-[#d4cdc4] border-y border-[#d4cdc4]">
               {socialLinks.map((social) => (
                 <li key={social.label}>
@@ -76,9 +76,9 @@ export async function ContactsFormSection({ consultationImageSrc }: ContactsForm
         </div>
 
         <div id="contact-form" className="scroll-mt-24">
-          <p className="mb-8 text-[11px] font-medium uppercase tracking-[0.32em] text-[#2a2420]/55 md:text-xs">
+          <h2 className="mb-8 font-serif text-xl font-semibold tracking-[-0.02em] text-[#151210] md:text-[1.35rem]">
             Напишите нам
-          </p>
+          </h2>
           <form action={createInquiry} className="space-y-6">
             <input name="name" placeholder="Имя" required className={fieldClassName} />
             <input name="email" type="email" placeholder="Email" required className={fieldClassName} />

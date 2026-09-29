@@ -4,9 +4,9 @@ export function AboutPhilosophySection() {
       <div className="mx-auto w-full max-w-[1120px] px-6 py-10 md:px-10 md:py-14 lg:py-18">
         <div className="grid items-start gap-8 md:grid-cols-2 md:gap-10 lg:gap-14">
           <div className="space-y-6 md:pr-4">
-            <p className="text-[11px] font-medium uppercase tracking-[0.35em] text-[#b07d55] md:text-xs">
+            <h2 className="font-serif text-[1.85rem] font-normal leading-[1.15] tracking-[-0.03em] text-[#151210] md:text-[2.15rem]">
               Философия
-            </p>
+            </h2>
             <div className="space-y-5 text-[15px] leading-[1.62] text-[#1f1a17] md:text-base">
               <p>
                 CLAVIS строит работу на том, что сильный интерьер возникает из напряжения между рамкой

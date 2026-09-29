@@ -27,13 +27,9 @@ export function ProjectVirtualTour({ tourUrl, image, id }: ProjectVirtualTourPro
 
       <div className="relative z-10 flex min-h-[70vh] items-center justify-center px-6 py-20 md:min-h-[78vh] md:px-10 md:py-24">
         <div className="mx-auto max-w-2xl text-center text-white">
-          <p className="text-[11px] font-medium uppercase tracking-[0.32em] text-white/70 md:text-xs">
-            Исследуйте пространство
-          </p>
-
           <h2
             id="project-tour-heading"
-            className="mt-5 font-serif text-[2.4rem] font-normal leading-[1.12] tracking-[-0.02em] md:mt-6 md:text-[3.25rem] lg:text-[3.6rem]"
+            className="font-serif text-[2.4rem] font-normal leading-[1.12] tracking-[-0.02em] md:text-[3.25rem] lg:text-[3.6rem]"
           >
             Виртуальный тур
           </h2>

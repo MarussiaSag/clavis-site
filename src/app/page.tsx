@@ -4,7 +4,6 @@ import { HomePageSections } from "@/components/home-page-sections";
 import { HomeHeroSlider } from "@/components/home-hero-slider";
 import { heroSlidesFromProjects } from "@/lib/hero-slides";
 import { buildHeroSlidesFromObjectFolders } from "@/lib/object-photos";
-import { getHomeFeaturedProject } from "@/lib/home-featured-project";
 import { getSiteData } from "@/lib/site-data";
 import { getSiteImage } from "@/lib/site-images";
 
@@ -49,7 +48,6 @@ export default async function Home() {
 
   const quoteProjectImage = credoImage.trim() || FALLBACK_IMG;
   const archiveProjects = projects;
-  const featuredProject = getHomeFeaturedProject(projects);
 
   return (
     <div className="min-h-screen">
@@ -58,7 +56,6 @@ export default async function Home() {
         <HomePageSections
           quoteProjectImage={quoteProjectImage}
           archiveProjects={archiveProjects}
-          featuredProject={featuredProject}
           founderImage={founderImage}
           ctaImage={ctaImage}
         />

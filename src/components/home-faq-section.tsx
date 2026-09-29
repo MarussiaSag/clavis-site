@@ -65,10 +65,7 @@ export function HomeFaqSection() {
         <RevealOnScroll once>
           <div className="grid gap-12 lg:grid-cols-[minmax(0,17rem)_minmax(0,1fr)] lg:items-start lg:gap-16 xl:gap-24">
             <div className="ui-header shrink-0 lg:max-w-[17rem] lg:sticky lg:top-28">
-              <p id="home-faq-heading" className="ui-eyebrow text-[#8a8a8a]">
-                Частые вопросы
-              </p>
-              <h2 className="ui-title text-[#141414]">
+              <h2 id="home-faq-heading" className="ui-title text-[#141414]">
                 Ответы на <em className="italic">популярные</em> вопросы
               </h2>
             </div>

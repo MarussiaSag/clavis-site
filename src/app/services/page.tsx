@@ -109,10 +109,7 @@ export default async function ServicesPage() {
             <div className="grid gap-12 md:grid-cols-2 md:items-stretch md:gap-x-16 lg:gap-x-24">
               <RevealOnScroll>
                 <div className="flex h-full flex-col">
-                  <p className="text-[11px] font-medium uppercase tracking-[0.36em] text-[#8a8a8a] md:text-xs">
-                    Услуги
-                  </p>
-                  <h1 className="mt-8 font-serif text-[2.75rem] font-semibold leading-[1.08] tracking-[-0.03em] text-[#151210] md:mt-10 md:text-[3.5rem] lg:text-[4.25rem] lg:leading-[1.05]">
+                  <h1 className="font-serif text-[2.75rem] font-semibold leading-[1.08] tracking-[-0.03em] text-[#151210] md:text-[3.5rem] lg:text-[4.25rem] lg:leading-[1.05]">
                     Полный цикл —{" "}
                     <span className="block">от идеи до</span>
                     <em className="block font-normal italic">финального</em>

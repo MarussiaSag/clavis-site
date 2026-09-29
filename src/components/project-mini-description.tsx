@@ -31,9 +31,9 @@ export function ProjectMiniDescription({
         <div className="grid gap-6 md:grid-cols-2 md:items-stretch md:gap-8 lg:gap-10">
           <div className="flex flex-col">
             <div className="flex flex-col gap-4">
-              <p className="text-[11px] font-medium uppercase tracking-[0.32em] text-[#8a8a8a] md:text-xs">
+              <h2 className="font-serif text-2xl font-semibold tracking-[-0.02em] text-[#151210] md:text-[1.75rem]">
                 О проекте
-              </p>
+              </h2>
               <p className="text-[15px] leading-[1.75] text-[#151210] md:text-base md:leading-[1.8]">
                 {summary}
               </p>

@@ -8,12 +8,12 @@ export async function AboutLeadershipSection() {
     <section className="bg-[#f5f3f0]" aria-labelledby="studio-people-heading">
       <div className="mx-auto w-full max-w-[1240px] px-6 py-10 md:px-10 md:py-14 lg:py-18">
         <header className="mb-10 max-w-2xl md:mb-12 lg:mb-14">
-          <p
+          <h2
             id="studio-people-heading"
-            className="text-[11px] font-semibold uppercase tracking-[0.36em] text-[#b07d55] md:text-xs"
+            className="font-serif text-[1.85rem] font-normal leading-[1.15] tracking-[-0.03em] text-[#151210] md:text-[2.15rem] lg:text-[2.4rem]"
           >
             Люди студии
-          </p>
+          </h2>
         </header>
 
         <div className="grid items-start gap-10 lg:grid-cols-2 lg:gap-16">
