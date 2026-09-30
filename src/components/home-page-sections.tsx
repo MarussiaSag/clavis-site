@@ -43,7 +43,7 @@ export function HomePageSections({
             </div>
           </div>
           <div className={`${sectionContentGap} ${fullWidthSectionX} pb-12 md:pb-16`}>
-            <ArchiveSwiper projects={archiveProjects} centered />
+            <ArchiveSwiper projects={archiveProjects} />
           </div>
         </section>
       </RevealOnScroll>
