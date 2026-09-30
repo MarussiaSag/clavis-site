@@ -25,3 +25,7 @@ export const homeCardGridGap = "gap-6 lg:gap-8";
  */
 export const homeCardWidthClass =
   "w-full sm:w-[calc((100%-1.5rem)/2)] lg:w-[calc((100%-6rem)/4)]";
+
+/** Ширина карточки в центрированном слайдере — целиком влезает в трек. */
+export const homeCenteredCardWidthClass =
+  "w-[min(100%,22.5rem)] sm:w-[calc((100%-1.5rem)/2)] lg:w-[calc((100%-6rem)/4)]";

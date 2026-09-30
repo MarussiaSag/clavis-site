@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { formatProjectMeta } from "@/lib/project-meta";
-import { homeCardGridGap, homeCardWidthClass } from "@/lib/home-layout";
+import { homeCardGridGap, homeCardWidthClass, homeCenteredCardWidthClass } from "@/lib/home-layout";
 
 type ArchiveProject = {
   id: number;
@@ -108,7 +108,13 @@ export function ArchiveSwiper({ projects, centered = false }: ArchiveSwiperProps
         (sum, card, index) => sum + card.offsetWidth + (index < cards.length - 1 ? gap : 0),
         0,
       );
-      setSidePad(Math.max(24, (track.clientWidth - cardsWidth) / 2));
+      const firstWidth = cards[0].offsetWidth;
+      if (cardsWidth <= track.clientWidth) {
+        setSidePad(Math.max(0, (track.clientWidth - cardsWidth) / 2));
+      } else {
+        // Центрируем одну карточку целиком — без обрезки по краям.
+        setSidePad(Math.max(0, (track.clientWidth - firstWidth) / 2));
+      }
     };
 
     measure();
@@ -211,7 +217,7 @@ export function ArchiveSwiper({ projects, centered = false }: ArchiveSwiperProps
 
   if (projects.length === 0) return null;
 
-  const cardWidthClass = homeCardWidthClass;
+  const cardWidthClass = centered ? homeCenteredCardWidthClass : homeCardWidthClass;
 
   return (
     <div className="relative w-full">
@@ -225,7 +231,7 @@ export function ArchiveSwiper({ projects, centered = false }: ArchiveSwiperProps
         onPointerLeave={finishPointer}
         onPointerCancel={finishPointer}
         className={[
-          "flex items-stretch overflow-x-auto pb-2 pt-1 [scrollbar-width:none] snap-x snap-mandatory [&::-webkit-scrollbar]:hidden md:touch-pan-x md:cursor-grab active:cursor-grabbing",
+          "flex items-start overflow-x-auto overflow-y-visible pb-3 pt-1 [scrollbar-width:none] snap-x snap-mandatory [&::-webkit-scrollbar]:hidden md:touch-pan-x md:cursor-grab active:cursor-grabbing",
           homeCardGridGap,
           centered ? "snap-center" : "snap-start",
         ].join(" ")}

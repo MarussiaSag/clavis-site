@@ -26,6 +26,30 @@ export function HomePageSections({
   return (
     <>
       <HomeFounderMagazineSection imageSrc={founderImage} />
+
+      <RevealOnScroll>
+        <section className="border-b border-[#5c2a2e] bg-[#3d0d0a]">
+          <div className={fullWidthSectionHeader}>
+            <div className="ui-header">
+              <div className="flex flex-wrap items-baseline justify-between gap-x-6 gap-y-2">
+                <h2 className="ui-title text-[#f1ece7]">Портфолио</h2>
+                <Link
+                  href="/portfolio#portfolio-archive"
+                  className="ui-link text-white/70 hover:text-white"
+                >
+                  Посмотреть все
+                </Link>
+              </div>
+            </div>
+          </div>
+          <div className={`${sectionContentGap} ${fullWidthSectionX} pb-12 md:pb-16`}>
+            <ArchiveSwiper projects={archiveProjects} centered />
+          </div>
+        </section>
+      </RevealOnScroll>
+
+      <HomeServicesSection />
+
       <section className="grid border-b border-[#a38d83] md:grid-cols-2">
         <div className="relative order-2 min-h-[460px] overflow-hidden md:order-1 md:min-h-[700px]">
           <div
@@ -68,29 +92,7 @@ export function HomePageSections({
         </RevealOnScroll>
       </section>
 
-      <HomeServicesSection />
       <HomeProcessSection />
-
-      <RevealOnScroll>
-        <section className="border-b border-[#5c2a2e] bg-[#3d0d0a]">
-          <div className={fullWidthSectionHeader}>
-            <div className="ui-header">
-              <div className="flex flex-wrap items-baseline justify-between gap-x-6 gap-y-2">
-                <h2 className="ui-title text-[#f1ece7]">Портфолио</h2>
-                <Link
-                  href="/portfolio#portfolio-archive"
-                  className="ui-link text-white/70 hover:text-white"
-                >
-                  Посмотреть все
-                </Link>
-              </div>
-            </div>
-          </div>
-          <div className={`${sectionContentGap} ${fullWidthSectionX} pb-12 md:pb-16`}>
-            <ArchiveSwiper projects={archiveProjects} centered />
-          </div>
-        </section>
-      </RevealOnScroll>
 
       <HomeTrustPressSection />
 

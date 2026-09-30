@@ -69,7 +69,7 @@ export function HomeFounderMagazineSection({ imageSrc }: HomeFounderMagazineSect
             alt="Татьяна Кожевникова — основатель студии CLAVIS"
             fill
             sizes="(max-width: 768px) 100vw, 50vw"
-            className="object-cover object-center"
+            className="object-cover object-top"
           />
         </figure>
       </RevealOnScroll>
