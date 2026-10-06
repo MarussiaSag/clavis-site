@@ -358,9 +358,14 @@ export function AdminProjectForm(props: AdminProjectFormProps) {
             <input
               name="heroOrder"
               type="number"
+              min={0}
+              step={1}
               defaultValue={project?.heroOrder ?? 0}
               className={`${fieldClass} w-28`}
             />
+            <span className="text-[11px] leading-snug text-[#6a6a6a]">
+              1 — первый слайд, 2 — второй… 0 — без приоритета (в конец).
+            </span>
           </label>
         </div>
       </section>

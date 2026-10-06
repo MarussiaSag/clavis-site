@@ -7,6 +7,8 @@ import { buildHeroSlidesFromObjectFolders } from "@/lib/object-photos";
 import { getSiteData } from "@/lib/site-data";
 import { getSiteImage } from "@/lib/site-images";
 
+export const dynamic = "force-dynamic";
+
 const FALLBACK_IMG = "/media/fallback-a.jpg";
 const SHOWCASE_HERO = "/media/showcase-hero.jpg";
 const SHOWCASE_HOVER = "/media/showcase-hover.jpg";

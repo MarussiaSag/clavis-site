@@ -13,7 +13,10 @@ export function heroSlidesFromProjects(projects: Project[]): HeroSlidePayload[] 
   return [...projects]
     .filter((p) => p.showOnHero && Boolean(p.coverImage?.trim()))
     .sort((a, b) => {
-      if (a.heroOrder !== b.heroOrder) return a.heroOrder - b.heroOrder;
+      // 0 = «не задан» → в конец; 1, 2, 3… — явный порядок с начала слайдера.
+      const orderA = a.heroOrder > 0 ? a.heroOrder : Number.MAX_SAFE_INTEGER;
+      const orderB = b.heroOrder > 0 ? b.heroOrder : Number.MAX_SAFE_INTEGER;
+      if (orderA !== orderB) return orderA - orderB;
       return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
     })
     .map((p) => ({
