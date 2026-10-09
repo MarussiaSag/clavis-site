@@ -2,7 +2,6 @@ import Image from "next/image";
 import Link from "next/link";
 import type { Project } from "@prisma/client";
 import { ArchiveSwiper } from "@/components/archive-swiper";
-import { HomeFaqSection } from "@/components/home-faq-section";
 import { HomeFounderMagazineSection } from "@/components/home-founder-magazine-section";
 import { HomeProcessSection } from "@/components/home-process-section";
 import { HomeServicesSection } from "@/components/home-services-section";
@@ -95,8 +94,6 @@ export function HomePageSections({
       <HomeProcessSection />
 
       <HomeTrustPressSection />
-
-      <HomeFaqSection />
 
       <section
         aria-labelledby="home-cta-heading"
