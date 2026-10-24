@@ -76,7 +76,10 @@ jobs:
           scp ${SCP_OPTS} release.tar.gz "${TARGET}:${DEPLOY}/release.tar.gz"
 
           echo "Extracting on server..."
-          ssh ${SSH_OPTS} "${TARGET}" "cd '${DEPLOY}' && rm -rf .next node_modules server.js && tar -xzf release.tar.gz && rm -f release.tar.gz"
+          # PM2 (ecosystem.config.cjs) и nginx отдают статику из /var/www/clavis-site.
+          # DEPLOY_PATH может быть другим каталогом (/var/www/clavis) — принудительно
+          # синхронизируем seed media в runtime, иначе остаются старые тяжёлые jpg.
+          ssh ${SSH_OPTS} "${TARGET}" "cd '${DEPLOY}' && rm -rf .next node_modules server.js && tar -xzf release.tar.gz && rm -f release.tar.gz && mkdir -p public/media /var/www/clavis-site/public/media && rsync -a public/media/ /var/www/clavis-site/public/media/ && ls -lh /var/www/clavis-site/public/media/services-gallery-1.jpg || true"
 
           echo "Uploading restart script..."
           ssh ${SSH_OPTS} "${TARGET}" "mkdir -p '${DEPLOY}/scripts'"

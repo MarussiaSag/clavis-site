@@ -114,10 +114,17 @@ if [ -d "$REPO_DIR/node_modules/sharp" ]; then
   fi
 fi
 
-# Seed/static assets from repo — не затираем уже загруженные файлы.
+# Seed media из репо — всегда обновляем (сжатые jpg/png в public/media).
+# Иначе --ignore-existing навсегда оставлял бы старые 20MB-файлы на runtime.
+mkdir -p "$RUNTIME_DIR/public/media"
+rsync -a public/media/ "$RUNTIME_DIR/public/media/"
+
+# Остальной public — не затираем уже загруженные проекты/галереи.
 rsync -a --ignore-existing public/ "$RUNTIME_DIR/public/" \
+  --exclude 'media/' \
   --exclude 'chaveta/' \
-  --exclude 'zil/'
+  --exclude 'zil/' \
+  --exclude 'projects/'
 
 
 mkdir -p "$RUNTIME_DIR/data"
