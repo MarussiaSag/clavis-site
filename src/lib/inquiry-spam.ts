@@ -15,7 +15,7 @@ const SPAM_PATTERNS: RegExp[] = [
   /deposit\s+available/i,
   /confirm\s+your\s+transfer/i,
   /<\s*a\s+href/i,
-  /https?:\/\/[^\s]{8,}.*https?:\/\//is,
+  /https?:\/\/\S{8,}[\s\S]*https?:\/\//i,
   /go-na\.php/i,
   /fextemp\.com/i,
   /domains@search-/i,
