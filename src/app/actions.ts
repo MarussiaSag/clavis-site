@@ -48,6 +48,23 @@ export async function createInquiry(formData: FormData) {
   revalidatePath("/admin/inquiries");
 }
 
+export async function deleteInquiryAction(formData: FormData) {
+  await requireAdmin();
+  const id = Number(formData.get("id") ?? 0);
+  if (!Number.isFinite(id) || id <= 0) return;
+
+  await prisma.inquiry.delete({ where: { id } }).catch(() => null);
+  revalidatePath("/admin");
+  revalidatePath("/admin/inquiries");
+}
+
+export async function clearAllInquiriesAction() {
+  await requireAdmin();
+  await prisma.inquiry.deleteMany();
+  revalidatePath("/admin");
+  revalidatePath("/admin/inquiries");
+}
+
 export type CreateProjectState = { error?: string } | null;
 export type UpdateProjectState = { error?: string } | null;
 
