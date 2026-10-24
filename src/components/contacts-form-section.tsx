@@ -79,7 +79,18 @@ export async function ContactsFormSection({ consultationImageSrc }: ContactsForm
           <h2 className="mb-8 font-serif text-xl font-semibold tracking-[-0.02em] text-[#151210] md:text-[1.35rem]">
             Напишите нам
           </h2>
-          <form action={createInquiry} className="space-y-6">
+          <form action={createInquiry} className="relative space-y-6">
+            {/* Honeypot: боты заполняют, люди не видят. */}
+            <div
+              aria-hidden
+              className="pointer-events-none absolute -left-[10000px] h-px w-px overflow-hidden opacity-0"
+            >
+              <label>
+                Company
+                <input type="text" name="company" tabIndex={-1} autoComplete="off" defaultValue="" />
+              </label>
+            </div>
+            <input type="hidden" name="form_ts" value={String(Date.now())} />
             <input name="name" placeholder="Имя" required className={fieldClassName} />
             <input name="email" type="email" placeholder="Email" required className={fieldClassName} />
             <ContactsPhoneInput className={fieldClassName} />
@@ -88,6 +99,7 @@ export async function ContactsFormSection({ consultationImageSrc }: ContactsForm
               placeholder="Сообщение"
               required
               rows={4}
+              maxLength={4000}
               className={`${fieldClassName} resize-none`}
             />
             <div className="space-y-4 pt-2">

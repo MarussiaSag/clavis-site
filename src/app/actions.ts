@@ -11,14 +11,31 @@ import {
 } from "@/lib/project-files";
 import { parseProjectFormData, type ParsedProjectForm } from "@/lib/parse-project-form";
 import { parseRooms, serializeRooms } from "@/lib/project-content";
+import { isSpamInquiry } from "@/lib/inquiry-spam";
 
 export async function createInquiry(formData: FormData) {
   const name = String(formData.get("name") ?? "").trim();
   const email = String(formData.get("email") ?? "").trim();
   const phone = String(formData.get("phone") ?? "").trim();
   const message = String(formData.get("message") ?? "").trim();
+  const honeypot = String(formData.get("company") ?? "");
+  const formTs = String(formData.get("form_ts") ?? "");
 
   if (!name || !email || !message) {
+    return;
+  }
+
+  // Тихо отбрасываем спам — боту кажется, что форма принята.
+  if (
+    isSpamInquiry({
+      name,
+      email,
+      phone,
+      message,
+      honeypot,
+      formTs,
+    })
+  ) {
     return;
   }
 
