@@ -225,7 +225,8 @@ export default async function ServicesPage() {
                       fill
                       sizes="(max-width: 640px) 100vw, 33vw"
                       className="premium-photo object-cover"
-                      quality={90}
+                      quality={75}
+                      loading="lazy"
                     />
                   </li>
                 ))}
@@ -242,7 +243,8 @@ export default async function ServicesPage() {
               fill
               sizes="100vw"
               className="premium-photo object-cover object-center"
-              quality={88}
+              quality={75}
+              loading="lazy"
             />
             <div className="hero-text-overlay pointer-events-none absolute inset-0" />
             <div className="premium-overlay pointer-events-none absolute inset-0" />
