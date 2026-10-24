@@ -105,7 +105,7 @@ export default async function ServicesPage() {
       <SiteHeader />
       <main className="w-full">
         <section className="bg-[#f5f2ea]">
-          <div className="mx-auto w-full max-w-[1240px] px-6 pb-16 pt-6 md:px-10 md:pb-24 md:pt-8 lg:pb-28 lg:pt-10">
+          <div className="mx-auto w-full max-w-[1240px] px-6 pb-0 pt-6 md:px-10 md:pt-8 lg:pt-10">
             <div className="grid gap-12 md:grid-cols-2 md:items-stretch md:gap-x-16 lg:gap-x-24">
               <RevealOnScroll>
                 <div className="flex h-full flex-col">
