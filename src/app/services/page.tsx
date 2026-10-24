@@ -141,34 +141,6 @@ export default async function ServicesPage() {
           </div>
         </section>
 
-        <section aria-label="Интерьеры студии CLAVIS" className="bg-[#f5f2ea]">
-          <div className="mx-auto w-full max-w-[1440px] px-4 pb-12 md:px-6 md:pb-16 lg:px-8 lg:pb-20">
-            <RevealOnScroll>
-              <ul className="flex list-none flex-col gap-3 p-0 sm:flex-row sm:items-center sm:gap-3 md:gap-4">
-                {galleryPhotos.map((photo) => (
-                  <li
-                    key={photo.src}
-                    className={`relative w-full overflow-hidden bg-[#e8e2dc] sm:flex-1 ${
-                      photo.short
-                        ? "aspect-[4/5] sm:aspect-[3/4] md:aspect-[4/5]"
-                        : "aspect-[4/5] sm:aspect-[3/5] md:aspect-[2/3] lg:aspect-[3/5]"
-                    }`}
-                  >
-                    <Image
-                      src={photo.src}
-                      alt={photo.alt}
-                      fill
-                      sizes="(max-width: 640px) 100vw, 33vw"
-                      className="premium-photo object-cover"
-                      quality={90}
-                    />
-                  </li>
-                ))}
-              </ul>
-            </RevealOnScroll>
-          </div>
-        </section>
-
         <section className="bg-[#f5f2ea]">
           <div className="mx-auto w-full max-w-[1440px] px-6 py-12 md:px-6 md:py-16 lg:px-8 lg:py-20">
             <RevealOnScroll>
@@ -230,6 +202,34 @@ export default async function ServicesPage() {
                 Услуги можно комбинировать в любом сочетании — от отдельного блока до полного
                 сопровождения «под ключ».
               </p>
+            </RevealOnScroll>
+          </div>
+        </section>
+
+        <section aria-label="Интерьеры студии CLAVIS" className="bg-[#f5f2ea]">
+          <div className="mx-auto w-full max-w-[1440px] px-4 pb-12 pt-0 md:px-6 md:pb-16 lg:px-8 lg:pb-20">
+            <RevealOnScroll>
+              <ul className="flex list-none flex-col gap-3 p-0 sm:flex-row sm:items-center sm:gap-3 md:gap-4">
+                {galleryPhotos.map((photo) => (
+                  <li
+                    key={photo.src}
+                    className={`relative w-full overflow-hidden bg-[#e8e2dc] sm:flex-1 ${
+                      photo.short
+                        ? "aspect-[4/5] sm:aspect-[3/4] md:aspect-[4/5]"
+                        : "aspect-[4/5] sm:aspect-[3/5] md:aspect-[2/3] lg:aspect-[3/5]"
+                    }`}
+                  >
+                    <Image
+                      src={photo.src}
+                      alt={photo.alt}
+                      fill
+                      sizes="(max-width: 640px) 100vw, 33vw"
+                      className="premium-photo object-cover"
+                      quality={90}
+                    />
+                  </li>
+                ))}
+              </ul>
             </RevealOnScroll>
           </div>
         </section>
