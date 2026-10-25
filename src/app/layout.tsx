@@ -2,7 +2,8 @@ import type { Viewport } from "next";
 import { Manrope, Playfair_Display } from "next/font/google";
 import { JsonLd, organizationJsonLd, websiteJsonLd } from "@/components/json-ld";
 import { SiteFooter } from "@/components/site-footer";
-import { getSiteContact } from "@/lib/site-contact";
+import { TelegramFloatButton } from "@/components/telegram-float-button";
+import { getSiteContact, getTelegramHref } from "@/lib/site-contact";
 import { siteMetadata } from "@/lib/site-metadata";
 import "./globals.css";
 
@@ -31,6 +32,7 @@ export default async function RootLayout({
   children: React.ReactNode;
 }>) {
   const contact = await getSiteContact();
+  const telegramHref = getTelegramHref(contact);
 
   return (
     <html lang="ru" className={`${manrope.variable} ${playfair.variable} h-full antialiased`}>
@@ -38,6 +40,7 @@ export default async function RootLayout({
         <JsonLd data={[organizationJsonLd(contact), websiteJsonLd()]} />
         {children}
         <SiteFooter />
+        <TelegramFloatButton href={telegramHref} />
       </body>
     </html>
   );

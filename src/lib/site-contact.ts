@@ -56,6 +56,11 @@ export function getInstagramHref(contact: SiteContact) {
   return link?.href ?? "";
 }
 
+export function getTelegramHref(contact: SiteContact) {
+  const link = contact.socialLinks.find((item) => item.label.toLowerCase() === "telegram");
+  return link?.href?.trim() ?? "";
+}
+
 export function socialLinksFromContact(contact: SiteContact) {
   return contact.socialLinks.filter((item) => item.label.trim() && item.href.trim());
 }
